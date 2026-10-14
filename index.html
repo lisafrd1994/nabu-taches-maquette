@@ -605,7 +605,7 @@ $('#contractCover').addEventListener('click',function(e){if(e.target===$('#contr
 $('#linkContractForm').onsubmit=function(e){e.preventDefault();if(!itemToLink)return;var raw=$('#linkContractUrl').value.trim(),url=safeUrl(raw);if(raw&&!url){toast('Le lien doit commencer par https:// ou http://');return}
 itemToLink.contractId=$('#linkContractSelect').value||'';itemToLink.contractUrl=url;
 if(itemToLink.origin==='Calendly'){itemToLink.contractManuallyLinked=!!(itemToLink.contractId||url);itemToLink.matchStatus=itemToLink.contractManuallyLinked?'manual':matchContractByEmail(itemToLink.bookerEmail).status}
-if(getContract(itemToLink.contractId)){var c=getContract(itemToLink.contractId);itemToLink.person=c.apprentice;itemToLink.company=c.company}
+if(getContract(itemToLink.contractId)){var c=getContract(itemToLink.contractId);itemToLink.person=c.apprentice;itemToLink.maName=c.maName;itemToLink.company=c.company;if(itemToLink.origin!=="Calendly"){itemToLink.contactPhone=c.maPhone||"";itemToLink.contactEmail=c.maEmail||""}}
 persist();renderAll();closeLinkContract();toast('Rattachement du contrat enregistré');
 };
 $('#closeLinkCover').onclick=$('#cancelLinkCover').onclick=closeLinkContract;
