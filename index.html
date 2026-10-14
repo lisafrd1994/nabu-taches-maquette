@@ -115,6 +115,22 @@ body.task-is-dragging .task-drop-help{display:block}
 .enki-badge{display:inline-flex;align-items:center;border-radius:4px;padding:2px 5px;background:#f6e9fb;color:#783f8d;font-size:10px;font-weight:720}
 .section-title.enki-section{color:#814e97}
 .section-title.enki-section .bubble{background:#f6e9fb;color:#814e97}
+
+/* Création volontaire : sélectionner un créneau au glisser ou utiliser le + quotidien */
+.allday-cell{position:relative;padding-right:29px}
+.all-day-add{position:absolute;right:5px;top:6px;z-index:3;width:23px;height:23px;display:flex;align-items:center;justify-content:center;border:1px solid #d8dfe6;border-radius:5px;color:#8993a0;background:#fff;font-size:17px;line-height:1;opacity:.78;cursor:pointer}
+.allday-cell:hover .all-day-add,.all-day-add:focus-visible{opacity:1;border-color:#da9bae;color:#b52249;background:#fff4f7}
+.day-column{touch-action:pan-y}
+.calendar-selection{position:absolute;left:2%;width:96%;z-index:8;pointer-events:none;border:1.5px solid #367fd5;border-left:4px solid #367fd5;background:rgba(54,127,213,.16);border-radius:5px;padding:5px 7px;color:#244d7d;font-size:11px;font-weight:700;line-height:1.3;overflow:hidden;box-shadow:0 1px 5px #244f8630}
+.calendar-selection small{display:block;font-size:10px;font-weight:500;margin-top:2px}
+.slot-chooser{position:fixed;display:none;z-index:110;background:#fff;border:1px solid #d7e1ec;border-radius:10px;box-shadow:0 10px 30px #25374d32;max-width:calc(100vw - 24px);width:235px;padding:13px}
+.slot-chooser.open{display:block}
+.slot-chooser strong{font-size:12px}
+.slot-chooser p{font-size:11px;color:#687485;margin:5px 0 12px}
+.slot-chooser .slot-options{display:flex;gap:7px}
+.slot-chooser .slot-options button{flex:1;text-align:center;font-size:11px}
+.slot-chooser-close{border:0;background:none;color:#8792a0;font-size:17px;position:absolute;right:8px;top:5px;padding:2px 5px}
+.calendar-creation-hint{color:#687b8d;font-size:10px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -166,7 +182,7 @@ body.task-is-dragging .task-drop-help{display:block}
 </div>
 <div class="legend">
 <span><i class="swatch" style="background:var(--blue)"></i>Tripartite</span><span><i class="swatch" style="background:var(--purple)"></i>Réunion interne</span><span><i class="swatch" style="background:var(--teal)"></i>Rendez-vous</span><span><i class="swatch" style="background:var(--orange)"></i>Tâche à faire</span><span><i class="swatch" style="background:var(--done)"></i>Tâche terminée</span>
-<span style="margin-left:auto">07h00–19h30 · précision 15 min</span>
+<span class="calendar-creation-hint" style="margin-left:auto">↕ Glissez dans le calendrier pour créer</span><span>07h00–19h30 · précision 15 min</span>
 </div>
 <div id="dayHeads" class="dayheads"></div><div class="task-drop-help" id="taskDropHelp">Déposez une tâche sur une date (sans heure) ou sur un créneau (heure précise).</div>
 <div id="allDay" class="allday"></div>
@@ -174,6 +190,11 @@ body.task-is-dragging .task-drop-help{display:block}
 </section>
 </div>
 </main>
+</div>
+<div class="slot-chooser" id="slotChooser" role="dialog" aria-label="Créer dans le créneau sélectionné">
+<button type="button" class="slot-chooser-close" id="closeSlotChooser" aria-label="Fermer">×</button>
+<strong>Créer sur ce créneau</strong><p id="slotChooserTime"></p>
+<div class="slot-options"><button class="btn" type="button" id="slotNewTask">☑ Tâche</button><button class="btn primary" type="button" id="slotNewEvent">▦ Événement</button></div>
 </div>
 <div class="popover" id="popover" role="dialog" aria-label="Détails"><button class="pop-close" id="closePopover" aria-label="Fermer">×</button><div id="popoverInner"></div></div>
 <div class="modal-cover" id="modalCover"><form class="modal" id="editForm">
@@ -196,7 +217,8 @@ body.task-is-dragging .task-drop-help{display:block}
 var HOUR_PX=72, FIRST=7*60, LAST=19*60+30, MAX_PX=(LAST-FIRST)*HOUR_PX/60;
 var $=function(s){return document.querySelector(s)};
 var now=new Date(), today=dayKey(now), shownMonday=monday(now);
-var filter="today", query="", editing=null, modalKind="task", modalDate=today, modalMinute=null, popupItem=null, modalPrefillContractId="", itemToLink=null;
+var filter="today", query="", editing=null, modalKind="task", modalDate=today, modalMinute=null, modalPrefillDuration=30, popupItem=null, modalPrefillContractId="", itemToLink=null;
+var slotDraft=null;
 function pad(x){return String(x).padStart(2,"0")}
 function dayKey(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
 function parseDay(k){return new Date(k+"T12:00:00")}
@@ -298,7 +320,7 @@ function renderCalendar(){var preserved=$('#calendarScroll').scrollTop;
 $('#weekTitle').textContent="Du "+fmtDate(shownMonday)+" au "+fmtDate(plusDays(shownMonday,4))+" "+parseDay(shownMonday).getFullYear();
 var days=Array.from({length:5},function(_,i){return plusDays(shownMonday,i)});
 $('#dayHeads').innerHTML='<div class="gutter"></div>'+days.map(function(d){var x=parseDay(d);return '<div class="dayhead '+(d===today?'today':'')+'" data-date="'+d+'">'+new Intl.DateTimeFormat("fr-FR",{weekday:"short"}).format(x).replace(".","")+'<span class="date">'+x.getDate()+'</span></div>'}).join('');
-$('#allDay').innerHTML='<div class="gutter all-label">Tâches<br>du jour</div>'+days.map(function(d){var list=items.filter(function(t){return t.kind==="task"&&!t.archived&&t.date===d&&t.minute===null});var max=2;return '<div class="allday-cell" data-date="'+d+'" title="Cliquer pour ajouter une tâche à la date">'+list.slice(0,max).map(function(t){return '<div class="day-task-chip '+(t.done?'done':'')+'" data-chip="'+esc(t.id)+'"><input type="checkbox" class="task-check" data-alldaycheck="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Terminer la tâche"><span>'+esc(t.title)+'</span></div>'}).join('')+(list.length>max?'<div class="day-task-chip" data-more="'+d+'">+'+(list.length-max)+' autre(s)</div>':'')+'</div>'}).join('');
+$('#allDay').innerHTML='<div class="gutter all-label">Tâches<br>du jour</div>'+days.map(function(d){var list=items.filter(function(t){return t.kind==="task"&&!t.archived&&t.date===d&&t.minute===null});var max=2;return '<div class="allday-cell" data-date="'+d+'" title="Déposer une tâche ou utiliser + pour en créer une"><button type="button" class="all-day-add" data-add-day="'+d+'" title="Créer une tâche le '+esc(fmtFull(d))+'" aria-label="Créer une tâche le '+esc(fmtFull(d))+'">＋</button>'+list.slice(0,max).map(function(t){return '<div class="day-task-chip '+(t.done?'done':'')+'" data-chip="'+esc(t.id)+'"><input type="checkbox" class="task-check" data-alldaycheck="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Terminer la tâche"><span>'+esc(t.title)+'</span></div>'}).join('')+(list.length>max?'<div class="day-task-chip" data-more="'+d+'">+'+(list.length-max)+' autre(s)</div>':'')+'</div>'}).join('');
 var labels='<div class="time-gutter">';
 for(var min=FIRST;min<=LAST;min+=30){labels+='<div class="time-label'+(min===LAST?' end':'')+'" style="'+(min===LAST?'':'top:'+((min-FIRST)*HOUR_PX/60)+'px')+'">'+time(min)+'</div>'}
 labels+='</div>';
@@ -317,13 +339,57 @@ html+='<div class="entry task-entry '+(t.done?'done':'')+'" data-id="'+esc(t.id)
 if(d===today){var n=new Date(),cur=n.getHours()*60+n.getMinutes();if(cur>=FIRST&&cur<=LAST)html+='<div class="now-line" style="top:'+((cur-FIRST)*HOUR_PX/60)+'px"></div>'}
 return html+'</div>'}).join('');
 $('#calendarScroll').scrollTop=preserved;
-$('#timeGrid').querySelectorAll('.day-column').forEach(function(col){col.addEventListener('click',function(e){if(e.target.closest('.entry'))return;if(dragMoved)return;var rect=col.getBoundingClientRect();var minute=snap(FIRST+(e.clientY-rect.top)*60/HOUR_PX);openModal("event",col.dataset.date,clamp(minute,FIRST,LAST-15))})});
-$('#allDay').querySelectorAll('.allday-cell').forEach(function(cell){cell.addEventListener('click',function(e){if(e.target.closest('[data-chip]'))return;openModal("task",cell.dataset.date,null)})});
+$('#timeGrid').querySelectorAll('.day-column').forEach(function(col){col.addEventListener('pointerdown',beginCalendarSelection)});
+$('#allDay').querySelectorAll('[data-add-day]').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();hideSlotChooser();openModal("task",btn.dataset.addDay,null)})});
 $('#allDay').querySelectorAll('[data-alldaycheck]').forEach(function(check){check.addEventListener('pointerdown',function(e){e.stopPropagation()});check.addEventListener('click',function(e){e.stopPropagation();var t=findItem(check.dataset.alldaycheck);if(t){t.done=check.checked;persist();renderAll();toast(t.done?'Tâche terminée':'Tâche réouverte')}})});
 $('#allDay').querySelectorAll('[data-chip]').forEach(function(chip){chip.addEventListener('pointerdown',function(e){var t=findItem(chip.dataset.chip);if(t&&!t.done&&!t.archived)startTaskDrag(e,t)});chip.addEventListener('click',function(e){e.stopPropagation();if(Date.now()<suppressTaskClickUntil)return;openPopover(findItem(chip.dataset.chip),e.clientX,e.clientY)})});
 $('#timeGrid').querySelectorAll('.entry').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation();var item=findItem(el.dataset.id);if(item&&item.kind==="task"&&!e.target.closest('[data-gridcheck]')&&Date.now()>=suppressTaskClickUntil)openPopover(item,e.clientX,e.clientY)});el.addEventListener('pointerdown',startDrag);el.querySelectorAll('[data-gridcheck]').forEach(function(check){check.addEventListener('pointerdown',function(e){e.stopPropagation()});check.addEventListener('click',function(e){e.stopPropagation();var t=findItem(check.dataset.gridcheck);t.done=check.checked;persist();renderAll();toast(t.done?'Tâche terminée':'Tâche réouverte')})})});
 }
 var dragMoved=false,suppressTaskClickUntil=0;
+function hideSlotChooser(){var el=$('#slotChooser');el.classList.remove('open');slotDraft=null}
+function showSlotChooser(selection,x,y){
+slotDraft=selection;
+$('#slotChooserTime').textContent=fmtFull(selection.date)+' · '+time(selection.minute)+' – '+time(selection.minute+selection.duration);
+var el=$('#slotChooser');el.classList.add('open');
+var rect=el.getBoundingClientRect();
+el.style.left=clamp(x+13,12,Math.max(12,window.innerWidth-rect.width-12))+'px';
+el.style.top=clamp(y+12,12,Math.max(12,window.innerHeight-rect.height-12))+'px';
+}
+function beginCalendarSelection(e){
+if(e.button!==0||e.pointerType==='touch'||e.target.closest('.entry,button,input,a')||$('#modalCover').classList.contains('open'))return;
+hideSlotChooser();
+var col=e.currentTarget,box=col.getBoundingClientRect(),sy=e.clientY,sx=e.clientX;
+var initial=clamp(snap(FIRST+(sy-box.top)*60/HOUR_PX),FIRST,LAST-15),active=false,overlay=null;
+function getRange(y){
+var end=clamp(snap(FIRST+(clamp(y,box.top,box.bottom)-box.top)*60/HOUR_PX),FIRST,LAST);
+var lo=Math.min(initial,end),hi=Math.max(initial,end);
+if(hi===lo){if(lo+15<=LAST)hi=lo+15;else lo=Math.max(FIRST,lo-15)}
+return {date:col.dataset.date,minute:lo,duration:hi-lo};
+}
+function paint(range){
+if(!overlay){overlay=document.createElement('div');overlay.className='calendar-selection';col.appendChild(overlay)}
+overlay.style.top=((range.minute-FIRST)*HOUR_PX/60)+'px';
+overlay.style.height=Math.max(18,range.duration*HOUR_PX/60)+'px';
+overlay.innerHTML=time(range.minute)+' – '+time(range.minute+range.duration)+'<small>Relâcher pour créer</small>';
+}
+function move(ev){
+if(!active&&(Math.abs(ev.clientY-sy)<8||Math.abs(ev.clientY-sy)<Math.abs(ev.clientX-sx)*.65))return;
+if(!active){active=true;hidePopover();col.classList.add('slot-selecting')}
+ev.preventDefault();paint(getRange(ev.clientY));
+}
+function finish(ev){
+document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',finish);document.removeEventListener('pointercancel',cancel);
+if(overlay)overlay.remove();col.classList.remove('slot-selecting');
+if(!active||ev.type==='pointercancel')return;
+suppressTaskClickUntil=Date.now()+450;
+showSlotChooser(getRange(ev.clientY),ev.clientX,ev.clientY);
+}
+function cancel(ev){finish(ev)}
+document.addEventListener('pointermove',move,{passive:false});
+document.addEventListener('pointerup',finish);
+document.addEventListener('pointercancel',cancel);
+}
+
 function taskDropAt(x,y){var el=document.elementFromPoint(x,y);if(!el)return null;var target=el.closest('.allday-cell,.dayhead,.day-column');if(!target||!target.dataset.date)return null;var inGrid=target.classList.contains('day-column');if(inGrid){var view=$('#calendarScroll').getBoundingClientRect();if(y<view.top||y>view.bottom)return null;var r=target.getBoundingClientRect(),minute=clamp(snap(FIRST+(y-r.top)*60/HOUR_PX),FIRST,LAST-15);return {el:target,date:target.dataset.date,minute:minute}}
 return {el:target,date:target.dataset.date,minute:null}}
 function startTaskDrag(e,item){
@@ -408,16 +474,16 @@ var p=$('#popover');p.classList.add('open');var w=350,h=p.getBoundingClientRect(
 p.style.left=clamp(x+12,12,window.innerWidth-w-12)+'px';p.style.top=clamp(y+10,12,window.innerHeight-h-12)+'px';
 $('#popoverInner').querySelectorAll('[data-popaction]').forEach(function(btn){btn.onclick=function(){var a=btn.dataset.popaction;hidePopover();if(a==="toggle"){t.done=!t.done;persist();renderAll();toast(t.done?"Tâche terminée":"Tâche réouverte")}else if(a==="edit")openModal(t.kind,t.date,t.minute,t);else if(a==="postpone"){openModal("task",t.date,t.minute,t)}else if(a==="archive"){t.archived=true;persist();renderAll();toast("Tâche archivée")}else if(a==="restore"){t.archived=false;persist();renderAll();toast("Tâche désarchivée")}else if(a==="opencontract"){openLinkedContract(t)}else if(a==="linkcontract"){openLinkContract(t)}}})}
 function hidePopover(){$('#popover').classList.remove('open');popupItem=null}
-function openModal(kind,date,minute,item,fromContractId){hidePopover();editing=item||null;modalKind=kind||"task";modalDate=date||today;modalMinute=minute===undefined?null:minute;modalPrefillContractId=fromContractId||"";renderModal();$('#modalCover').classList.add('open');setTimeout(function(){var title=$('#fTitle');if(title)title.focus()},25)}
+function openModal(kind,date,minute,item,fromContractId,prefillDuration){hideSlotChooser();hidePopover();editing=item||null;modalKind=kind||"task";modalDate=date||today;modalMinute=minute===undefined?null:minute;modalPrefillDuration=prefillDuration||30;modalPrefillContractId=fromContractId||"";renderModal();$('#modalCover').classList.add('open');setTimeout(function(){var title=$('#fTitle');if(title)title.focus()},25)}
 function renderModal(){var t=editing,kind=t?t.kind:modalKind;
 $('#modalTitle').textContent=(t?"Modifier ":"Nouvel")+(kind==="task"?"le tâche":" événement");
 if(!t)$('#modalTitle').textContent=kind==="task"?"Nouvelle tâche":"Nouvel événement";
-var date=(t?t.date:modalDate)||today,start=(t?t.minute:modalMinute),dur=t&&t.duration?t.duration:30;
+var date=(t?t.date:modalDate)||today,start=(t?t.minute:modalMinute),dur=t&&t.duration?t.duration:modalPrefillDuration;
 var html='<div class="toggle"><button type="button" data-kind="task" class="'+(kind==="task"?'selected':'')+'" '+(t?'disabled':'')+'>☑ Tâche</button><button type="button" data-kind="event" class="'+(kind==="event"?'selected':'')+'" '+(t?'disabled':'')+'>▦ Événement</button></div>';
 html+='<div class="field"><label for="fTitle">Intitulé *</label><input id="fTitle" name="title" required maxlength="160" placeholder="'+(kind==="task"?'Ex. Rappeler le maître d’apprentissage':'Ex. Réunion de suivi')+'" value="'+esc(t?t.title:'')+'"></div>';
 html+='<div class="twocol"><div class="field"><label for="fDate">'+(kind==="task"?'Échéance':'Date')+'</label><input id="fDate" name="date" type="date" value="'+esc(date)+'"></div>';
 html+='<div class="field"><label for="fMinute">'+(kind==="task"?'Heure (facultative)':'Début')+'</label><input id="fMinute" name="start" type="time" step="900" value="'+(start!==null?time(start):(kind==="event"?"09:00":""))+'"></div></div>';
-if(kind==="event"){html+='<div class="twocol"><div class="field"><label for="fDuration">Durée</label><select id="fDuration" name="duration">'+[15,30,45,60,75,90,120].map(function(n){return '<option value="'+n+'" '+(dur===n?'selected':'')+'>'+n+' minutes</option>'}).join('')+'</select></div><div class="field"><label for="fCat">Catégorie</label><select id="fCat" name="category">'+[['blue','Entretien tripartite'],['green','Réunion interne'],['yellow','Rendez-vous']].map(function(c){return '<option value="'+c[0]+'" '+((t?t.category:'blue')===c[0]?'selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></div></div>'}
+if(kind==="event"){html+='<div class="twocol"><div class="field"><label for="fDuration">Durée</label><select id="fDuration" name="duration">'+Array.from(new Set([15,30,45,60,75,90,120,dur])).sort(function(a,b){return a-b}).map(function(n){return '<option value="'+n+'" '+(dur===n?'selected':'')+'>'+n+' minutes</option>'}).join('')+'</select></div><div class="field"><label for="fCat">Catégorie</label><select id="fCat" name="category">'+[['blue','Entretien tripartite'],['green','Réunion interne'],['yellow','Rendez-vous']].map(function(c){return '<option value="'+c[0]+'" '+((t?t.category:'blue')===c[0]?'selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></div></div>'}
 var chosenContractId=t?t.contractId:modalPrefillContractId;
 var prefContract=getContract(chosenContractId);
 html+='<div class="field"><label for="fContractId">Contrat Nabu associé (facultatif)</label><select id="fContractId">'+contractsOptions(chosenContractId)+'</select></div>';
@@ -497,9 +563,13 @@ if(!validWorkingHours(h)){$('#workSettingsMessage').textContent='Vérifiez les h
 workingHours=h;try{localStorage.setItem(workingHoursStoreKey,JSON.stringify(h))}catch(err){}
 toggleWorkingHoursSettings(false);renderCalendar();toast('Horaires enregistrés : plages grisées mises à jour');
 };
+$('#slotNewTask').onclick=function(){if(slotDraft){var s=slotDraft;openModal("task",s.date,s.minute,null,null,s.duration)}};
+$('#slotNewEvent').onclick=function(){if(slotDraft){var s=slotDraft;openModal("event",s.date,s.minute,null,null,s.duration)}};
+$('#closeSlotChooser').onclick=hideSlotChooser;
+document.addEventListener('pointerdown',function(e){if($('#slotChooser').classList.contains('open')&&!e.target.closest('#slotChooser'))hideSlotChooser()});
 $('#closePopover').onclick=hidePopover;
 document.addEventListener('pointerdown',function(e){if($('#popover').classList.contains('open')&&!e.target.closest('#popover')&&!e.target.closest('.entry')&&!e.target.closest('.task-item')&&!e.target.closest('.day-task-chip'))hidePopover()});
-document.addEventListener('keydown',function(e){if(e.key==="Escape"){hidePopover();toggleWorkingHoursSettings(false);$('#modalCover').classList.remove('open');$('#contractCover').classList.remove('open');closeLinkContract();$('#calendlyCover').classList.remove('open')}});
+document.addEventListener('keydown',function(e){if(e.key==="Escape"){hideSlotChooser();hidePopover();toggleWorkingHoursSettings(false);$('#modalCover').classList.remove('open');$('#contractCover').classList.remove('open');closeLinkContract();$('#calendlyCover').classList.remove('open')}});
 $('#closeModal').onclick=$('#cancelModal').onclick=function(){$('#modalCover').classList.remove('open')};
 $('#modalCover').addEventListener('click',function(e){if(e.target===$('#modalCover'))$('#modalCover').classList.remove('open')});
 document.addEventListener('pointerdown',function(e){if($('#workSettings').classList.contains('open')&&!e.target.closest('#workSettings')&&!e.target.closest('#workSettingsButton'))toggleWorkingHoursSettings(false)});
