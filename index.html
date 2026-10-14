@@ -49,10 +49,9 @@ body.task-is-dragging .task-drop-help{display:block}
 .nav-version{color:#8c95a0;font-size:9px;margin-top:4px}
 @media(max-width:1030px){.nav{width:160px;min-width:160px}.nav-group-head{padding-left:12px;font-size:20px}.iscod-brand{padding-left:18px}}
 @media(max-width:770px){.nav{display:none}}
-/* Distinct event hues: blue tripartite, purple meeting, teal appointment. */
-.event-entry{border-left-color:var(--blue);background:#e2edff;color:#153f8f}
+/* Tous les rendez-vous, y compris les entretiens tripartites, partagent une couleur. */
+.event-entry,.event-entry.blue,.event-entry.yellow{border-left-color:var(--teal);background:#def5f5;color:#0c5f68}
 .event-entry.green{border-left-color:var(--purple);background:#efe6fc;color:#5c318f}
-.event-entry.yellow{border-left-color:var(--teal);background:#def5f5;color:#0c5f68}
 /* Tasks: warm amber pending, green completed, no strike-through, no fading */
 .task-item:not(.archived):not(.done){border-left-color:var(--orange);background:#fffaf1}
 .task-item.done:not(.archived){opacity:1;background:#e5f5eb;border-color:#a1d9b8;border-left:4px solid var(--done)}
@@ -180,9 +179,7 @@ body.task-is-dragging .task-drop-help{display:block}
 /* Rendez-vous du jour dans le panneau de gauche — consultation, sans case de validation */
 .appointment-item{display:flex;align-items:flex-start;gap:10px;padding:10px 11px;border:1px solid #dce6ed;border-left:3px solid var(--teal);border-radius:7px;margin:0 0 8px;background:#f9fdfd;box-shadow:0 1px 2px #16223406;cursor:pointer}
 .appointment-item:hover,.appointment-item:focus-visible{border-color:#9dc8ce;box-shadow:0 2px 8px #15202c13}
-.appointment-item.tripartite{border-left-color:var(--blue);background:#f6f9ff}
 .appointment-time{font-size:11px;font-weight:750;white-space:nowrap;min-width:43px;color:#077f8a;padding-top:1px;font-variant-numeric:tabular-nums}
-.appointment-item.tripartite .appointment-time{color:#2F64D6}
 .appointment-main{flex:1;min-width:0}
 .appointment-title{font-size:12px;line-height:1.35;font-weight:650;color:#283c4d;overflow-wrap:anywhere}
 .appointment-detail{font-size:11px;color:#73818e;line-height:1.4;margin-top:5px;overflow-wrap:anywhere}
@@ -241,7 +238,7 @@ body.task-is-dragging .task-drop-help{display:block}
 </form>
 </div>
 <div class="legend">
-<span><i class="swatch" style="background:var(--blue)"></i>Tripartite</span><span><i class="swatch" style="background:var(--purple)"></i>Réunion interne</span><span><i class="swatch" style="background:var(--teal)"></i>Rendez-vous</span><span><i class="swatch" style="background:var(--orange)"></i>Tâche à faire</span><span><i class="swatch" style="background:var(--done)"></i>Tâche terminée</span>
+<span><i class="swatch" style="background:var(--purple)"></i>Réunion interne</span><span><i class="swatch" style="background:var(--teal)"></i>Rendez-vous</span><span><i class="swatch" style="background:var(--orange)"></i>Tâche à faire</span><span><i class="swatch" style="background:var(--done)"></i>Tâche terminée</span>
 <span class="calendar-creation-hint" style="margin-left:auto">↕ Glissez dans le calendrier pour créer</span><span>07h00–19h30 · précision 15 min</span>
 </div>
 <div id="dayHeads" class="dayheads"></div><div class="task-drop-help" id="taskDropHelp">Déposez une tâche sur une date (sans heure) ou sur un créneau (heure précise).</div>
@@ -320,9 +317,9 @@ function seed(){var m=monday(new Date());return [
 {id:"t6",kind:"task",title:"Contrôler le planning de formation",person:"Inès Bernard",company:"Cap Horizon",date:plusDays(today,2),minute:null,done:false},
 {id:"t7",kind:"task",title:"Retour ENKI — dossier entreprise",person:"Sara Girard",company:"Espace Conseil",date:null,minute:null,done:false},
 {id:"t8",kind:"task",title:"Préparer la synthèse hebdomadaire",person:"",company:"",date:plusDays(today,-1),minute:null,done:true},
-{id:"e1",kind:"event",title:"Entretien tripartite — Chloé Martin",date:plusDays(m,0),minute:9*60+30,duration:45,category:"blue",person:"Chloé Martin",company:"Agence Atlas",origin:"Nabu"},
+{id:"e1",kind:"event",title:"Entretien tripartite — Chloé Martin",date:plusDays(m,0),minute:9*60+30,duration:45,category:"yellow",person:"Chloé Martin",company:"Agence Atlas",origin:"Nabu"},
 {id:"e2",kind:"event",title:"Rendez-vous maître d'apprentissage",date:plusDays(m,1),minute:10*60,duration:30,category:"yellow",person:"Léa Dubois",company:"Horizon Conseil",origin:"Calendly"},
-{id:"e3",kind:"event",title:"Entretien tripartite — Noah Petit",date:plusDays(m,1),minute:14*60,duration:60,category:"blue",person:"Noah Petit",company:"Studio Pixel",origin:"Nabu"},
+{id:"e3",kind:"event",title:"Entretien tripartite — Noah Petit",date:plusDays(m,1),minute:14*60,duration:60,category:"yellow",person:"Noah Petit",company:"Studio Pixel",origin:"Nabu"},
 {id:"e4",kind:"event",title:"Réunion interne — suivi qualité",date:plusDays(m,2),minute:11*60,duration:45,category:"green",person:"",company:"",origin:"Outlook"},
 {id:"e5",kind:"event",title:"Rendez-vous apprenti — Sara Girard",date:plusDays(m,3),minute:15*60,duration:30,category:"yellow",person:"Sara Girard",company:"Espace Conseil",origin:"Calendly"},
 {id:"e6",kind:"event",title:"Point équipe Expérience Entreprise",date:plusDays(m,4),minute:9*60,duration:30,category:"green",person:"",company:"",origin:"Outlook"}
@@ -348,7 +345,7 @@ var enkiDemoStock=[
 enkiDemoStock.forEach(function(alert){if(!items.some(function(t){return t.id===alert.id}))items.push({...alert})});
 /* Deux rendez-vous fictifs du jour pour tester les fiches Nabu et Calendly sans import réel. */
 var exampleTodayAppointments=[
-{id:"demo-rdv-today-nabu",kind:"event",title:"Entretien de suivi — Adam Laurent",date:today,minute:9*60+30,duration:45,category:"blue",origin:"Nabu",person:"Adam Laurent",company:"Maison Nova",contractId:"DEMO-1002",comment:"Faire un point sur les missions de l'apprenti."},
+{id:"demo-rdv-today-nabu",kind:"event",title:"Entretien de suivi — Adam Laurent",date:today,minute:9*60+30,duration:45,category:"yellow",origin:"Nabu",person:"Adam Laurent",company:"Maison Nova",contractId:"DEMO-1002",comment:"Faire un point sur les missions de l'apprenti."},
 {id:"demo-rdv-today-calendly",kind:"event",title:"Rendez-vous maître d’apprentissage — Émilie Perrin",date:today,minute:14*60+30,duration:30,category:"yellow",origin:"Calendly",person:"Léa Dubois",company:"Horizon Conseil",contractId:"DEMO-1001",bookerName:"Émilie Perrin",bookerRole:"Maître d'apprentissage",bookerEmail:"emilie.perrin@example.test",bookerPhone:"06 00 00 00 01",bookingSubject:"Suivi de l'intégration",matchStatus:"matched"}
 ];
 exampleTodayAppointments.forEach(function(event){if(!items.some(function(t){return t.id===event.id}))items.push({...event})});
@@ -357,6 +354,8 @@ exampleTodayAppointments.forEach(function(event){if(!items.some(function(t){retu
 items.forEach(function(t){if((t.id==="e4"||t.id==="e6")&&t.kind==="event"&&t.category==="green"&&t.origin==="Nabu")t.origin="Outlook"});
 var fixtureLinks={t1:"DEMO-1001",t2:"DEMO-1002",t3:"DEMO-1003",t4:"DEMO-1004",t5:"DEMO-1003",t6:"DEMO-1005",t7:"DEMO-1006",e1:"DEMO-1003",e2:"DEMO-1001",e3:"DEMO-1004",e5:"DEMO-1006"};
 items.forEach(function(t){
+ /* Compatibilité avec les rendez-vous déjà sauvegardés localement. */
+ if(t.kind==="event"&&t.category==="blue")t.category="yellow";
  if(fixtureLinks[t.id]&&t.contractId===undefined)t.contractId=fixtureLinks[t.id];
  if(t.id==="t7"&&t.kind==="task"&&!t.origin)t.origin="Enki";
  if(t.id==="e2"&&t.origin==="Calendly"){t.bookerName=t.bookerName||"Émilie Perrin";t.bookerRole=t.bookerRole||"Maître d'apprentissage";t.bookerEmail=t.bookerEmail||"emilie.perrin@example.test";t.bookerPhone=t.bookerPhone||"06 00 00 00 01";if(t.bookingSubject===undefined)t.bookingSubject="Suivi du démarrage du contrat"}
@@ -380,7 +379,7 @@ return items.filter(function(e){return e.kind==="event"&&e.date===today&&(e.orig
 }
 function appointmentCard(e){
 var linked=getContract(e.contractId),person=e.person||(linked&&linked.apprentice)||"",company=e.company||(linked&&linked.company)||"";
-return '<article class="appointment-item '+(e.category==="blue"?'tripartite':'')+'" data-appointment-open="'+esc(e.id)+'" tabindex="0" role="button" aria-label="Ouvrir le rendez-vous '+esc(e.title)+'">' +
+return '<article class="appointment-item" data-appointment-open="'+esc(e.id)+'" tabindex="0" role="button" aria-label="Ouvrir le rendez-vous '+esc(e.title)+'">' +
 '<span class="appointment-time">'+(e.minute===null||e.minute===undefined?'—':time(e.minute))+'</span>' +
 '<div class="appointment-main"><div class="appointment-title">'+esc(e.title)+'</div>' +
 (person||company?'<div class="appointment-detail">'+esc([person,company].filter(Boolean).join(" · "))+'</div>':'')+
@@ -570,7 +569,7 @@ function openPopover(t,x,y){
  if(popupItem&&popupItem!==t)hidePopover();
  hideSlotChooser();popupItem=t;
  var out=isOutlookMeeting(t),contact=unifiedContact(t),contract=getContract(t.contractId),hasContract=!!contract||!!safeUrl(t.contractUrl);
- var subtitle=t.kind==="task"?"Tâche":t.category==="blue"?"Entretien tripartite":t.category==="green"?"Réunion interne":"Rendez-vous";
+ var subtitle=t.kind==="task"?"Tâche":t.category==="green"?"Réunion interne":"Rendez-vous";
  var when=t.date?fmtFull(t.date):"À planifier";
  if(t.minute!==null&&t.minute!==undefined)when+=" · "+time(t.minute)+(t.kind==="event"&&t.duration?"–"+time(t.minute+t.duration):"");
  var body='<h3>'+esc(t.title)+'</h3><p class="pop-summary">'+esc(subtitle)+' · '+esc(when)+(out?' · Outlook':'')+'</p>';
@@ -624,7 +623,7 @@ var html='<div class="toggle"><button type="button" data-kind="task" class="'+(k
 html+='<div class="field"><label for="fTitle">Intitulé *</label><input id="fTitle" name="title" required maxlength="160" placeholder="'+(kind==="task"?'Ex. Rappeler le maître d’apprentissage':'Ex. Réunion de suivi')+'" value="'+esc(t?t.title:'')+'"></div>';
 html+='<div class="twocol"><div class="field"><label for="fDate">'+(kind==="task"?'Échéance':'Date')+'</label><input id="fDate" name="date" type="date" value="'+esc(date)+'"></div>';
 html+='<div class="field"><label for="fMinute">'+(kind==="task"?'Heure (facultative)':'Début')+'</label><input id="fMinute" name="start" type="time" step="900" value="'+(start!==null?time(start):(kind==="event"?"09:00":""))+'"></div></div>';
-if(kind==="event"){html+='<div class="twocol"><div class="field"><label for="fDuration">Durée</label><select id="fDuration" name="duration">'+Array.from(new Set([15,30,45,60,75,90,120,dur])).sort(function(a,b){return a-b}).map(function(n){return '<option value="'+n+'" '+(dur===n?'selected':'')+'>'+n+' minutes</option>'}).join('')+'</select></div><div class="field"><label for="fCat">Catégorie</label><select id="fCat" name="category">'+[['blue','Entretien tripartite'],['green','Réunion interne'],['yellow','Rendez-vous']].map(function(c){return '<option value="'+c[0]+'" '+((t?t.category:'blue')===c[0]?'selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></div></div>'}
+if(kind==="event"){html+='<div class="twocol"><div class="field"><label for="fDuration">Durée</label><select id="fDuration" name="duration">'+Array.from(new Set([15,30,45,60,75,90,120,dur])).sort(function(a,b){return a-b}).map(function(n){return '<option value="'+n+'" '+(dur===n?'selected':'')+'>'+n+' minutes</option>'}).join('')+'</select></div><div class="field"><label for="fCat">Catégorie</label><select id="fCat" name="category">'+[['yellow','Rendez-vous'],['green','Réunion interne']].map(function(c){return '<option value="'+c[0]+'" '+((t?t.category:'yellow')===c[0]?'selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></div></div>'}
 var chosenContractId=t?t.contractId:modalPrefillContractId;
 var prefContract=getContract(chosenContractId);
 html+='<div class="field"><label for="fContractId">Contrat Nabu associé (facultatif)</label><select id="fContractId">'+contractsOptions(chosenContractId)+'</select></div>';
