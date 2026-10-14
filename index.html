@@ -133,7 +133,7 @@ body.task-is-dragging .task-drop-help{display:block}
 .calendar-creation-hint{color:#687b8d;font-size:10px;white-space:nowrap}
 
 /* Fiche de détail harmonisée — contenu compact, action primaire unique */
-.popover{width:min(345px,calc(100vw - 24px));padding:15px 16px;max-height:calc(100vh - 24px);overflow-y:auto}
+.popover{width:min(345px,calc(100vw - 24px));padding:15px 16px;max-height:calc(100vh - 24px);overflow:visible}@media(max-height:560px){.popover{overflow-y:auto}}
 .popover h3{font-size:14px;margin:0 55px 4px 0;line-height:1.4}
 .popover .pop-summary{color:#7c8792;font-size:10.5px;margin:0 0 12px}
 .popover .pop-row{display:grid;grid-template-columns:16px 1fr;gap:9px;align-items:start;margin:9px 0}
@@ -482,8 +482,8 @@ function unifiedContact(t){
  var c=getContract(t.contractId),isBooking=t.origin==="Calendly";
  var role=(t.bookerRole||"").toLowerCase(),bookedMA=isBooking&&role.includes("maître"),bookedApprentice=isBooking&&role.includes("apprenti");
  return {
-  apprentice:(c&&c.apprentice)||t.person||(bookedApprentice?t.bookerName:"")||"",
-  ma:(c&&c.maName)||t.maName||(bookedMA?t.bookerName:"")||"",
+  apprentice:t.person||(c&&c.apprentice)||(bookedApprentice?t.bookerName:"")||"",
+  ma:t.maName||(c&&c.maName)||(bookedMA?t.bookerName:"")||"",
   company:(c&&c.company)||t.company||"",
   phone:t.contactPhone!==undefined?t.contactPhone:(isBooking?t.bookerPhone||"":(c&&c.maPhone)||""),
   email:t.contactEmail!==undefined?t.contactEmail:(isBooking?t.bookerEmail||"":(c&&c.maEmail)||""),
@@ -527,7 +527,7 @@ function openPopover(t,x,y){
  p.style.top=clamp(y+10,12,Math.max(12,window.innerHeight-rect.height-12))+'px';
  var comment=$('#popComment');
  if(comment)comment.addEventListener('blur',function(){
-  if(t.comment===comment.value)return;
+  if(unifiedContact(t).comment===comment.value)return;
   t.comment=comment.value;persist();
  });
  var toggle=$('#popOverflow');
@@ -543,7 +543,7 @@ function openPopover(t,x,y){
   else if(a==="linkcontract")openLinkContract(t);
  }});
 }
-function hidePopover(){var field=$('#popComment');if(popupItem&&field&&$('#popover').classList.contains('open')&&popupItem.comment!==field.value){popupItem.comment=field.value;persist()}$('#popover').classList.remove('open');popupItem=null}
+function hidePopover(){var field=$('#popComment');if(popupItem&&field&&$('#popover').classList.contains('open')&&unifiedContact(popupItem).comment!==field.value){popupItem.comment=field.value;persist()}$('#popover').classList.remove('open');popupItem=null}
 function openModal(kind,date,minute,item,fromContractId,prefillDuration){hideSlotChooser();hidePopover();editing=item||null;modalKind=kind||"task";modalDate=date||today;modalMinute=minute===undefined?null:minute;modalPrefillDuration=prefillDuration||30;modalPrefillContractId=fromContractId||"";renderModal();$('#modalCover').classList.add('open');setTimeout(function(){var title=$('#fTitle');if(title)title.focus()},25)}
 function renderModal(){var t=editing,kind=t?t.kind:modalKind;
 $('#modalTitle').textContent=(t?"Modifier ":"Nouvel")+(kind==="task"?"le tâche":" événement");
