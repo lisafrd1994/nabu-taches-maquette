@@ -261,12 +261,12 @@ function uid(){return "demo-"+Date.now()+"-"+Math.floor(Math.random()*100000)}
 function niceDue(k,m){return k===today?"Aujourd'hui"+(m!==null&&m!==undefined?" · "+time(m):""):fmtDate(k)+(m!==null&&m!==undefined?" · "+time(m):"")}
 /* Dossiers exclusivement fictifs (domaines example.test). */
 var fakeContracts=[
-{id:"DEMO-1001",apprentice:"Léa Dubois",company:"Horizon Conseil",apprenticeEmail:"lea.dubois@example.test",maName:"Émilie Perrin",maEmail:"emilie.perrin@example.test"},
-{id:"DEMO-1002",apprentice:"Adam Laurent",company:"Maison Nova",apprenticeEmail:"adam.laurent@example.test",maName:"Nicolas Leroy",maEmail:"nicolas.leroy@example.test"},
-{id:"DEMO-1003",apprentice:"Chloé Martin",company:"Agence Atlas",apprenticeEmail:"chloe.martin@example.test",maName:"Camille Rossi",maEmail:"camille.rossi@example.test"},
-{id:"DEMO-1004",apprentice:"Noah Petit",company:"Studio Pixel",apprenticeEmail:"noah.petit@example.test",maName:"Julie Garnier",maEmail:"julie.garnier@example.test"},
-{id:"DEMO-1005",apprentice:"Inès Bernard",company:"Cap Horizon",apprenticeEmail:"ines.bernard@example.test",maName:"Thomas Bell",maEmail:"thomas.bell@example.test"},
-{id:"DEMO-1006",apprentice:"Sara Girard",company:"Espace Conseil",apprenticeEmail:"sara.girard@example.test",maName:"Maxime Lenoir",maEmail:"maxime.lenoir@example.test"}
+{id:"DEMO-1001",apprentice:"Léa Dubois",company:"Horizon Conseil",apprenticeEmail:"lea.dubois@example.test",maName:"Émilie Perrin",maEmail:"emilie.perrin@example.test",maPhone:"06 00 00 00 11"},
+{id:"DEMO-1002",apprentice:"Adam Laurent",company:"Maison Nova",apprenticeEmail:"adam.laurent@example.test",maName:"Nicolas Leroy",maEmail:"nicolas.leroy@example.test",maPhone:"06 00 00 00 12"},
+{id:"DEMO-1003",apprentice:"Chloé Martin",company:"Agence Atlas",apprenticeEmail:"chloe.martin@example.test",maName:"Camille Rossi",maEmail:"camille.rossi@example.test",maPhone:"06 00 00 00 13"},
+{id:"DEMO-1004",apprentice:"Noah Petit",company:"Studio Pixel",apprenticeEmail:"noah.petit@example.test",maName:"Julie Garnier",maEmail:"julie.garnier@example.test",maPhone:"06 00 00 00 14"},
+{id:"DEMO-1005",apprentice:"Inès Bernard",company:"Cap Horizon",apprenticeEmail:"ines.bernard@example.test",maName:"Thomas Bell",maEmail:"thomas.bell@example.test",maPhone:"06 00 00 00 15"},
+{id:"DEMO-1006",apprentice:"Sara Girard",company:"Espace Conseil",apprenticeEmail:"sara.girard@example.test",maName:"Maxime Lenoir",maEmail:"maxime.lenoir@example.test",maPhone:"06 00 00 00 16"}
 ];
 function getContract(id){return fakeContracts.find(function(c){return c.id===id})||null}
 function normalizeEmail(v){return String(v||"").trim().toLowerCase()}
@@ -496,6 +496,7 @@ function unifiedInfoRow(label,value,icon){
 }
 function openPopover(t,x,y){
  if(!t)return;
+ if(popupItem&&popupItem!==t)hidePopover();
  hideSlotChooser();popupItem=t;
  var out=isOutlookMeeting(t),contact=unifiedContact(t),contract=getContract(t.contractId),hasContract=!!contract||!!safeUrl(t.contractUrl);
  var subtitle=t.kind==="task"?"Tâche":t.category==="blue"?"Entretien tripartite":t.category==="green"?"Réunion interne":"Rendez-vous";
@@ -542,7 +543,7 @@ function openPopover(t,x,y){
   else if(a==="linkcontract")openLinkContract(t);
  }});
 }
-function hidePopover(){$('#popover').classList.remove('open');popupItem=null}
+function hidePopover(){var field=$('#popComment');if(popupItem&&field&&$('#popover').classList.contains('open')&&popupItem.comment!==field.value){popupItem.comment=field.value;persist()}$('#popover').classList.remove('open');popupItem=null}
 function openModal(kind,date,minute,item,fromContractId,prefillDuration){hideSlotChooser();hidePopover();editing=item||null;modalKind=kind||"task";modalDate=date||today;modalMinute=minute===undefined?null:minute;modalPrefillDuration=prefillDuration||30;modalPrefillContractId=fromContractId||"";renderModal();$('#modalCover').classList.add('open');setTimeout(function(){var title=$('#fTitle');if(title)title.focus()},25)}
 function renderModal(){var t=editing,kind=t?t.kind:modalKind;
 $('#modalTitle').textContent=(t?"Modifier ":"Nouvel")+(kind==="task"?"le tâche":" événement");
@@ -558,16 +559,21 @@ var prefContract=getContract(chosenContractId);
 html+='<div class="field"><label for="fContractId">Contrat Nabu associé (facultatif)</label><select id="fContractId">'+contractsOptions(chosenContractId)+'</select></div>';
 html+='<div class="field"><label for="fContractUrl">Lien direct du contrat (facultatif)</label><input id="fContractUrl" type="url" maxlength="500" placeholder="https://..." value="'+esc(t?t.contractUrl||"":"")+'"></div>';
 html+='<p class="hint">Créé depuis un contrat ? Le rattachement est prérempli. Création manuelle ? Choisissez un contrat fictif ou ajoutez un lien. Ne saisissez pas d’URL professionnelle réelle dans cette maquette publique.</p>';
-html+='<div class="field"><label for="fPerson">Apprenti associé (facultatif)</label><input id="fPerson" name="person" placeholder="Nom fictif" value="'+esc(t?t.person||"":prefContract?prefContract.apprentice:"")+'"></div><div class="field"><label for="fCompany">Entreprise (facultatif)</label><input id="fCompany" name="company" placeholder="Entreprise fictive" value="'+esc(t?t.company||"":prefContract?prefContract.company:"")+'"></div>';
+var personInfo=t?unifiedContact(t):null;
+html+='<div class="field"><label for="fPerson">Nom de l’apprenti (facultatif)</label><input id="fPerson" name="person" placeholder="Nom fictif" value="'+esc(t?t.person||"":prefContract?prefContract.apprentice:"")+'"></div>';
+html+='<div class="twocol"><div class="field"><label for="fMaName">Nom du maître d’apprentissage</label><input id="fMaName" maxlength="100" placeholder="Nom fictif" value="'+esc(t?t.maName||((prefContract&&prefContract.maName)||""):(prefContract&&prefContract.maName)||"")+'"></div><div class="field"><label for="fCompany">Entreprise</label><input id="fCompany" name="company" placeholder="Entreprise fictive" value="'+esc(t?t.company||"":prefContract?prefContract.company:"")+'"></div></div>';
+html+='<div class="twocol"><div class="field"><label for="fContactPhone">Téléphone</label><input id="fContactPhone" type="tel" maxlength="35" placeholder="06 00 00 00 00" value="'+esc(t?personInfo.phone:(prefContract&&prefContract.maPhone)||"")+'"></div><div class="field"><label for="fContactEmail">Email</label><input id="fContactEmail" type="email" maxlength="160" placeholder="nom@example.test" value="'+esc(t?personInfo.email:(prefContract&&prefContract.maEmail)||"")+'"></div></div>';
+html+='<div class="field"><label for="fComment">Commentaire / sujet de l’appel (facultatif)</label><textarea id="fComment" maxlength="1200" placeholder="Précisions utiles…">'+esc(t?personInfo.comment:"")+'</textarea></div>';
 if(kind==="task"){html+='<div class="field"><label for="fOwner">Responsable</label><select id="fOwner"><option selected>Moi (automatiquement)</option><option>Collègue (simulation)</option></select></div><p class="hint">Aucun clic nécessaire pour s’attribuer la tâche.</p><label style="font-size:12px"><input id="fPriority" type="checkbox" '+(t&&t.priority?'checked':'')+'> Importance élevée</label>'}
 html+='<p class="hint" style="margin-top:16px">Prototype : aucune donnée envoyée à Nabu. Les modifications sont enregistrées uniquement dans ce navigateur.</p>';
 $('#modalBody').innerHTML=html;
 $('#modalBody').querySelectorAll('[data-kind]').forEach(function(btn){btn.onclick=function(){modalKind=btn.dataset.kind;renderModal()}});
-$('#fContractId').onchange=function(){var c=getContract($('#fContractId').value);if(c){$('#fPerson').value=c.apprentice;$('#fCompany').value=c.company}};
+$('#fContractId').onchange=function(){var c=getContract($('#fContractId').value);if(c){$('#fPerson').value=c.apprentice;$('#fMaName').value=c.maName;$('#fCompany').value=c.company;$('#fContactPhone').value=c.maPhone||"";$('#fContactEmail').value=c.maEmail||""}};
 }
 function saveForm(e){e.preventDefault();var title=$('#fTitle').value.trim(),d=$('#fDate').value||null,m=$('#fMinute').value?minuteFrom($('#fMinute').value):null;if(!title)return;
 var obj=editing||{id:uid(),kind:modalKind,done:false,archived:false};var isEvent=obj.kind==="event";
-obj.title=title;obj.date=d;obj.minute=m;obj.person=$('#fPerson').value.trim();obj.company=$('#fCompany').value.trim();
+obj.title=title;obj.date=d;obj.minute=m;obj.person=$('#fPerson').value.trim();obj.maName=$('#fMaName').value.trim();obj.company=$('#fCompany').value.trim();
+obj.contactPhone=$('#fContactPhone').value.trim();obj.contactEmail=$('#fContactEmail').value.trim();obj.comment=$('#fComment').value.trim();
 obj.contractId=$('#fContractId').value||"";obj.contractUrl=safeUrl($('#fContractUrl').value.trim());
 if($('#fContractUrl').value.trim()&&!obj.contractUrl){toast('Le lien du contrat doit commencer par https:// ou http://');return}
 if(isEvent){if(!obj.date){toast("Choisir une date pour l'événement");return}if(m===null)m=9*60;obj.minute=clamp(snap(m),FIRST,LAST-15);obj.duration=Number($('#fDuration').value);obj.category=$('#fCat').value;if(!editing||!obj.origin)obj.origin="Nabu";if(obj.minute+obj.duration>LAST)obj.duration=LAST-obj.minute}
