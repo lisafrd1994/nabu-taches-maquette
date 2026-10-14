@@ -366,6 +366,19 @@ function openPopover(t,x,y){if(!t)return;popupItem=t;var body='<h3>'+esc(t.title
 body+=popText('Date',t.date?fmtFull(t.date):'À planifier','▦');
 body+=popText(t.kind==='task'?'Échéance':'Horaire',t.minute!==null&&t.minute!==undefined?(t.kind==='event'?time(t.minute)+' – '+time(t.minute+t.duration):time(t.minute)):(t.kind==='task'?'Sans heure fixe':''),'◷');
 body+=popText('Apprenti',t.person,'♙')+popText('Entreprise',t.company,'▣');
+if(t.origin==="Calendly"){
+body+='<div class="booking-details"><strong>Informations du formulaire Calendly</strong>';
+body+=popText('Personne ayant réservé',t.bookerName,'♙');
+body+=popText('Qualité',t.bookerRole,'◉');
+body+=popText('Email renseigné',t.bookerEmail,'✉');
+body+=popText('Téléphone pour l’appel',t.bookerPhone,'☎');
+body+=popText('Sujet de l’appel',t.bookingSubject,'☷');
+body+='</div>';
+if(t.matchStatus==="none")body+='<p class="contract-status warning">Aucun contrat identifié à partir de l’email : rattachement manuel possible.</p>';
+if(t.matchStatus==="multiple")body+='<p class="contract-status warning">Plusieurs contrats correspondent à cet email : rattachement manuel nécessaire.</p>';
+}
+var contract=getContract(t.contractId),manualLink=safeUrl(t.contractUrl);
+if(contract||manualLink)body+='<div class="contract-link-block"><strong>Contrat associé</strong><p>'+(contract?esc(contract.id+' · '+contract.apprentice+' · '+contract.company):'Lien renseigné par le collaborateur')+'</p><button type="button" class="btn" data-popaction="opencontract">↗ Ouvrir le contrat lié</button></div>';
 if(t.kind==='task')body+=popText('Responsable','Moi (démo)','♧');
 if(t.origin)body+=popText('Provenance',t.origin,'↗');
 if(t.priority)body+='<p style="color:#a76419">⚠ Tâche importante</p>';
@@ -375,13 +388,14 @@ if(t.kind==="task"&&!t.archived)body+='<button class="btn primary" data-popactio
 if(t.origin!=="Calendly"&&!t.archived)body+='<button class="btn" data-popaction="edit">✎ Modifier</button>';
 if(t.kind==="task"&&!t.archived)body+='<button class="btn" data-popaction="postpone">↗ Reporter</button>';
 if(t.kind==="task")body+='<button class="btn" data-popaction="'+(t.archived?'restore':'archive')+'">'+(t.archived?'↶ Désarchiver':'Archiver')+'</button>';
+body+='<button class="btn" data-popaction="linkcontract">'+((contract||manualLink)?'Changer le contrat':'Associer un contrat')+'</button>';
 body+='</div>';
 $('#popoverInner').innerHTML=body;
 var p=$('#popover');p.classList.add('open');var w=350,h=p.getBoundingClientRect().height;
 p.style.left=clamp(x+12,12,window.innerWidth-w-12)+'px';p.style.top=clamp(y+10,12,window.innerHeight-h-12)+'px';
-$('#popoverInner').querySelectorAll('[data-popaction]').forEach(function(btn){btn.onclick=function(){var a=btn.dataset.popaction;hidePopover();if(a==="toggle"){t.done=!t.done;persist();renderAll();toast(t.done?"Tâche terminée":"Tâche réouverte")}else if(a==="edit")openModal(t.kind,t.date,t.minute,t);else if(a==="postpone"){openModal("task",t.date,t.minute,t)}else if(a==="archive"){t.archived=true;persist();renderAll();toast("Tâche archivée")}else if(a==="restore"){t.archived=false;persist();renderAll();toast("Tâche désarchivée")}}})}
+$('#popoverInner').querySelectorAll('[data-popaction]').forEach(function(btn){btn.onclick=function(){var a=btn.dataset.popaction;hidePopover();if(a==="toggle"){t.done=!t.done;persist();renderAll();toast(t.done?"Tâche terminée":"Tâche réouverte")}else if(a==="edit")openModal(t.kind,t.date,t.minute,t);else if(a==="postpone"){openModal("task",t.date,t.minute,t)}else if(a==="archive"){t.archived=true;persist();renderAll();toast("Tâche archivée")}else if(a==="restore"){t.archived=false;persist();renderAll();toast("Tâche désarchivée")}else if(a==="opencontract"){openLinkedContract(t)}else if(a==="linkcontract"){openLinkContract(t)}}})}
 function hidePopover(){$('#popover').classList.remove('open');popupItem=null}
-function openModal(kind,date,minute,item){hidePopover();editing=item||null;modalKind=kind||"task";modalDate=date||today;modalMinute=minute===undefined?null:minute;renderModal();$('#modalCover').classList.add('open');setTimeout(function(){var title=$('#fTitle');if(title)title.focus()},25)}
+function openModal(kind,date,minute,item,fromContractId){hidePopover();editing=item||null;modalKind=kind||"task";modalDate=date||today;modalMinute=minute===undefined?null:minute;modalPrefillContractId=fromContractId||"";renderModal();$('#modalCover').classList.add('open');setTimeout(function(){var title=$('#fTitle');if(title)title.focus()},25)}
 function renderModal(){var t=editing,kind=t?t.kind:modalKind;
 $('#modalTitle').textContent=(t?"Modifier ":"Nouvel")+(kind==="task"?"le tâche":" événement");
 if(!t)$('#modalTitle').textContent=kind==="task"?"Nouvelle tâche":"Nouvel événement";
@@ -391,15 +405,23 @@ html+='<div class="field"><label for="fTitle">Intitulé *</label><input id="fTit
 html+='<div class="twocol"><div class="field"><label for="fDate">'+(kind==="task"?'Échéance':'Date')+'</label><input id="fDate" name="date" type="date" value="'+esc(date)+'"></div>';
 html+='<div class="field"><label for="fMinute">'+(kind==="task"?'Heure (facultative)':'Début')+'</label><input id="fMinute" name="start" type="time" step="900" value="'+(start!==null?time(start):(kind==="event"?"09:00":""))+'"></div></div>';
 if(kind==="event"){html+='<div class="twocol"><div class="field"><label for="fDuration">Durée</label><select id="fDuration" name="duration">'+[15,30,45,60,75,90,120].map(function(n){return '<option value="'+n+'" '+(dur===n?'selected':'')+'>'+n+' minutes</option>'}).join('')+'</select></div><div class="field"><label for="fCat">Catégorie</label><select id="fCat" name="category">'+[['blue','Entretien tripartite'],['green','Réunion interne'],['yellow','Rendez-vous']].map(function(c){return '<option value="'+c[0]+'" '+((t?t.category:'blue')===c[0]?'selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></div></div>'}
-html+='<div class="field"><label for="fPerson">Apprenti associé (facultatif)</label><input id="fPerson" name="person" placeholder="Nom fictif" value="'+esc(t?t.person:'')+'"></div><div class="field"><label for="fCompany">Entreprise (facultatif)</label><input id="fCompany" name="company" placeholder="Entreprise fictive" value="'+esc(t?t.company:'')+'"></div>';
+var chosenContractId=t?t.contractId:modalPrefillContractId;
+var prefContract=getContract(chosenContractId);
+html+='<div class="field"><label for="fContractId">Contrat Nabu associé (facultatif)</label><select id="fContractId">'+contractsOptions(chosenContractId)+'</select></div>';
+html+='<div class="field"><label for="fContractUrl">Lien direct du contrat (facultatif)</label><input id="fContractUrl" type="url" maxlength="500" placeholder="https://..." value="'+esc(t?t.contractUrl||"":"")+'"></div>';
+html+='<p class="hint">Créé depuis un contrat ? Le rattachement est prérempli. Création manuelle ? Choisissez un contrat fictif ou ajoutez un lien. Ne saisissez pas d’URL professionnelle réelle dans cette maquette publique.</p>';
+html+='<div class="field"><label for="fPerson">Apprenti associé (facultatif)</label><input id="fPerson" name="person" placeholder="Nom fictif" value="'+esc(t?t.person||"":prefContract?prefContract.apprentice:"")+'"></div><div class="field"><label for="fCompany">Entreprise (facultatif)</label><input id="fCompany" name="company" placeholder="Entreprise fictive" value="'+esc(t?t.company||"":prefContract?prefContract.company:"")+'"></div>';
 if(kind==="task"){html+='<div class="field"><label for="fOwner">Responsable</label><select id="fOwner"><option selected>Moi (automatiquement)</option><option>Collègue (simulation)</option></select></div><p class="hint">Aucun clic nécessaire pour s’attribuer la tâche.</p><label style="font-size:12px"><input id="fPriority" type="checkbox" '+(t&&t.priority?'checked':'')+'> Importance élevée</label>'}
 html+='<p class="hint" style="margin-top:16px">Prototype : aucune donnée envoyée à Nabu. Les modifications sont enregistrées uniquement dans ce navigateur.</p>';
 $('#modalBody').innerHTML=html;
 $('#modalBody').querySelectorAll('[data-kind]').forEach(function(btn){btn.onclick=function(){modalKind=btn.dataset.kind;renderModal()}});
+$('#fContractId').onchange=function(){var c=getContract($('#fContractId').value);if(c){$('#fPerson').value=c.apprentice;$('#fCompany').value=c.company}};
 }
 function saveForm(e){e.preventDefault();var title=$('#fTitle').value.trim(),d=$('#fDate').value||null,m=$('#fMinute').value?minuteFrom($('#fMinute').value):null;if(!title)return;
 var obj=editing||{id:uid(),kind:modalKind,done:false,archived:false};var isEvent=obj.kind==="event";
 obj.title=title;obj.date=d;obj.minute=m;obj.person=$('#fPerson').value.trim();obj.company=$('#fCompany').value.trim();
+obj.contractId=$('#fContractId').value||"";obj.contractUrl=safeUrl($('#fContractUrl').value.trim());
+if($('#fContractUrl').value.trim()&&!obj.contractUrl){toast('Le lien du contrat doit commencer par https:// ou http://');return}
 if(isEvent){if(!obj.date){toast("Choisir une date pour l'événement");return}if(m===null)m=9*60;obj.minute=clamp(snap(m),FIRST,LAST-15);obj.duration=Number($('#fDuration').value);obj.category=$('#fCat').value;obj.origin="Nabu";if(obj.minute+obj.duration>LAST)obj.duration=LAST-obj.minute}
 else{obj.minute=m===null?null:clamp(snap(m),FIRST,LAST-15);obj.priority=$('#fPriority').checked}
 if(!editing)items.push(obj);
