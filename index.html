@@ -176,6 +176,20 @@ body.task-is-dragging .task-drop-help{display:block}
 .calendar.single-day .event-sub{font-size:10.5px}
 .calendar.single-day .task-entry{font-size:11px}
 @media(max-width:1130px){.calendar-view-button{padding:6px 8px}.calendar-controls{gap:3px}.calendar-head{padding-left:12px;padding-right:12px}}
+
+/* Rendez-vous du jour dans le panneau de gauche — consultation, sans case de validation */
+.appointment-item{display:flex;align-items:flex-start;gap:10px;padding:10px 11px;border:1px solid #dce6ed;border-left:3px solid var(--teal);border-radius:7px;margin:0 0 8px;background:#f9fdfd;box-shadow:0 1px 2px #16223406;cursor:pointer}
+.appointment-item:hover,.appointment-item:focus-visible{border-color:#9dc8ce;box-shadow:0 2px 8px #15202c13}
+.appointment-item.tripartite{border-left-color:var(--blue);background:#f6f9ff}
+.appointment-time{font-size:11px;font-weight:750;white-space:nowrap;min-width:43px;color:#077f8a;padding-top:1px;font-variant-numeric:tabular-nums}
+.appointment-item.tripartite .appointment-time{color:#2F64D6}
+.appointment-main{flex:1;min-width:0}
+.appointment-title{font-size:12px;line-height:1.35;font-weight:650;color:#283c4d;overflow-wrap:anywhere}
+.appointment-detail{font-size:11px;color:#73818e;line-height:1.4;margin-top:5px;overflow-wrap:anywhere}
+.appointment-origin{font-size:10px;color:#66788a;margin-top:5px}
+.appointment-more{flex:none;color:#7a8590;font-size:16px;padding-left:3px;line-height:1}
+.section-title.appointments-section{color:#166e80}
+.section-title.appointments-section .bubble{background:#e4f2f3;color:#126b73}
 </style>
 </head>
 <body>
@@ -332,6 +346,12 @@ var enkiDemoStock=[
 {id:"enki-stock-03",kind:"task",title:"Alerte Enki — Accompagnement à sécuriser (score D)",person:"Inès Bernard",company:"Cap Horizon",date:null,minute:null,done:false,archived:false,priority:true,origin:"Enki",contractId:"DEMO-1005"}
 ];
 enkiDemoStock.forEach(function(alert){if(!items.some(function(t){return t.id===alert.id}))items.push({...alert})});
+/* Deux rendez-vous fictifs du jour pour tester les fiches Nabu et Calendly sans import réel. */
+var exampleTodayAppointments=[
+{id:"demo-rdv-today-nabu",kind:"event",title:"Entretien de suivi — Adam Laurent",date:today,minute:9*60+30,duration:45,category:"blue",origin:"Nabu",person:"Adam Laurent",company:"Maison Nova",contractId:"DEMO-1002",comment:"Faire un point sur les missions de l'apprenti."},
+{id:"demo-rdv-today-calendly",kind:"event",title:"Rendez-vous maître d’apprentissage — Émilie Perrin",date:today,minute:14*60+30,duration:30,category:"yellow",origin:"Calendly",person:"Léa Dubois",company:"Horizon Conseil",contractId:"DEMO-1001",bookerName:"Émilie Perrin",bookerRole:"Maître d'apprentissage",bookerEmail:"emilie.perrin@example.test",bookerPhone:"06 00 00 00 01",bookingSubject:"Suivi de l'intégration",matchStatus:"matched"}
+];
+exampleTodayAppointments.forEach(function(event){if(!items.some(function(t){return t.id===event.id}))items.push({...event})});
 /* Réconcilier les données fictives déjà enregistrées, sans écraser les tâches ajoutées par l'utilisateur. */
 /* Fictitious meeting examples simulate events synchronized from Outlook. */
 items.forEach(function(t){if((t.id==="e4"||t.id==="e6")&&t.kind==="event"&&t.category==="green"&&t.origin==="Nabu")t.origin="Outlook"});
@@ -354,17 +374,32 @@ else if(filter==="unscheduled")a=a.filter(function(t){return !t.done&&!t.date});
 else if(filter==="done")a=a.filter(function(t){return !!t.done});
 if(query)a=a.filter(function(t){return [t.title,t.person,t.company].join(" ").toLowerCase().includes(query)});
 a.sort(function(a,b){if(filter==="today"&&a.date===today&&b.date===today&&a.done!==b.done)return a.done?1:-1;var av=a.date||"9999",bv=b.date||"9999";return av.localeCompare(bv)||((a.minute===null?2000:a.minute)-(b.minute===null?2000:b.minute))});return a}
+function todaysAppointments(){
+return items.filter(function(e){return e.kind==="event"&&e.date===today&&(e.origin==="Nabu"||e.origin==="Calendly")&&e.category!=="green"&&(!query||[e.title,e.person,e.company,e.bookerName,e.bookerEmail,unifiedContact(e).ma].join(" ").toLowerCase().includes(query))})
+.sort(function(a,b){return (a.minute||0)-(b.minute||0)||a.title.localeCompare(b.title,"fr")});
+}
+function appointmentCard(e){
+var linked=getContract(e.contractId),person=e.person||(linked&&linked.apprentice)||"",company=e.company||(linked&&linked.company)||"";
+return '<article class="appointment-item '+(e.category==="blue"?'tripartite':'')+'" data-appointment-open="'+esc(e.id)+'" tabindex="0" role="button" aria-label="Ouvrir le rendez-vous '+esc(e.title)+'">' +
+'<span class="appointment-time">'+(e.minute===null||e.minute===undefined?'—':time(e.minute))+'</span>' +
+'<div class="appointment-main"><div class="appointment-title">'+esc(e.title)+'</div>' +
+(person||company?'<div class="appointment-detail">'+esc([person,company].filter(Boolean).join(" · "))+'</div>':'')+
+'<div class="appointment-origin">'+esc(e.origin==='Calendly'?'Calendly':'Nabu')+' · '+(e.duration||30)+' min</div></div>' +
+'<span class="appointment-more" aria-hidden="true">›</span></article>';
+}
 function taskCard(t){var late=t.date&&t.date<today&&!t.done;
 return '<article class="task-item '+(t.done?'done ':'')+(late?'late ':'')+(t.archived?'archived':'')+'" data-open="'+esc(t.id)+'" '+(!t.done&&!t.archived?'title="Faire glisser vers le calendrier pour reporter cette tâche"':'')+'>'+(t.archived?'<span aria-hidden="true" style="font-size:16px">▣</span>':'<input class="task-check" type="checkbox" data-check="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Terminer la tâche">')+'<div class="task-main"><div class="task-name">'+esc(t.title)+'</div>'+(t.person?'<div class="task-participant">'+esc(t.person)+(t.company?' · '+esc(t.company):'')+'</div>':'')+'<div class="task-meta"><span class="'+(late?'overdue':'')+'">'+(t.date?(late?'⚠ En retard · ':'◷ ')+esc(niceDue(t.date,t.minute)):'À planifier')+'</span>'+(t.priority?'<span class="importance">Important</span>':'')+(t.origin==="Enki"?'<span class="enki-badge">ENKI · Alerte</span>':'')+(t.archived?'<span class="task-archived-label">Archivée'+(t.done?' · terminée':'')+'</span>':(t.done?'<span class="task-done-label">✓ Terminée</span>':''))+'</div>'+(t.archived?'<button class="task-restore" type="button" data-restore="'+esc(t.id)+'">↶ Désarchiver</button>':'')+'</div><button class="mini-btn" data-open="'+esc(t.id)+'" aria-label="Actions de tâche">⋯</button></article>'}
-function renderTasks(){var a=filteredTasks(),late=tasks().filter(function(t){return !t.done&&t.date&&t.date<today}).length;
-$('#tasksSummary').textContent=a.length+' tâche'+(a.length>1?'s':'')+' affichée'+(a.length>1?'s':'')+' · '+late+' en retard';
+function renderTasks(){var a=filteredTasks(),late=tasks().filter(function(t){return !t.done&&t.date&&t.date<today}).length,appointments=filter==="today"?todaysAppointments():[];
+$('#tasksSummary').textContent=a.length+' tâche'+(a.length>1?'s':'')+' affichée'+(a.length>1?'s':'')+(filter==="today"?' · '+appointments.length+' RDV aujourd’hui':'')+' · '+late+' en retard';
 var html='';
 function section(label,list,lateFlag){html+='<div class="section-title '+(lateFlag?'late':label.indexOf("Enki")!==-1?'enki-section':'')+'">'+(lateFlag?'⚠ ':'◷ ')+label+' <span class="bubble">'+list.length+'</span></div>';if(!list.length)html+='<div class="empty" style="padding:10px 6px 20px">Aucune tâche dans cette section.</div>';else html+=list.map(taskCard).join('')}
+function appointmentSection(list){html+='<div class="section-title appointments-section">▦ Rendez-vous du jour <span class="bubble">'+list.length+'</span></div>';if(!list.length)html+='<div class="empty" style="padding:4px 6px 15px">Aucun rendez-vous prévu aujourd’hui.</div>';else html+=list.map(appointmentCard).join('')}
 if(filter==="today"){
 section("En retard",a.filter(function(t){return t.date&&t.date<today}),true);
 section("À planifier · alertes Enki",a.filter(function(t){return !t.date&&!t.done&&t.origin==="Enki"}),false);
 var otherUnscheduled=a.filter(function(t){return !t.date&&!t.done&&t.origin!=="Enki"});
 if(otherUnscheduled.length)section("Autres tâches à planifier",otherUnscheduled,false);
+appointmentSection(appointments);
 section("Tâches du jour",a.filter(function(t){return t.date===today}),false)
 }
 else{section(({late:"En retard",future7:"À venir — 7 jours",future30:"À venir — 30 jours",futureall:"À venir",unscheduled:"À planifier",done:"Terminées",archived:"Archivées"})[filter]||"Mes tâches",a,filter==="late")}
@@ -374,6 +409,11 @@ $('#taskList').querySelectorAll('[data-restore]').forEach(function(btn){btn.addE
 $('#taskList').querySelectorAll('[data-check]').forEach(function(input){input.addEventListener('click',function(e){e.stopPropagation();var t=findItem(input.dataset.check);if(t){t.done=input.checked;persist();renderTasks();renderCalendar();toast(t.done?"Tâche terminée":"Tâche réouverte")}})});
 $('#taskList').querySelectorAll('.task-item').forEach(function(card){card.addEventListener('pointerdown',function(e){if(e.button!==0||e.target.closest('button,input,a'))return;var t=findItem(card.dataset.open);if(t&&!t.archived&&!t.done)startTaskDrag(e,t)})});
 $('#taskList').querySelectorAll('[data-open]').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation();if(Date.now()<suppressTaskClickUntil)return;var t=findItem(el.dataset.open);if(t)openPopover(t,e.clientX,e.clientY)})});
+$('#taskList').querySelectorAll('[data-appointment-open]').forEach(function(el){
+function show(e){e.stopPropagation();var t=findItem(el.dataset.appointmentOpen);if(t){var r=el.getBoundingClientRect();openPopover(t,e.clientX||r.right-10,e.clientY||r.top+18)}}
+el.addEventListener('click',show);
+el.addEventListener('keydown',function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();show(e)}});
+});
 if($('#newFromList'))$('#newFromList').onclick=function(){openModal("task",today,null)}
 }
 function renderCalendar(){var preserved=$('#calendarScroll').scrollTop,dayMode=calendarView==="day";
