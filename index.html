@@ -476,39 +476,72 @@ else{var cols=Array.from(document.querySelectorAll('.day-column'));var target=co
 persist();renderAll()}
 document.addEventListener('pointermove',moving);document.addEventListener('pointerup',finish);document.addEventListener('pointercancel',finish);
 }
-function popText(label,value,icon){return value?'<div class="pop-row"><span class="sym">'+icon+'</span><div><strong>'+esc(label)+'</strong><br>'+esc(value)+'</div></div>':''}
-function openPopover(t,x,y){if(!t)return;popupItem=t;var body='<h3>'+esc(t.title)+'</h3><p>'+(t.kind==='task'?'Tâche':'Événement · '+({blue:'Entretien tripartite',green:'Réunion interne',yellow:'Rendez-vous'}[t.category]||'Autre'))+'</p>';
-body+=popText('Date',t.date?fmtFull(t.date):'À planifier','▦');
-body+=popText(t.kind==='task'?'Échéance':'Horaire',t.minute!==null&&t.minute!==undefined?(t.kind==='event'?time(t.minute)+' – '+time(t.minute+t.duration):time(t.minute)):(t.kind==='task'?'Sans heure fixe':''),'◷');
-body+=popText('Apprenti',t.person,'♙')+popText('Entreprise',t.company,'▣');
-if(t.origin==="Calendly"){
-body+='<div class="booking-details"><strong>Informations du formulaire Calendly</strong>';
-body+=popText('Personne ayant réservé',t.bookerName,'♙');
-body+=popText('Qualité',t.bookerRole,'◉');
-body+=popText('Email renseigné',t.bookerEmail,'✉');
-body+=popText('Téléphone pour l’appel',t.bookerPhone,'☎');
-body+=popText('Sujet de l’appel',t.bookingSubject,'☷');
-body+='</div>';
-if(t.matchStatus==="none")body+='<p class="contract-status warning">Aucun contrat identifié à partir de l’email : rattachement manuel possible.</p>';
-if(t.matchStatus==="multiple")body+='<p class="contract-status warning">Plusieurs contrats correspondent à cet email : rattachement manuel nécessaire.</p>';
+/* Présentation commune : la provenance ne change pas les champs métier affichés. */
+function isOutlookMeeting(t){return t.kind==="event"&&t.origin==="Outlook"}
+function unifiedContact(t){
+ var c=getContract(t.contractId),isBooking=t.origin==="Calendly";
+ var role=(t.bookerRole||"").toLowerCase(),bookedMA=isBooking&&role.includes("maître"),bookedApprentice=isBooking&&role.includes("apprenti");
+ return {
+  apprentice:(c&&c.apprentice)||t.person||(bookedApprentice?t.bookerName:"")||"",
+  ma:(c&&c.maName)||t.maName||(bookedMA?t.bookerName:"")||"",
+  company:(c&&c.company)||t.company||"",
+  phone:t.contactPhone!==undefined?t.contactPhone:(isBooking?t.bookerPhone||"":(c&&c.maPhone)||""),
+  email:t.contactEmail!==undefined?t.contactEmail:(isBooking?t.bookerEmail||"":(c&&c.maEmail)||""),
+  comment:t.comment!==undefined?t.comment:(t.bookingSubject||"")
+ };
 }
-var contract=getContract(t.contractId),manualLink=safeUrl(t.contractUrl);
-if(contract||manualLink)body+='<div class="contract-link-block"><strong>Contrat associé</strong><p>'+(contract?esc(contract.id+' · '+contract.apprentice+' · '+contract.company):'Lien renseigné par le collaborateur')+'</p><button type="button" class="btn" data-popaction="opencontract">↗ Ouvrir le contrat lié</button></div>';
-if(t.kind==='task')body+=popText('Responsable','Moi (démo)','♧');
-if(t.origin)body+=popText('Provenance',t.origin,'↗');
-if(t.priority)body+='<p style="color:#a76419">⚠ Tâche importante</p>';
-if(t.origin==="Calendly")body+='<p>Modifiable dans cette maquette. En production, la synchronisation des corrections avec Calendly devra être précisée au lot 5.</p>';
-body+='<div class="pop-actions">';
-if(t.kind==="task"&&!t.archived)body+='<button class="btn primary" data-popaction="toggle">'+(t.done?'↺ Réouvrir':'✓ Terminer')+'</button>';
-if(!t.archived)body+='<button class="btn" data-popaction="edit">✎ Modifier</button>';
-if(t.kind==="task"&&!t.archived)body+='<button class="btn" data-popaction="postpone">↗ Reporter</button>';
-if(t.kind==="task")body+='<button class="btn" data-popaction="'+(t.archived?'restore':'archive')+'">'+(t.archived?'↶ Désarchiver':'Archiver')+'</button>';
-body+='<button class="btn" data-popaction="linkcontract">'+((contract||manualLink)?'Changer le contrat':'Associer un contrat')+'</button>';
-body+='</div>';
-$('#popoverInner').innerHTML=body;
-var p=$('#popover');p.classList.add('open');var w=350,h=p.getBoundingClientRect().height;
-p.style.left=clamp(x+12,12,window.innerWidth-w-12)+'px';p.style.top=clamp(y+10,12,window.innerHeight-h-12)+'px';
-$('#popoverInner').querySelectorAll('[data-popaction]').forEach(function(btn){btn.onclick=function(){var a=btn.dataset.popaction;hidePopover();if(a==="toggle"){t.done=!t.done;persist();renderAll();toast(t.done?"Tâche terminée":"Tâche réouverte")}else if(a==="edit")openModal(t.kind,t.date,t.minute,t);else if(a==="postpone"){openModal("task",t.date,t.minute,t)}else if(a==="archive"){t.archived=true;persist();renderAll();toast("Tâche archivée")}else if(a==="restore"){t.archived=false;persist();renderAll();toast("Tâche désarchivée")}else if(a==="opencontract"){openLinkedContract(t)}else if(a==="linkcontract"){openLinkContract(t)}}})}
+function unifiedInfoRow(label,value,icon){
+ if(!value)return "";
+ return '<div class="pop-row"><span class="sym" aria-hidden="true">'+icon+'</span><div><span class="pop-label">'+esc(label)+'</span><span class="pop-value">'+esc(value)+'</span></div></div>';
+}
+function openPopover(t,x,y){
+ if(!t)return;
+ hideSlotChooser();popupItem=t;
+ var out=isOutlookMeeting(t),contact=unifiedContact(t),contract=getContract(t.contractId),hasContract=!!contract||!!safeUrl(t.contractUrl);
+ var subtitle=t.kind==="task"?"Tâche":t.category==="blue"?"Entretien tripartite":t.category==="green"?"Réunion interne":"Rendez-vous";
+ var when=t.date?fmtFull(t.date):"À planifier";
+ if(t.minute!==null&&t.minute!==undefined)when+=" · "+time(t.minute)+(t.kind==="event"&&t.duration?"–"+time(t.minute+t.duration):"");
+ var body='<h3>'+esc(t.title)+'</h3><p class="pop-summary">'+esc(subtitle)+' · '+esc(when)+(out?' · Outlook':'')+'</p>';
+ if(!out){
+  body+=unifiedInfoRow("Apprenti",contact.apprentice,"♙");
+  body+=unifiedInfoRow("Maître d’apprentissage",contact.ma+(contact.company?" ("+contact.company+")":""),"◉");
+  body+=unifiedInfoRow("Téléphone",contact.phone,"☎");
+  body+=unifiedInfoRow("Email",contact.email,"✉");
+  body+='<div class="pop-comment"><label for="popComment">Commentaire</label><textarea id="popComment" maxlength="1200" placeholder="Ajouter un commentaire ou préciser le sujet de l’appel…">'+esc(contact.comment)+'</textarea><small>Enregistrement automatique</small></div>';
+  if(t.origin==="Calendly"&&t.matchStatus==="multiple"&&!hasContract)body+='<div class="contract-status warning">Plusieurs contrats correspondants : rattachement à vérifier.</div>';
+  else if(t.origin==="Calendly"&&t.matchStatus==="none"&&!hasContract)body+='<div class="contract-status warning">Contrat non identifié : rattachement manuel nécessaire.</div>';
+  body+='<button type="button" class="pop-contract-cta" data-popaction="opencontract" '+(hasContract?'':'disabled title="Associer un contrat depuis le menu ⋯"')+'>↗ Ouvrir le contrat lié</button>';
+ }
+ body+='<div class="pop-context-options"><button type="button" class="pop-overflow-button" id="popOverflow" aria-label="Autres actions" aria-expanded="false" aria-controls="popOverflowMenu" title="Autres actions">⋯</button><div class="pop-overflow-menu" id="popOverflowMenu">';
+ if(t.kind==="task"&&!t.archived)body+='<button type="button" data-popaction="toggle">'+(t.done?'↺ Réouvrir':'✓ Terminer')+'</button>';
+ if(!t.archived)body+='<button type="button" data-popaction="edit">✎ Modifier</button>';
+ if(t.kind==="task"&&!t.archived)body+='<button type="button" data-popaction="postpone">↗ Reporter</button>';
+ if(t.kind==="task")body+='<button type="button" data-popaction="'+(t.archived?'restore':'archive')+'">'+(t.archived?'↶ Désarchiver':'Archiver')+'</button>';
+ if(!out)body+='<button type="button" data-popaction="linkcontract">'+(hasContract?'Changer le contrat':'Associer un contrat')+'</button>';
+ body+='</div></div>';
+ $('#popoverInner').innerHTML=body;
+ var p=$('#popover');p.classList.add('open');
+ var rect=p.getBoundingClientRect();
+ p.style.left=clamp(x+12,12,Math.max(12,window.innerWidth-rect.width-12))+'px';
+ p.style.top=clamp(y+10,12,Math.max(12,window.innerHeight-rect.height-12))+'px';
+ var comment=$('#popComment');
+ if(comment)comment.addEventListener('blur',function(){
+  if(t.comment===comment.value)return;
+  t.comment=comment.value;persist();
+ });
+ var toggle=$('#popOverflow');
+ toggle.onclick=function(e){e.stopPropagation();var menu=$('#popOverflowMenu'),open=!menu.classList.contains('open');menu.classList.toggle('open',open);toggle.setAttribute('aria-expanded',open?'true':'false')};
+ $('#popoverInner').querySelectorAll('[data-popaction]').forEach(function(btn){btn.onclick=function(){
+  var a=btn.dataset.popaction;hidePopover();
+  if(a==="toggle"){t.done=!t.done;persist();renderAll();toast(t.done?"Tâche terminée":"Tâche réouverte")}
+  else if(a==="edit")openModal(t.kind,t.date,t.minute,t);
+  else if(a==="postpone")openModal("task",t.date,t.minute,t);
+  else if(a==="archive"){t.archived=true;persist();renderAll();toast("Tâche archivée")}
+  else if(a==="restore"){t.archived=false;persist();renderAll();toast("Tâche désarchivée")}
+  else if(a==="opencontract")openLinkedContract(t);
+  else if(a==="linkcontract")openLinkContract(t);
+ }});
+}
 function hidePopover(){$('#popover').classList.remove('open');popupItem=null}
 function openModal(kind,date,minute,item,fromContractId,prefillDuration){hideSlotChooser();hidePopover();editing=item||null;modalKind=kind||"task";modalDate=date||today;modalMinute=minute===undefined?null:minute;modalPrefillDuration=prefillDuration||30;modalPrefillContractId=fromContractId||"";renderModal();$('#modalCover').classList.add('open');setTimeout(function(){var title=$('#fTitle');if(title)title.focus()},25)}
 function renderModal(){var t=editing,kind=t?t.kind:modalKind;
