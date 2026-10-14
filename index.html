@@ -91,6 +91,24 @@ body.task-is-dragging .task-drop-help{display:block}
 .work-shade-key{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .work-shade-key i{width:11px;height:11px;background:rgba(128,141,157,.28);border:1px solid #bfc6cf;border-radius:2px}
 
+
+/* Rattachement aux contrats et données de réservation Calendly */
+.contract-modal{width:min(610px,100%)}
+.contract-card{border:1px solid #dce4ec;border-radius:8px;padding:12px 14px;margin-bottom:9px;background:#fff}
+.contract-card:hover{background:#f8fafc}
+.contract-title{font-size:13px;font-weight:700;color:#263442}
+.contract-sub{font-size:11px;color:#6a7987;margin:6px 0 9px}
+.contract-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.contract-actions .btn{font-size:11px}
+.contract-pill{display:inline-block;font-size:10px;padding:3px 7px;border-radius:5px;background:#eff3f7;color:#526477;margin-bottom:6px}
+.contract-link-block{margin-top:13px;padding:11px 12px;border:1px solid #b6d1ec;background:#f1f7ff;border-radius:7px}
+.contract-link-block .btn{margin-top:8px;font-size:11px}
+.contract-status{font-size:11px;color:#516376;margin:8px 0;line-height:1.45}
+.contract-status.warning{color:#a36b24}
+.booking-details{margin:13px 0 0;padding:11px 12px;border:1px solid #e6e9ee;border-radius:7px;background:#fafbfc}
+.booking-details strong{font-size:12px;color:#304052}
+.booking-details .pop-row{margin:9px 0}
+#calendlyDemoForm textarea{min-height:62px}
 </style>
 </head>
 <body>
@@ -99,7 +117,7 @@ body.task-is-dragging .task-drop-help{display:block}
 <main class="workspace">
 <header class="topbar">
 <div class="heading"><h1>Mes tâches <span class="pill">Maquette interactive</span></h1><small>Organiser mes actions et mes rendez-vous</small></div>
-<div class="toolbar"><button id="newTaskTop" class="btn primary">＋ Créer</button></div>
+<div class="toolbar"><button type="button" class="btn" id="demoContractsBtn">Contrats (démo)</button><button type="button" class="btn" id="demoCalendlyBtn">Tester Calendly</button><button id="newTaskTop" class="btn primary">＋ Créer</button></div>
 </header>
 <div class="mainrow">
 <section id="taskPanel" class="tasks-panel" aria-label="Liste des tâches">
@@ -156,6 +174,15 @@ body.task-is-dragging .task-drop-help{display:block}
 <div class="modal-head"><h2 id="modalTitle">Nouvelle tâche</h2><button type="button" class="pop-close" style="position:static" id="closeModal" aria-label="Fermer">×</button></div>
 <div class="modal-body" id="modalBody"></div><div class="modal-foot"><button type="button" class="btn" id="cancelModal">Annuler</button><button type="submit" class="btn primary" id="saveModal">Enregistrer</button></div>
 </form></div>
+<div class="modal-cover" id="contractCover"><section class="modal contract-modal" role="dialog" aria-modal="true" aria-label="Dossiers contrats fictifs"><div class="modal-head"><h2 id="contractHeading">Contrats fictifs</h2><button type="button" class="pop-close" id="closeContractCover" style="position:static" aria-label="Fermer">×</button></div><div class="modal-body" id="contractDetail"></div></section></div>
+<div class="modal-cover" id="linkCover"><form class="modal" id="linkContractForm" aria-label="Rattacher un contrat"><div class="modal-head"><h2>Rattacher un contrat</h2><button type="button" class="pop-close" id="closeLinkCover" style="position:static" aria-label="Fermer">×</button></div><div class="modal-body"><p class="hint">Choisissez un contrat fictif ou renseignez un lien. Dans le vrai Nabu, ce champ utilisera les contrats accessibles au collaborateur.</p><div class="field"><label for="linkContractSelect">Contrat Nabu</label><select id="linkContractSelect"></select></div><div class="field"><label for="linkContractUrl">Lien du contrat (facultatif)</label><input id="linkContractUrl" type="url" placeholder="https://..." maxlength="500"></div><p class="hint">Ne renseignez aucune information professionnelle réelle dans cette maquette publique.</p></div><div class="modal-foot"><button type="button" class="btn" id="cancelLinkCover">Annuler</button><button type="submit" class="btn primary">Enregistrer le rattachement</button></div></form></div>
+<div class="modal-cover" id="calendlyCover"><form class="modal" id="calendlyDemoForm" aria-label="Simuler une réservation Calendly"><div class="modal-head"><h2>Simuler une réservation Calendly</h2><button type="button" class="pop-close" id="closeCalendlyCover" style="position:static" aria-label="Fermer">×</button></div><div class="modal-body"><p class="hint">Simulation locale, sans connexion à Calendly ou à Nabu. Les identités et emails proposés sont fictifs.</p>
+<div class="twocol"><div class="field"><label for="calDate">Date du rendez-vous</label><input id="calDate" type="date" required></div><div class="field"><label for="calTime">Heure</label><input id="calTime" type="time" step="900" value="11:00" required></div></div>
+<div class="field"><label for="calName">Prénom et nom du réservant *</label><input id="calName" required placeholder="Émilie Perrin"></div>
+<div class="field"><label for="calEmail">Adresse email du formulaire *</label><input id="calEmail" type="email" required placeholder="emilie.perrin@example.test"></div>
+<div class="twocol"><div class="field"><label for="calRole">Qualité *</label><select id="calRole"><option>Maître d'apprentissage</option><option>Apprenti</option></select></div><div class="field"><label for="calPhone">Téléphone *</label><input id="calPhone" type="tel" required placeholder="06 00 00 00 00"></div></div>
+<div class="field"><label for="calSubject">Sujet de l'appel (facultatif)</label><textarea id="calSubject" placeholder="Ex. Point d'intégration"></textarea></div>
+</div><div class="modal-foot"><button type="button" class="btn" id="cancelCalendlyCover">Annuler</button><button type="submit" class="btn primary">Simuler la réservation</button></div></form></div>
 <div id="toast" class="toast" role="status"></div>
 <script>
 (function(){
@@ -163,7 +190,7 @@ body.task-is-dragging .task-drop-help{display:block}
 var HOUR_PX=72, FIRST=7*60, LAST=19*60+30, MAX_PX=(LAST-FIRST)*HOUR_PX/60;
 var $=function(s){return document.querySelector(s)};
 var now=new Date(), today=dayKey(now), shownMonday=monday(now);
-var filter="today", query="", editing=null, modalKind="task", modalDate=today, modalMinute=null, popupItem=null;
+var filter="today", query="", editing=null, modalKind="task", modalDate=today, modalMinute=null, popupItem=null, modalPrefillContractId="", itemToLink=null;
 function pad(x){return String(x).padStart(2,"0")}
 function dayKey(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
 function parseDay(k){return new Date(k+"T12:00:00")}
@@ -178,6 +205,20 @@ function snap(x){return Math.round(x/15)*15}
 function esc(s){return String(s===undefined||s===null?"":s).replace(/[&<>"']/g,function(ch){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]})}
 function uid(){return "demo-"+Date.now()+"-"+Math.floor(Math.random()*100000)}
 function niceDue(k,m){return k===today?"Aujourd'hui"+(m!==null&&m!==undefined?" · "+time(m):""):fmtDate(k)+(m!==null&&m!==undefined?" · "+time(m):"")}
+/* Dossiers exclusivement fictifs (domaines example.test). */
+var fakeContracts=[
+{id:"DEMO-1001",apprentice:"Léa Dubois",company:"Horizon Conseil",apprenticeEmail:"lea.dubois@example.test",maName:"Émilie Perrin",maEmail:"emilie.perrin@example.test"},
+{id:"DEMO-1002",apprentice:"Adam Laurent",company:"Maison Nova",apprenticeEmail:"adam.laurent@example.test",maName:"Nicolas Leroy",maEmail:"nicolas.leroy@example.test"},
+{id:"DEMO-1003",apprentice:"Chloé Martin",company:"Agence Atlas",apprenticeEmail:"chloe.martin@example.test",maName:"Camille Rossi",maEmail:"camille.rossi@example.test"},
+{id:"DEMO-1004",apprentice:"Noah Petit",company:"Studio Pixel",apprenticeEmail:"noah.petit@example.test",maName:"Julie Garnier",maEmail:"julie.garnier@example.test"},
+{id:"DEMO-1005",apprentice:"Inès Bernard",company:"Cap Horizon",apprenticeEmail:"ines.bernard@example.test",maName:"Thomas Bell",maEmail:"thomas.bell@example.test"},
+{id:"DEMO-1006",apprentice:"Sara Girard",company:"Espace Conseil",apprenticeEmail:"sara.girard@example.test",maName:"Maxime Lenoir",maEmail:"maxime.lenoir@example.test"}
+];
+function getContract(id){return fakeContracts.find(function(c){return c.id===id})||null}
+function normalizeEmail(v){return String(v||"").trim().toLowerCase()}
+function matchContractByEmail(email){var key=normalizeEmail(email);if(!key)return {status:"none",contractId:""};var matched=fakeContracts.filter(function(c){return normalizeEmail(c.apprenticeEmail)===key||normalizeEmail(c.maEmail)===key});return matched.length===1?{status:"matched",contractId:matched[0].id}:matched.length>1?{status:"multiple",contractId:""}:{status:"none",contractId:""}}
+function contractsOptions(value){return '<option value="">— Aucun contrat associé —</option>'+fakeContracts.map(function(c){return '<option value="'+esc(c.id)+'" '+(c.id===value?'selected':'')+'>'+esc(c.id+" · "+c.apprentice+" · "+c.company)+'</option>'}).join('')}
+function safeUrl(value){try{var u=new URL(String(value||""));return /^https?:$/.test(u.protocol)?u.href:""}catch(e){return ""}}
 function seed(){var m=monday(new Date());return [
 {id:"t1",kind:"task",title:"Relancer le maître d'apprentissage",person:"Léa Dubois",company:"Horizon Conseil",date:plusDays(today,-2),minute:null,priority:true,done:false},
 {id:"t2",kind:"task",title:"Vérifier le suivi d'intégration M+1",person:"Adam Laurent",company:"Maison Nova",date:plusDays(today,-1),minute:null,done:false},
@@ -205,6 +246,14 @@ function toggleWorkingHoursSettings(open){$('#workSettings').classList.toggle('o
 var storeKey="nabu-maquette-v1";
 var items;
 try{items=JSON.parse(localStorage.getItem(storeKey));if(!Array.isArray(items))throw Error()}catch(e){items=seed()}
+/* Réconcilier les données fictives déjà enregistrées, sans écraser les tâches ajoutées par l'utilisateur. */
+var fixtureLinks={t1:"DEMO-1001",t2:"DEMO-1002",t3:"DEMO-1003",t4:"DEMO-1004",t5:"DEMO-1003",t6:"DEMO-1005",t7:"DEMO-1006",e1:"DEMO-1003",e2:"DEMO-1001",e3:"DEMO-1004",e5:"DEMO-1006"};
+items.forEach(function(t){
+ if(fixtureLinks[t.id]&&t.contractId===undefined)t.contractId=fixtureLinks[t.id];
+ if(t.id==="e2"&&t.origin==="Calendly"){t.bookerName=t.bookerName||"Émilie Perrin";t.bookerRole=t.bookerRole||"Maître d'apprentissage";t.bookerEmail=t.bookerEmail||"emilie.perrin@example.test";t.bookerPhone=t.bookerPhone||"06 00 00 00 01";if(t.bookingSubject===undefined)t.bookingSubject="Suivi du démarrage du contrat"}
+ if(t.id==="e5"&&t.origin==="Calendly"){t.bookerName=t.bookerName||"Sara Girard";t.bookerRole=t.bookerRole||"Apprenti";t.bookerEmail=t.bookerEmail||"sara.girard@example.test";t.bookerPhone=t.bookerPhone||"06 00 00 00 02";if(t.bookingSubject===undefined)t.bookingSubject=""}
+ if(t.origin==="Calendly"&&t.bookerEmail&&!t.contractManuallyLinked){var m=matchContractByEmail(t.bookerEmail);t.matchStatus=m.status;t.contractId=m.contractId}
+});
 function persist(){try{localStorage.setItem(storeKey,JSON.stringify(items))}catch(e){}}
 function findItem(id){return items.find(function(i){return i.id===id})}
 function tasks(){return items.filter(function(t){return t.kind==="task"&&!t.archived})}
