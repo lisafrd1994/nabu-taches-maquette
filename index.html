@@ -24,24 +24,56 @@
 .dayhead.task-drop-target{border-bottom:3px solid #e49b37}
 .calendar{position:relative}.task-drop-help{position:absolute;right:16px;bottom:12px;z-index:9;padding:9px 12px;border:1px solid #efca92;border-radius:7px;background:#fff6e7;box-shadow:0 4px 12px #1b26311c;color:#8a622e;font-size:11px;display:none;pointer-events:none}.drag-tip{color:#8b7580;font-size:10.5px;margin-top:9px;line-height:1.4}
 body.task-is-dragging .task-drop-help{display:block}
+
+/* iSCOD sidebar — visual reference Nabu */
+:root{--blue:#2F64D6;--purple:#8350BE;--teal:#078B98;--orange:#D78B18;--done:#198753}
+.nav{width:177px;min-width:177px;flex:none;background:#212529;padding:0;overflow:hidden;gap:0}
+.iscod-brand{height:69px;min-height:69px;padding:16px 13px 9px 29px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #343940}
+.iscod-stamp{width:40px;height:36px;min-width:40px;position:relative;display:flex;align-items:center;justify-content:center;transform:rotate(-10deg);color:white}
+.iscod-stamp:before{content:"";position:absolute;width:29px;height:28px;border:2px solid #ec2053;top:0;left:0;transform:skew(-5deg)}
+.iscod-stamp span{font-size:13px;font-weight:850;font-style:italic;letter-spacing:-1px;white-space:nowrap;position:relative;text-shadow:1px 1px 0 #212529}
+.iscod-tagline{font-size:6.5px;font-weight:850;line-height:1.08;letter-spacing:-.18px;color:white;white-space:nowrap}
+.nav-group-head{display:flex;align-items:center;gap:9px;color:white;padding:14px 22px 8px;font-size:23px;font-weight:700}
+.nav-switch{display:inline-flex;align-items:center;justify-content:center;border:1px solid #d9dfe5;border-radius:3px;width:23px;height:22px;font-size:17px;font-weight:400}
+.nav-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#50565f #212529}
+.nav-small{font-size:9px;font-weight:500;color:#848d98;padding:0 5px;letter-spacing:0;margin:0}
+.nav-first{padding:0 4px 4px}.nav-subsection{padding:6px 4px 2px}
+.nav-item{height:19px;min-height:19px;margin:0 3px;padding:1px 9px 1px 15px;border-radius:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11.5px;line-height:17px;display:flex;gap:5px;color:#e0e2e5}
+.nav-icon{width:15px;min-width:15px;color:#8e99a6;font-size:13px}
+.nav-item.active{background:linear-gradient(180deg,#e42e5c,#bd1a47);color:white;font-weight:700}
+.nav-item.active .nav-icon{color:#fff}
+.nav-section{margin:9px 7px 5px;padding-top:9px;border-top:1px solid #50565f;min-height:1px}
+.nav-footer{flex:none;padding:8px 13px 9px;border-top:1px solid #50565f}
+.nav-footer a{display:flex;align-items:center;gap:8px;text-decoration:none;color:#dadde1;font-size:11px;line-height:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-footer a span{width:13px;color:#9ca5af}
+.nav-version{color:#8c95a0;font-size:9px;margin-top:4px}
+@media(max-width:1030px){.nav{width:160px;min-width:160px}.nav-group-head{padding-left:12px;font-size:20px}.iscod-brand{padding-left:18px}}
+@media(max-width:770px){.nav{display:none}}
+/* Distinct event hues: blue tripartite, purple meeting, teal appointment. */
+.event-entry{border-left-color:var(--blue);background:#e2edff;color:#153f8f}
+.event-entry.green{border-left-color:var(--purple);background:#efe6fc;color:#5c318f}
+.event-entry.yellow{border-left-color:var(--teal);background:#def5f5;color:#0c5f68}
+/* Tasks: warm amber pending, green completed, no strike-through, no fading */
+.task-item:not(.archived):not(.done){border-left-color:var(--orange);background:#fffaf1}
+.task-item.done:not(.archived){opacity:1;background:#e5f5eb;border-color:#a1d9b8;border-left:4px solid var(--done)}
+.task-item.done .task-name{color:#205840;text-decoration:none}
+.task-item.done .task-meta{color:#376c51}
+.task-done-label{color:#147548;font-weight:750;font-size:10px}
+.task-check:checked{background:var(--done);border-color:var(--done)}
+.day-task-chip{display:flex;align-items:center;gap:6px;border-color:#efc587;background:#fff3df;color:#805117;cursor:pointer}
+.day-task-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.day-task-chip .task-check{width:14px;height:14px;margin:0}
+.day-task-chip.done{opacity:1;text-decoration:none;background:#def3e5;border-color:#88c8a4;color:#1e6141}
+.day-task-chip.done span{text-decoration:none}
+.task-entry{background:#fff1d7;border-color:#e8bd78;border-left-color:var(--orange);color:#754b19}
+.task-entry.done{opacity:1;text-decoration:none;background:#dcf2e4;border-color:#8dccaa;border-left:3px solid var(--done);color:#1b5c3d}
+.task-entry.done span{text-decoration:none}
+
 </style>
 </head>
 <body>
 <div class="app">
-<aside class="nav" aria-label="Navigation de démonstration">
-<div class="brand">◩ NABU <span>MAQUETTE • DONNÉES FICTIVES</span></div>
-<div class="nav-title">Contrats ▾</div>
-<div class="nav-small">Gérer</div>
-<a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▦</span>Contrats</a>
-<a href="#" class="nav-item" onclick="return false"><span class="nav-icon">☏</span>Mes échanges</a>
-<a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♙</span>Mes participants</a>
-<a href="#" class="nav-item active" onclick="return false"><span class="nav-icon">☷</span>Mes tâches</a>
-<a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▣</span>Absences</a>
-<div class="nav-small">Produits</div>
-<a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▥</span>Types de produit</a>
-<a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◈</span>Produits</a>
-<div class="nav-foot">Prototype fonctionnel — Lot 1<br>Données fictives uniquement<br>Sans connexion à Nabu</div>
-</aside>
+<aside class="nav" aria-label="Navigation Nabu (maquette)"><div class="iscod-brand" aria-label="iSCOD — L’alternance nouvelle génération"><div class="iscod-stamp"><span>iSCOD</span></div><div class="iscod-tagline">L’ALTERNANCE<br>NOUVELLE GÉNÉRATION</div></div><div class="nav-group-head"><span>Contrats</span><span class="nav-switch">⌄</span></div><div class="nav-scroll"><div class="nav-small nav-first">GÉRER</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♟</span>Contrats</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">☏</span>Mes échanges</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♙</span>Mes participants</a><a href="#" class="nav-item active" aria-current="page" onclick="return false"><span class="nav-icon">☷</span>Mes tâches</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▣</span>Absences</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♧</span>Mise à jour en masse</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Replanifications de visio</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">⊙</span>Interface élèves</a><div class="nav-section"><div class="nav-small">PRODUITS</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◧</span>Types de produit</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♙</span>Types d'accompagnement</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▤</span>Produits</a><div class="nav-small nav-subsection">MARKETING</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◈</span>Thématiques</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">☷</span>Spécialisations (tag)</a><div class="nav-small nav-subsection">CERTIFICATEURS</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Certificateurs</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▦</span>Titres</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▤</span>Tableaux de commission</a><div class="nav-section"><div class="nav-small">FACTURATION</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Banettes de facturation</a><div class="nav-section"><div class="nav-small">PARAMÈTRES</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▦</span>Modèles de Calendrier</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◧</span>Livret d'apprentissage</a><div class="nav-section"></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◩</span>Rapports</a></div><div class="nav-footer"><a href="#" onclick="return false"><span>ⓘ</span>Besoin d’aide ?</a><a href="#" onclick="return false"><span>♟</span>Notifications</a><a href="#" onclick="return false"><span>♙</span>utilisateur@exemple.fr</a><a href="#" onclick="return false"><span>⏻</span>Déconnexion</a><div class="nav-version">◈ Maquette · Données fictives</div></div></aside>
 <main class="workspace">
 <header class="topbar">
 <div class="heading"><h1>Mes tâches <span class="pill">Maquette interactive</span></h1><small>Organiser mes actions et mes rendez-vous</small></div>
