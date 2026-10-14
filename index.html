@@ -69,6 +69,28 @@ body.task-is-dragging .task-drop-help{display:block}
 .task-entry.done{opacity:1;text-decoration:none;background:#dcf2e4;border-color:#8dccaa;border-left:3px solid var(--done);color:#1b5c3d}
 .task-entry.done span{text-decoration:none}
 
+
+/* Plages de travail personnelles : grisé purement visuel, sans empêcher les interactions */
+.calendar-head{position:relative}
+.work-settings-button{display:inline-flex;align-items:center;justify-content:center;padding:8px;width:37px;height:35px;font-size:18px;line-height:1}
+.work-settings-button[aria-expanded="true"]{background:#fff0f4;border-color:#e7a6bb;color:#b31d46}
+.work-settings{display:none;position:absolute;top:calc(100% + 6px);right:14px;z-index:80;width:min(355px,calc(100vw - 25px));background:#fff;border:1px solid #d9e0e7;border-radius:10px;box-shadow:0 12px 36px #17263a2f;padding:18px}
+.work-settings.open{display:block}
+.work-settings h3{font-size:16px;margin:0 25px 5px 0;color:#24303c}
+.work-settings .work-settings-lead{color:#697583;font-size:11px;line-height:1.5;margin:0 0 14px}
+.work-settings .work-settings-close{position:absolute;top:10px;right:12px;padding:2px 7px;font-size:21px;background:transparent;border:0;color:#77818d}
+.work-setting-group{margin:0 0 13px}
+.work-setting-group>strong{font-size:12px;color:#465262;display:block;margin-bottom:7px}
+.work-setting-range{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.work-setting-range label{display:flex;flex-direction:column;gap:4px;color:#717c88;font-size:11px}
+.work-setting-range input{width:100%;min-width:0;height:36px;padding:6px 8px;border:1px solid #d8dfe7;border-radius:6px;color:#26323d;background:white}
+.work-settings-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:15px}
+.work-settings-message{font-size:11px;color:#ad3030;margin:8px 0 0;min-height:0}
+.nonwork-band{position:absolute;z-index:0;left:0;right:0;pointer-events:none;background:rgba(128,141,157,.19);border-top:1px solid rgba(120,133,149,.12);border-bottom:1px solid rgba(120,133,149,.12)}
+.day-column .entry{z-index:2}
+.work-shade-key{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.work-shade-key i{width:11px;height:11px;background:rgba(128,141,157,.28);border:1px solid #bfc6cf;border-radius:2px}
+
 </style>
 </head>
 <body>
@@ -100,12 +122,27 @@ body.task-is-dragging .task-drop-help{display:block}
 <div class="calendar-head">
 <div class="row"><span class="calendar-title" id="weekTitle">Semaine</span><span class="pill" style="background:#f1f3f6;color:#657181">5 jours</span></div>
 <div class="calendar-controls">
-<button class="btn" id="todayBtn">Aujourd'hui</button><button class="btn icon" id="prevWeek" aria-label="Semaine précédente">‹</button><button class="btn icon" id="nextWeek" aria-label="Semaine suivante">›</button>
+<button class="btn" id="todayBtn">Aujourd'hui</button><button class="btn icon" id="prevWeek" aria-label="Semaine précédente">‹</button><button class="btn icon" id="nextWeek" aria-label="Semaine suivante">›</button><button class="btn work-settings-button" type="button" id="workSettingsButton" aria-label="Définir mes horaires de travail" title="Mes horaires de travail" aria-expanded="false" aria-controls="workSettings">⚙</button>
 </div>
+<form class="work-settings" id="workSettings" aria-label="Mes horaires de travail">
+<button type="button" class="work-settings-close" id="closeWorkSettings" aria-label="Fermer">×</button>
+<h3>Mes horaires de travail</h3>
+<p class="work-settings-lead">Les plages en dehors de vos horaires seront grisées. Le calendrier reste accessible de 7h à 19h30.</p>
+<div class="work-setting-group"><strong>Matin</strong><div class="work-setting-range">
+<label>Début<input type="time" id="morningStart" step="900" required></label>
+<label>Fin<input type="time" id="morningEnd" step="900" required></label>
+</div></div>
+<div class="work-setting-group"><strong>Après-midi</strong><div class="work-setting-range">
+<label>Début<input type="time" id="afternoonStart" step="900" required></label>
+<label>Fin<input type="time" id="afternoonEnd" step="900" required></label>
+</div></div>
+<p class="work-settings-message" id="workSettingsMessage" role="alert"></p>
+<div class="work-settings-actions"><button class="btn" type="button" id="cancelWorkSettings">Annuler</button><button class="btn primary" type="submit">Enregistrer</button></div>
+</form>
 </div>
 <div class="legend">
 <span><i class="swatch" style="background:var(--blue)"></i>Tripartite</span><span><i class="swatch" style="background:var(--purple)"></i>Réunion interne</span><span><i class="swatch" style="background:var(--teal)"></i>Rendez-vous</span><span><i class="swatch" style="background:var(--orange)"></i>Tâche à faire</span><span><i class="swatch" style="background:var(--done)"></i>Tâche terminée</span>
-<span style="margin-left:auto">07h00–19h30 · précision 15 min</span>
+<span class="work-shade-key"><i></i> Hors horaires</span><span style="margin-left:auto">07h00–19h30 · précision 15 min</span>
 </div>
 <div id="dayHeads" class="dayheads"></div><div class="task-drop-help" id="taskDropHelp">Déposez une tâche sur une date (sans heure) ou sur un créneau (heure précise).</div>
 <div id="allDay" class="allday"></div>
@@ -157,6 +194,14 @@ function seed(){var m=monday(new Date());return [
 {id:"e5",kind:"event",title:"Rendez-vous apprenti — Sara Girard",date:plusDays(m,3),minute:15*60,duration:30,category:"yellow",person:"Sara Girard",company:"Espace Conseil",origin:"Calendly"},
 {id:"e6",kind:"event",title:"Point équipe Expérience Entreprise",date:plusDays(m,4),minute:9*60,duration:30,category:"green",person:"",company:"",origin:"Nabu"}
 ]}
+var workingHoursStoreKey="nabu-maquette-working-hours-v1";
+var defaultWorkingHours={morningStart:510,morningEnd:750,afternoonStart:840,afternoonEnd:1170};
+function validWorkingHours(h){return h&&Object.keys(defaultWorkingHours).every(function(k){return Number.isInteger(h[k])&&h[k]%15===0})&&FIRST<=h.morningStart&&h.morningStart<h.morningEnd&&h.morningEnd<=h.afternoonStart&&h.afternoonStart<h.afternoonEnd&&h.afternoonEnd<=LAST}
+var workingHours={...defaultWorkingHours};
+try{var savedWorkingHours=JSON.parse(localStorage.getItem(workingHoursStoreKey));if(validWorkingHours(savedWorkingHours))workingHours=savedWorkingHours}catch(err){}
+function shadeForCalendar(){var h=workingHours,ranges=[[FIRST,h.morningStart],[h.morningEnd,h.afternoonStart],[h.afternoonEnd,LAST]];return ranges.filter(function(p){return p[1]>p[0]}).map(function(p){return '<div class="nonwork-band" aria-hidden="true" style="top:'+((p[0]-FIRST)*HOUR_PX/60)+'px;height:'+((p[1]-p[0])*HOUR_PX/60)+'px"></div>'}).join('')}
+function fillWorkingHoursForm(){Object.keys(defaultWorkingHours).forEach(function(k){$('#'+k).value=time(workingHours[k])});$('#workSettingsMessage').textContent=''}
+function toggleWorkingHoursSettings(open){$('#workSettings').classList.toggle('open',open);$('#workSettingsButton').setAttribute('aria-expanded',open?'true':'false');if(open)fillWorkingHoursForm()}
 var storeKey="nabu-maquette-v1";
 var items;
 try{items=JSON.parse(localStorage.getItem(storeKey));if(!Array.isArray(items))throw Error()}catch(e){items=seed()}
@@ -197,7 +242,7 @@ for(var min=FIRST;min<=LAST;min+=30){labels+='<div class="time-label'+(min===LAS
 labels+='</div>';
 $('#timeGrid').innerHTML=labels+days.map(function(d){var events=items.filter(function(x){return x.kind==="event"&&x.date===d});var timed=items.filter(function(x){return x.kind==="task"&&x.date===d&&x.minute!==null&&!x.archived});
 var arr=events.concat(timed);
-var html='<div class="day-column '+(d===today?'today':'')+'" data-date="'+d+'">';
+var html='<div class="day-column '+(d===today?'today':'')+'" data-date="'+d+'">'+shadeForCalendar();
 events.sort(function(a,b){return a.minute-b.minute});
 events.forEach(function(t){var overlaps=events.filter(function(q){return q.minute<t.minute+t.duration&&q.minute+q.duration>t.minute});
 var index=overlaps.findIndex(function(q){return q.id===t.id}),count=overlaps.length;
@@ -320,11 +365,21 @@ $('#taskSearch').oninput=function(e){query=e.target.value.trim().toLowerCase();r
 $('#todayBtn').onclick=function(){shownMonday=monday(new Date());renderCalendar()};
 $('#prevWeek').onclick=function(){shownMonday=plusDays(shownMonday,-7);renderCalendar()};
 $('#nextWeek').onclick=function(){shownMonday=plusDays(shownMonday,7);renderCalendar()};
+$('#workSettingsButton').onclick=function(){toggleWorkingHoursSettings(!$('#workSettings').classList.contains('open'))};
+$('#closeWorkSettings').onclick=$('#cancelWorkSettings').onclick=function(){toggleWorkingHoursSettings(false)};
+$('#workSettings').onsubmit=function(e){
+e.preventDefault();
+var h={};Object.keys(defaultWorkingHours).forEach(function(k){h[k]=minuteFrom($('#'+k).value)});
+if(!validWorkingHours(h)){$('#workSettingsMessage').textContent='Vérifiez les horaires : 7h–19h30, par pas de 15 minutes, et dans l’ordre matin / après-midi.';return}
+workingHours=h;try{localStorage.setItem(workingHoursStoreKey,JSON.stringify(h))}catch(err){}
+toggleWorkingHoursSettings(false);renderCalendar();toast('Horaires enregistrés : plages grisées mises à jour');
+};
 $('#closePopover').onclick=hidePopover;
 document.addEventListener('pointerdown',function(e){if($('#popover').classList.contains('open')&&!e.target.closest('#popover')&&!e.target.closest('.entry')&&!e.target.closest('.task-item')&&!e.target.closest('.day-task-chip'))hidePopover()});
-document.addEventListener('keydown',function(e){if(e.key==="Escape"){hidePopover();$('#modalCover').classList.remove('open')}});
+document.addEventListener('keydown',function(e){if(e.key==="Escape"){hidePopover();toggleWorkingHoursSettings(false);$('#modalCover').classList.remove('open')}});
 $('#closeModal').onclick=$('#cancelModal').onclick=function(){$('#modalCover').classList.remove('open')};
 $('#modalCover').addEventListener('click',function(e){if(e.target===$('#modalCover'))$('#modalCover').classList.remove('open')});
+document.addEventListener('pointerdown',function(e){if($('#workSettings').classList.contains('open')&&!e.target.closest('#workSettings')&&!e.target.closest('#workSettingsButton'))toggleWorkingHoursSettings(false)});
 $('#editForm').onsubmit=saveForm;
 renderAll();$('#calendarScroll').scrollTop=72;
 })();
