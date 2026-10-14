@@ -274,6 +274,14 @@ function toggleWorkingHoursSettings(open){$('#workSettings').classList.toggle('o
 var storeKey="nabu-maquette-v1";
 var items;
 try{items=JSON.parse(localStorage.getItem(storeKey));if(!Array.isArray(items))throw Error()}catch(e){items=seed()}
+/* Trois alertes Enki de démonstration, ajoutées une seule fois par identifiant,
+   y compris lorsque des tâches sont déjà sauvegardées dans le navigateur. */
+var enkiDemoStock=[
+{id:"enki-stock-01",kind:"task",title:"Alerte Enki — Satisfaction intégration faible (score D)",person:"Adam Laurent",company:"Maison Nova",date:null,minute:null,done:false,archived:false,priority:true,origin:"Enki",contractId:"DEMO-1002"},
+{id:"enki-stock-02",kind:"task",title:"Alerte Enki — Missions à clarifier (score C)",person:"Chloé Martin",company:"Agence Atlas",date:null,minute:null,done:false,archived:false,priority:true,origin:"Enki",contractId:"DEMO-1003"},
+{id:"enki-stock-03",kind:"task",title:"Alerte Enki — Accompagnement à sécuriser (score D)",person:"Inès Bernard",company:"Cap Horizon",date:null,minute:null,done:false,archived:false,priority:true,origin:"Enki",contractId:"DEMO-1005"}
+];
+enkiDemoStock.forEach(function(alert){if(!items.some(function(t){return t.id===alert.id}))items.push({...alert})});
 /* Réconcilier les données fictives déjà enregistrées, sans écraser les tâches ajoutées par l'utilisateur. */
 var fixtureLinks={t1:"DEMO-1001",t2:"DEMO-1002",t3:"DEMO-1003",t4:"DEMO-1004",t5:"DEMO-1003",t6:"DEMO-1005",t7:"DEMO-1006",e1:"DEMO-1003",e2:"DEMO-1001",e3:"DEMO-1004",e5:"DEMO-1006"};
 items.forEach(function(t){
