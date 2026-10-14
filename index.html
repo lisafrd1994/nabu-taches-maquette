@@ -14,6 +14,16 @@
 @media(max-width:1030px){.nav{width:148px}.tasks-panel,.panel-inner{width:310px}.topbar{padding:11px 13px}.heading h1{font-size:20px}.calendar-head{padding:12px}.event-sub{display:none}}
 @media(max-width:770px){.nav{display:none}.tasks-panel,.panel-inner{width:280px}.heading small{display:none}.topbar{gap:8px}.toolbar{gap:4px}.btn{padding:8px;font-size:11px}.legend{gap:7px}}
 .task-item.archived{border-left-color:#8f9aa7;background:#f8fafc}.task-item.archived .task-name{color:#566170}.task-restore{margin-top:9px;border:1px solid #d9b5c0;border-radius:5px;padding:6px 9px;background:#fff;color:#ad2449;font-size:11px;font-weight:700;cursor:pointer}.task-restore:hover{background:#fff0f4}.task-archived-label{color:#687587;font-size:10px;font-weight:650}
+
+/* Déplacement direct des tâches : liste ↔ calendrier */
+.task-item:not(.archived):not(.done),.day-task-chip[data-chip]:not(.done){cursor:grab;user-select:none}
+.task-item:not(.archived):not(.done):active,.day-task-chip[data-chip]:not(.done):active{cursor:grabbing}
+.task-drag-ghost{position:fixed;z-index:500;pointer-events:none;max-width:285px;min-width:165px;padding:10px 12px;border:1px solid #dfa65b;border-left:4px solid var(--orange);border-radius:8px;background:#fff6e8;box-shadow:0 8px 24px #23314240;color:#75471a;font-size:12px;font-weight:650;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.task-drop-target{background-color:#f9eacb!important;box-shadow:inset 0 0 0 2px #e49b37!important}
+.day-column.task-drop-target{background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 35px,#ead5aa 35px,#ead5aa 36px)}
+.dayhead.task-drop-target{border-bottom:3px solid #e49b37}
+.task-drop-help{padding:0 16px 8px;color:#8a622e;font-size:11px;display:none}
+body.task-is-dragging .task-drop-help{display:block}
 </style>
 </head>
 <body>
@@ -65,7 +75,7 @@
 <span><i class="swatch" style="background:var(--blue)"></i>Tripartite</span><span><i class="swatch" style="background:var(--green)"></i>Réunion interne</span><span><i class="swatch" style="background:var(--yellow)"></i>Rendez-vous</span><span><i class="swatch" style="background:var(--orange)"></i>Tâche</span>
 <span style="margin-left:auto">07h00–19h30 · précision 15 min</span>
 </div>
-<div id="dayHeads" class="dayheads"></div>
+<div id="dayHeads" class="dayheads"></div><div class="task-drop-help" id="taskDropHelp">Déposez une tâche sur une date (sans heure) ou sur un créneau (heure précise).</div>
 <div id="allDay" class="allday"></div>
 <div class="calendar-scroll" id="calendarScroll"><div class="time-grid" id="timeGrid"></div></div>
 </section>
@@ -130,7 +140,7 @@ else if(filter==="done")a=a.filter(function(t){return !!t.done});
 if(query)a=a.filter(function(t){return [t.title,t.person,t.company].join(" ").toLowerCase().includes(query)});
 a.sort(function(a,b){var av=a.date||"9999",bv=b.date||"9999";return av.localeCompare(bv)||((a.minute===null?2000:a.minute)-(b.minute===null?2000:b.minute))});return a}
 function taskCard(t){var late=t.date&&t.date<today&&!t.done;
-return '<article class="task-item '+(t.done?'done ':'')+(late?'late ':'')+(t.archived?'archived':'')+'" data-open="'+esc(t.id)+'">'+(t.archived?'<span aria-hidden="true" style="font-size:16px">▣</span>':'<input class="task-check" type="checkbox" data-check="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Terminer la tâche">')+'<div class="task-main"><div class="task-name">'+esc(t.title)+'</div>'+(t.person?'<div class="task-participant">'+esc(t.person)+(t.company?' · '+esc(t.company):'')+'</div>':'')+'<div class="task-meta"><span class="'+(late?'overdue':'')+'">'+(t.date?(late?'⚠ En retard · ':'◷ ')+esc(niceDue(t.date,t.minute)):'À planifier')+'</span>'+(t.priority?'<span class="importance">Important</span>':'')+(t.archived?'<span class="task-archived-label">Archivée'+(t.done?' · terminée':'')+'</span>':'')+'</div>'+(t.archived?'<button class="task-restore" type="button" data-restore="'+esc(t.id)+'">↶ Désarchiver</button>':'')+'</div><button class="mini-btn" data-open="'+esc(t.id)+'" aria-label="Actions de tâche">⋯</button></article>'}
+return '<article class="task-item '+(t.done?'done ':'')+(late?'late ':'')+(t.archived?'archived':'')+'" data-open="'+esc(t.id)+'" '+(!t.done&&!t.archived?'title="Faire glisser vers le calendrier pour reporter cette tâche"':'')+'>'+(t.archived?'<span aria-hidden="true" style="font-size:16px">▣</span>':'<input class="task-check" type="checkbox" data-check="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Terminer la tâche">')+'<div class="task-main"><div class="task-name">'+esc(t.title)+'</div>'+(t.person?'<div class="task-participant">'+esc(t.person)+(t.company?' · '+esc(t.company):'')+'</div>':'')+'<div class="task-meta"><span class="'+(late?'overdue':'')+'">'+(t.date?(late?'⚠ En retard · ':'◷ ')+esc(niceDue(t.date,t.minute)):'À planifier')+'</span>'+(t.priority?'<span class="importance">Important</span>':'')+(t.archived?'<span class="task-archived-label">Archivée'+(t.done?' · terminée':'')+'</span>':'')+'</div>'+(t.archived?'<button class="task-restore" type="button" data-restore="'+esc(t.id)+'">↶ Désarchiver</button>':'')+'</div><button class="mini-btn" data-open="'+esc(t.id)+'" aria-label="Actions de tâche">⋯</button></article>'}
 function renderTasks(){var a=filteredTasks(),late=tasks().filter(function(t){return !t.done&&t.date&&t.date<today}).length;
 $('#tasksSummary').textContent=a.length+' tâche'+(a.length>1?'s':'')+' affichée'+(a.length>1?'s':'')+' · '+late+' en retard';
 var html='';
@@ -141,7 +151,8 @@ if(filter==="today")html+='<button class="new-link" id="newFromList">＋ Ajouter
 $('#taskList').innerHTML=html;
 $('#taskList').querySelectorAll('[data-restore]').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();var t=findItem(btn.dataset.restore);if(t&&t.kind==="task"&&t.archived){t.archived=false;persist();renderAll();toast("Tâche désarchivée")}})});
 $('#taskList').querySelectorAll('[data-check]').forEach(function(input){input.addEventListener('click',function(e){e.stopPropagation();var t=findItem(input.dataset.check);if(t){t.done=input.checked;persist();renderTasks();renderCalendar();toast(t.done?"Tâche terminée":"Tâche réouverte")}})});
-$('#taskList').querySelectorAll('[data-open]').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation();var t=findItem(el.dataset.open);if(t)openPopover(t,e.clientX,e.clientY)})});
+$('#taskList').querySelectorAll('.task-item').forEach(function(card){card.addEventListener('pointerdown',function(e){if(e.button!==0||e.target.closest('button,input,a'))return;var t=findItem(card.dataset.open);if(t&&!t.archived&&!t.done)startTaskDrag(e,t)})});
+$('#taskList').querySelectorAll('[data-open]').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation();if(Date.now()<suppressTaskClickUntil)return;var t=findItem(el.dataset.open);if(t)openPopover(t,e.clientX,e.clientY)})});
 if($('#newFromList'))$('#newFromList').onclick=function(){openModal("task",today,null)}
 }
 function renderCalendar(){var preserved=$('#calendarScroll').scrollTop;
@@ -169,12 +180,48 @@ return html+'</div>'}).join('');
 $('#calendarScroll').scrollTop=preserved;
 $('#timeGrid').querySelectorAll('.day-column').forEach(function(col){col.addEventListener('click',function(e){if(e.target.closest('.entry'))return;if(dragMoved)return;var rect=col.getBoundingClientRect();var minute=snap(FIRST+(e.clientY-rect.top)*60/HOUR_PX);openModal("event",col.dataset.date,clamp(minute,FIRST,LAST-15))})});
 $('#allDay').querySelectorAll('.allday-cell').forEach(function(cell){cell.addEventListener('click',function(e){if(e.target.closest('[data-chip]'))return;openModal("task",cell.dataset.date,null)})});
-$('#allDay').querySelectorAll('[data-chip]').forEach(function(chip){chip.addEventListener('click',function(e){e.stopPropagation();openPopover(findItem(chip.dataset.chip),e.clientX,e.clientY)})});
+$('#allDay').querySelectorAll('[data-chip]').forEach(function(chip){chip.addEventListener('pointerdown',function(e){var t=findItem(chip.dataset.chip);if(t&&!t.done&&!t.archived)startTaskDrag(e,t)});chip.addEventListener('click',function(e){e.stopPropagation();if(Date.now()<suppressTaskClickUntil)return;openPopover(findItem(chip.dataset.chip),e.clientX,e.clientY)})});
 $('#timeGrid').querySelectorAll('.entry').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation()});el.addEventListener('pointerdown',startDrag);el.querySelectorAll('[data-gridcheck]').forEach(function(check){check.addEventListener('pointerdown',function(e){e.stopPropagation()});check.addEventListener('click',function(e){e.stopPropagation();var t=findItem(check.dataset.gridcheck);t.done=check.checked;persist();renderAll();toast(t.done?'Tâche terminée':'Tâche réouverte')})})});
 }
-var dragMoved=false;
+var dragMoved=false,suppressTaskClickUntil=0;
+function taskDropAt(x,y){var el=document.elementFromPoint(x,y);if(!el)return null;var target=el.closest('.allday-cell,.dayhead,.day-column');if(!target||!target.dataset.date)return null;var inGrid=target.classList.contains('day-column');if(inGrid){var view=$('#calendarScroll').getBoundingClientRect();if(y<view.top||y>view.bottom)return null;var r=target.getBoundingClientRect(),minute=clamp(snap(FIRST+(y-r.top)*60/HOUR_PX),FIRST,LAST-15);return {el:target,date:target.dataset.date,minute:minute}}
+return {el:target,date:target.dataset.date,minute:null}}
+function startTaskDrag(e,item){
+if(e.button!==0||e.target.closest('button,input,a')||!item||item.kind!=='task'||item.done||item.archived)return;
+var sx=e.clientX,sy=e.clientY,dragging=false,ghost=null,highlight=null,finishCalled=false;
+function clearHighlight(){if(highlight){highlight.classList.remove('task-drop-target');highlight=null}}
+function move(ev){
+if(finishCalled)return;
+if(!dragging&&Math.hypot(ev.clientX-sx,ev.clientY-sy)<7)return;
+if(!dragging){dragging=true;hidePopover();document.body.classList.add('task-is-dragging');ghost=document.createElement('div');ghost.className='task-drag-ghost';ghost.textContent='↗ '+item.title;document.body.appendChild(ghost)}
+ev.preventDefault();
+ghost.style.left=clamp(ev.clientX+14,6,Math.max(6,window.innerWidth-ghost.offsetWidth-6))+'px';
+ghost.style.top=clamp(ev.clientY+12,6,Math.max(6,window.innerHeight-ghost.offsetHeight-6))+'px';
+var target=taskDropAt(ev.clientX,ev.clientY);
+if(highlight&&(!target||highlight!==target.el))clearHighlight();
+if(target&&!highlight){highlight=target.el;highlight.classList.add('task-drop-target')}
+}
+function finish(ev){
+if(finishCalled)return;
+finishCalled=true;document.removeEventListener('pointermove',move);document.removeEventListener('pointerup',finish);document.removeEventListener('pointercancel',cancel);
+if(ghost)ghost.remove();clearHighlight();document.body.classList.remove('task-is-dragging');
+if(!dragging)return;
+suppressTaskClickUntil=Date.now()+450;
+if(ev.type==='pointercancel'){toast('Déplacement annulé');return}
+var target=taskDropAt(ev.clientX,ev.clientY);
+if(!target){toast('Déposez la tâche sur une journée ou un créneau du calendrier');return}
+if(item.date===target.date&&item.minute===target.minute){toast('Échéance inchangée');return}
+item.date=target.date;item.minute=target.minute;
+persist();renderAll();toast('Tâche reportée au '+fmtDate(item.date)+(item.minute===null?' (sans heure)':' à '+time(item.minute)));
+}
+function cancel(ev){finish(ev)}
+document.addEventListener('pointermove',move,{passive:false});
+document.addEventListener('pointerup',finish);
+document.addEventListener('pointercancel',cancel);
+}
 function startDrag(e){if(e.button!==0||e.target.closest('input'))return;
 var el=e.currentTarget,item=findItem(el.dataset.id);if(!item)return;
+if(item.kind==='task'){startTaskDrag(e,item);return}
 if(item.origin==="Calendly"){openPopover(item,e.clientX,e.clientY);return}
 var resizing=!!e.target.closest('[data-resize]');e.preventDefault();
 var startX=e.clientX,startY=e.clientY,oldMinute=item.minute,oldDuration=item.duration||0,oldDate=item.date,moved=false;
