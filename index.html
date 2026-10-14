@@ -157,6 +157,25 @@ body.task-is-dragging .task-drop-help{display:block}
 .popover .pop-overflow-menu button{display:block;width:100%;padding:8px 10px;border:0;background:transparent;color:#334150;text-align:left;border-radius:4px;font-size:11.5px}
 .popover .pop-overflow-menu button:hover{background:#f3f5f8}
 .popover .pop-quiet-note{font-size:10.5px;color:#98a2ad;margin-top:7px}
+
+/* Vues calendrier : semaine de travail (5 jours) / journée détaillée */
+.calendar-view-toggle{display:inline-flex;gap:2px;padding:3px;background:#f2f4f7;border:1px solid #e0e5eb;border-radius:7px;margin-right:5px;flex:none}
+.calendar-view-button{padding:6px 10px;line-height:1.1;border:0;border-radius:5px;background:transparent;color:#63707f;font-weight:650;font-size:11.5px}
+.calendar-view-button.active{background:white;color:#b7254d;box-shadow:0 1px 4px #1d29391a}
+.calendar-view-button:hover:not(.active){background:#e9edf2}
+.dayhead{user-select:none}
+.dayhead.openable{cursor:pointer;transition:background-color .12s}
+.dayhead.openable:hover:not(.today){background:#f3f5fa;color:#b7254d}
+.calendar.single-day .dayhead{font-size:12px;padding:9px 3px}
+.calendar.single-day .dayhead .date{font-size:19px}
+.calendar.single-day .allday{max-height:155px}
+.calendar.single-day .allday-cell{padding-left:12px;padding-right:40px}
+.calendar.single-day .day-task-chip{padding:6px 9px;font-size:11px;max-width:100%}
+.calendar.single-day .entry{left:2%;width:96%}
+.calendar.single-day .event-entry{font-size:11.5px;padding:7px 10px}
+.calendar.single-day .event-sub{font-size:10.5px}
+.calendar.single-day .task-entry{font-size:11px}
+@media(max-width:1130px){.calendar-view-button{padding:6px 8px}.calendar-controls{gap:3px}.calendar-head{padding-left:12px;padding-right:12px}}
 </style>
 </head>
 <body>
@@ -186,8 +205,9 @@ body.task-is-dragging .task-drop-help{display:block}
 <button class="reopen" id="reopenPanel" title="Ouvrir la liste" aria-label="Ouvrir la liste">☰</button>
 <section class="calendar" aria-label="Calendrier de la semaine">
 <div class="calendar-head">
-<div class="row"><span class="calendar-title" id="weekTitle">Semaine</span><span class="pill" style="background:#f1f3f6;color:#657181">5 jours</span></div>
+<div class="row"><span class="calendar-title" id="weekTitle">Semaine</span><span class="pill" id="calendarViewBadge" style="background:#f1f3f6;color:#657181">5 jours</span></div>
 <div class="calendar-controls">
+<div class="calendar-view-toggle" role="group" aria-label="Affichage du calendrier"><button type="button" class="calendar-view-button active" id="weekViewBtn" aria-pressed="true">Semaine</button><button type="button" class="calendar-view-button" id="dayViewBtn" aria-pressed="false">Jour</button></div>
 <button class="btn" id="todayBtn">Aujourd'hui</button><button class="btn icon" id="prevWeek" aria-label="Semaine précédente">‹</button><button class="btn icon" id="nextWeek" aria-label="Semaine suivante">›</button><button class="btn work-settings-button" type="button" id="workSettingsButton" aria-label="Définir mes horaires de travail" title="Mes horaires de travail" aria-expanded="false" aria-controls="workSettings">⚙</button>
 </div>
 <form class="work-settings" id="workSettings" aria-label="Mes horaires de travail">
@@ -242,7 +262,7 @@ body.task-is-dragging .task-drop-help{display:block}
 "use strict";
 var HOUR_PX=72, FIRST=7*60, LAST=19*60+30, MAX_PX=(LAST-FIRST)*HOUR_PX/60;
 var $=function(s){return document.querySelector(s)};
-var now=new Date(), today=dayKey(now), shownMonday=monday(now);
+var now=new Date(), today=dayKey(now), shownMonday=monday(now), activeDay=today, calendarView="week";
 var filter="today", query="", editing=null, modalKind="task", modalDate=today, modalMinute=null, modalPrefillDuration=30, popupItem=null, modalPrefillContractId="", itemToLink=null;
 var slotDraft=null;
 function pad(x){return String(x).padStart(2,"0")}
@@ -250,6 +270,10 @@ function dayKey(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getD
 function parseDay(k){return new Date(k+"T12:00:00")}
 function plusDays(k,n){var d=parseDay(k);d.setDate(d.getDate()+n);return dayKey(d)}
 function monday(d){var copy=new Date(d.getFullYear(),d.getMonth(),d.getDate());copy.setDate(copy.getDate()-((copy.getDay()+6)%7));return dayKey(copy)}
+function workdayMove(k,step){var d=k;do{d=plusDays(d,step)}while([0,6].includes(parseDay(d).getDay()));return d}
+function nearestWorkday(k){var day=parseDay(k).getDay();return day===6?plusDays(k,2):day===0?plusDays(k,1):k}
+function setCalendarView(view){calendarView=view;hidePopover();hideSlotChooser();if(view==="day"){var start=shownMonday,end=plusDays(start,4);if(activeDay<start||activeDay>end)activeDay=start;activeDay=nearestWorkday(activeDay)}else shownMonday=monday(parseDay(activeDay));renderCalendar()}
+
 function fmtDate(k){return new Intl.DateTimeFormat("fr-FR",{day:"numeric",month:"long"}).format(parseDay(k))}
 function fmtFull(k){return new Intl.DateTimeFormat("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(parseDay(k))}
 function time(m){return pad(Math.floor(m/60))+":"+pad(m%60)}
@@ -352,11 +376,18 @@ $('#taskList').querySelectorAll('.task-item').forEach(function(card){card.addEve
 $('#taskList').querySelectorAll('[data-open]').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation();if(Date.now()<suppressTaskClickUntil)return;var t=findItem(el.dataset.open);if(t)openPopover(t,e.clientX,e.clientY)})});
 if($('#newFromList'))$('#newFromList').onclick=function(){openModal("task",today,null)}
 }
-function renderCalendar(){var preserved=$('#calendarScroll').scrollTop;
-$('#weekTitle').textContent="Du "+fmtDate(shownMonday)+" au "+fmtDate(plusDays(shownMonday,4))+" "+parseDay(shownMonday).getFullYear();
-var days=Array.from({length:5},function(_,i){return plusDays(shownMonday,i)});
-$('#dayHeads').innerHTML='<div class="gutter"></div>'+days.map(function(d){var x=parseDay(d);return '<div class="dayhead '+(d===today?'today':'')+'" data-date="'+d+'">'+new Intl.DateTimeFormat("fr-FR",{weekday:"short"}).format(x).replace(".","")+'<span class="date">'+x.getDate()+'</span></div>'}).join('');
-$('#allDay').innerHTML='<div class="gutter all-label">Tâches<br>du jour</div>'+days.map(function(d){var list=items.filter(function(t){return t.kind==="task"&&!t.archived&&t.date===d&&t.minute===null});var max=2;return '<div class="allday-cell" data-date="'+d+'" title="Déposer une tâche ou utiliser + pour en créer une"><button type="button" class="all-day-add" data-add-day="'+d+'" title="Créer une tâche le '+esc(fmtFull(d))+'" aria-label="Créer une tâche le '+esc(fmtFull(d))+'">＋</button>'+list.slice(0,max).map(function(t){return '<div class="day-task-chip '+(t.done?'done':'')+'" data-chip="'+esc(t.id)+'"><input type="checkbox" class="task-check" data-alldaycheck="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Terminer la tâche"><span>'+esc(t.title)+'</span></div>'}).join('')+(list.length>max?'<div class="day-task-chip" data-more="'+d+'">+'+(list.length-max)+' autre(s)</div>':'')+'</div>'}).join('');
+function renderCalendar(){var preserved=$('#calendarScroll').scrollTop,dayMode=calendarView==="day";
+var days=dayMode?[activeDay]:Array.from({length:5},function(_,i){return plusDays(shownMonday,i)});
+$('#weekTitle').textContent=dayMode?fmtFull(activeDay):"Du "+fmtDate(shownMonday)+" au "+fmtDate(plusDays(shownMonday,4))+" "+parseDay(shownMonday).getFullYear();
+$('#calendarViewBadge').textContent=dayMode?"1 jour":"5 jours";
+$('.calendar').classList.toggle('single-day',dayMode);
+$('#weekViewBtn').classList.toggle('active',!dayMode);$('#weekViewBtn').setAttribute('aria-pressed',dayMode?'false':'true');
+$('#dayViewBtn').classList.toggle('active',dayMode);$('#dayViewBtn').setAttribute('aria-pressed',dayMode?'true':'false');
+$('#prevWeek').setAttribute('aria-label',dayMode?'Jour ouvré précédent':'Semaine précédente');
+$('#nextWeek').setAttribute('aria-label',dayMode?'Jour ouvré suivant':'Semaine suivante');
+$('#dayHeads').innerHTML='<div class="gutter"></div>'+days.map(function(d){var x=parseDay(d);return '<div class="dayhead '+(d===today?'today':'')+(dayMode?'':' openable')+'" data-date="'+d+'" '+(dayMode?'':'title="Afficher cette journée" role="button" tabindex="0" aria-label="Afficher '+esc(fmtFull(d))+'"')+'>'+new Intl.DateTimeFormat("fr-FR",{weekday:"short"}).format(x).replace(".","")+'<span class="date">'+x.getDate()+'</span></div>'}).join('');
+if(!dayMode)$('#dayHeads').querySelectorAll('.dayhead[data-date]').forEach(function(head){function go(){activeDay=head.dataset.date;setCalendarView("day")}head.addEventListener('click',go);head.addEventListener('keydown',function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}})});
+$('#allDay').innerHTML='<div class="gutter all-label">Tâches<br>du jour</div>'+days.map(function(d){var list=items.filter(function(t){return t.kind==="task"&&!t.archived&&t.date===d&&t.minute===null});var max=dayMode?8:2;return '<div class="allday-cell" data-date="'+d+'" title="Déposer une tâche ou utiliser + pour en créer une"><button type="button" class="all-day-add" data-add-day="'+d+'" title="Créer une tâche le '+esc(fmtFull(d))+'" aria-label="Créer une tâche le '+esc(fmtFull(d))+'">＋</button>'+list.slice(0,max).map(function(t){return '<div class="day-task-chip '+(t.done?'done':'')+'" data-chip="'+esc(t.id)+'"><input type="checkbox" class="task-check" data-alldaycheck="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Terminer la tâche"><span>'+esc(t.title)+'</span></div>'}).join('')+(list.length>max?'<div class="day-task-chip" data-more="'+d+'">+'+(list.length-max)+' autre(s)</div>':'')+'</div>'}).join('');
 var labels='<div class="time-gutter">';
 for(var min=FIRST;min<=LAST;min+=30){labels+='<div class="time-label'+(min===LAST?' end':'')+'" style="'+(min===LAST?'':'top:'+((min-FIRST)*HOUR_PX/60)+'px')+'">'+time(min)+'</div>'}
 labels+='</div>';
@@ -626,9 +657,11 @@ $('#collapsePanel').onclick=function(){$('#taskPanel').classList.add('collapsed'
 $('#reopenPanel').onclick=function(){$('#taskPanel').classList.remove('collapsed')};
 $('#taskFilter').onchange=function(e){filter=e.target.value;renderTasks()};
 $('#taskSearch').oninput=function(e){query=e.target.value.trim().toLowerCase();renderTasks()};
-$('#todayBtn').onclick=function(){shownMonday=monday(new Date());renderCalendar()};
-$('#prevWeek').onclick=function(){shownMonday=plusDays(shownMonday,-7);renderCalendar()};
-$('#nextWeek').onclick=function(){shownMonday=plusDays(shownMonday,7);renderCalendar()};
+$('#weekViewBtn').onclick=function(){setCalendarView("week")};
+$('#dayViewBtn').onclick=function(){setCalendarView("day")};
+$('#todayBtn').onclick=function(){activeDay=nearestWorkday(dayKey(new Date()));shownMonday=monday(parseDay(activeDay));renderCalendar()};
+$('#prevWeek').onclick=function(){if(calendarView==="day"){activeDay=workdayMove(activeDay,-1);shownMonday=monday(parseDay(activeDay))}else{shownMonday=plusDays(shownMonday,-7);activeDay=shownMonday}renderCalendar()};
+$('#nextWeek').onclick=function(){if(calendarView==="day"){activeDay=workdayMove(activeDay,1);shownMonday=monday(parseDay(activeDay))}else{shownMonday=plusDays(shownMonday,7);activeDay=shownMonday}renderCalendar()};
 $('#workSettingsButton').onclick=function(){toggleWorkingHoursSettings(!$('#workSettings').classList.contains('open'))};
 $('#closeWorkSettings').onclick=$('#cancelWorkSettings').onclick=function(){toggleWorkingHoursSettings(false)};
 $('#workSettings').onsubmit=function(e){
