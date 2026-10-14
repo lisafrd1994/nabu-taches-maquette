@@ -426,8 +426,47 @@ if(isEvent){if(!obj.date){toast("Choisir une date pour l'événement");return}if
 else{obj.minute=m===null?null:clamp(snap(m),FIRST,LAST-15);obj.priority=$('#fPriority').checked}
 if(!editing)items.push(obj);
 persist();$('#modalCover').classList.remove('open');renderAll();toast(editing?"Modification enregistrée":"Élément créé")}
+function showContractsDemo(id){
+hidePopover();$('#contractCover').classList.add('open');
+var selected=getContract(id);$('#contractHeading').textContent=selected?'Contrat '+selected.id:'Contrats Nabu (démonstration)';
+var list=selected?[selected]:fakeContracts;
+$('#contractDetail').innerHTML='<p class="hint">Cette vue reproduit le parcours de consultation d’un contrat. Tous les dossiers sont fictifs.</p>'+
+list.map(function(c){return '<div class="contract-card"><span class="contract-pill">'+esc(c.id)+' · Démonstration</span><div class="contract-title">'+esc(c.apprentice)+'</div><div class="contract-sub">'+esc(c.company)+'<br>Email apprenti : '+esc(c.apprenticeEmail)+'<br>MA : '+esc(c.maName)+' · '+esc(c.maEmail)+'</div><div class="contract-actions">'+(!selected?'<button type="button" class="btn" data-view-contract="'+esc(c.id)+'">↗ Ouvrir le contrat</button>':'')+'<button type="button" class="btn primary" data-new-linked="task" data-contract="'+esc(c.id)+'">＋ Tâche liée</button><button type="button" class="btn" data-new-linked="event" data-contract="'+esc(c.id)+'">＋ Événement lié</button></div></div>'}).join('')+
+(selected?'<button type="button" class="btn" id="backContracts">← Tous les contrats fictifs</button>':'');
+$('#contractDetail').querySelectorAll('[data-view-contract]').forEach(function(b){b.onclick=function(){showContractsDemo(b.dataset.viewContract)}});
+$('#contractDetail').querySelectorAll('[data-new-linked]').forEach(function(b){b.onclick=function(){var id=b.dataset.contract;$('#contractCover').classList.remove('open');openModal(b.dataset.newLinked,today,null,null,id)}});
+var back=$('#backContracts');if(back)back.onclick=function(){showContractsDemo("")};
+}
+function openLinkedContract(t){var url=safeUrl(t.contractUrl);if(url){window.open(url,'_blank','noopener,noreferrer');return}if(getContract(t.contractId)){showContractsDemo(t.contractId);return}toast('Aucun contrat rattaché')}
+function openLinkContract(t){itemToLink=t;$('#linkContractSelect').innerHTML=contractsOptions(t.contractId);$('#linkContractUrl').value=t.contractUrl||'';$('#linkCover').classList.add('open')}
+function closeLinkContract(){$('#linkCover').classList.remove('open');itemToLink=null}
+function openCalendlyDemo(){
+hidePopover();$('#calDate').value=today;$('#calTime').value='11:00';$('#calName').value='Émilie Perrin';$('#calEmail').value='emilie.perrin@example.test';$('#calRole').value="Maître d'apprentissage";$('#calPhone').value='06 00 00 00 01';$('#calSubject').value='Suivi de contrat';$('#calendlyCover').classList.add('open');
+}
 function toast(message){var el=$('#toast');el.textContent=message;el.classList.add('visible');clearTimeout(toast._timer);toast._timer=setTimeout(function(){el.classList.remove('visible')},2500)}
 function renderAll(){renderTasks();renderCalendar()}
+$('#demoContractsBtn').onclick=function(){showContractsDemo("")};
+$('#closeContractCover').onclick=function(){$('#contractCover').classList.remove('open')};
+$('#contractCover').addEventListener('click',function(e){if(e.target===$('#contractCover'))$('#contractCover').classList.remove('open')});
+$('#linkContractForm').onsubmit=function(e){e.preventDefault();if(!itemToLink)return;var raw=$('#linkContractUrl').value.trim(),url=safeUrl(raw);if(raw&&!url){toast('Le lien doit commencer par https:// ou http://');return}
+itemToLink.contractId=$('#linkContractSelect').value||'';itemToLink.contractUrl=url;
+if(itemToLink.origin==='Calendly'){itemToLink.contractManuallyLinked=!!(itemToLink.contractId||url);itemToLink.matchStatus=itemToLink.contractManuallyLinked?'manual':matchContractByEmail(itemToLink.bookerEmail).status}
+if(getContract(itemToLink.contractId)){var c=getContract(itemToLink.contractId);itemToLink.person=c.apprentice;itemToLink.company=c.company}
+persist();renderAll();closeLinkContract();toast('Rattachement du contrat enregistré');
+};
+$('#closeLinkCover').onclick=$('#cancelLinkCover').onclick=closeLinkContract;
+$('#linkCover').addEventListener('click',function(e){if(e.target===$('#linkCover'))closeLinkContract()});
+$('#demoCalendlyBtn').onclick=openCalendlyDemo;
+$('#closeCalendlyCover').onclick=$('#cancelCalendlyCover').onclick=function(){$('#calendlyCover').classList.remove('open')};
+$('#calendlyCover').addEventListener('click',function(e){if(e.target===$('#calendlyCover'))$('#calendlyCover').classList.remove('open')});
+$('#calendlyDemoForm').onsubmit=function(e){
+e.preventDefault();
+var email=$('#calEmail').value.trim(),match=matchContractByEmail(email),contract=getContract(match.contractId);
+var name=$('#calName').value.trim(),role=$('#calRole').value;
+var start=clamp(snap(minuteFrom($('#calTime').value)),FIRST,LAST-15),date=$('#calDate').value;
+var item={id:uid(),kind:'event',title:'Rendez-vous '+(role==="Apprenti"?"apprenti":"maître d’apprentissage")+' — '+name,date:date,minute:start,duration:15,category:'yellow',origin:'Calendly',person:contract?contract.apprentice:'',company:contract?contract.company:'',contractId:match.contractId,contractUrl:'',matchStatus:match.status,bookerName:name,bookerEmail:email,bookerRole:role,bookerPhone:$('#calPhone').value.trim(),bookingSubject:$('#calSubject').value.trim()};
+items.push(item);persist();$('#calendlyCover').classList.remove('open');shownMonday=monday(parseDay(date));renderAll();toast(match.status==='matched'?'Calendly simulé : contrat '+match.contractId+' associé':match.status==='multiple'?'Calendly simulé : plusieurs contrats, choix manuel requis':'Calendly simulé : aucun contrat trouvé');
+};
 $('#newTaskTop').onclick=function(){openModal("task",today,null)};
 $('#collapsePanel').onclick=function(){$('#taskPanel').classList.add('collapsed')};
 $('#reopenPanel').onclick=function(){$('#taskPanel').classList.remove('collapsed')};
@@ -447,7 +486,7 @@ toggleWorkingHoursSettings(false);renderCalendar();toast('Horaires enregistrés 
 };
 $('#closePopover').onclick=hidePopover;
 document.addEventListener('pointerdown',function(e){if($('#popover').classList.contains('open')&&!e.target.closest('#popover')&&!e.target.closest('.entry')&&!e.target.closest('.task-item')&&!e.target.closest('.day-task-chip'))hidePopover()});
-document.addEventListener('keydown',function(e){if(e.key==="Escape"){hidePopover();toggleWorkingHoursSettings(false);$('#modalCover').classList.remove('open')}});
+document.addEventListener('keydown',function(e){if(e.key==="Escape"){hidePopover();toggleWorkingHoursSettings(false);$('#modalCover').classList.remove('open');$('#contractCover').classList.remove('open');closeLinkContract();$('#calendlyCover').classList.remove('open')}});
 $('#closeModal').onclick=$('#cancelModal').onclick=function(){$('#modalCover').classList.remove('open')};
 $('#modalCover').addEventListener('click',function(e){if(e.target===$('#modalCover'))$('#modalCover').classList.remove('open')});
 document.addEventListener('pointerdown',function(e){if($('#workSettings').classList.contains('open')&&!e.target.closest('#workSettings')&&!e.target.closest('#workSettingsButton'))toggleWorkingHoursSettings(false)});
