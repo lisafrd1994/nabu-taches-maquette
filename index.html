@@ -110,6 +110,11 @@ body.task-is-dragging .task-drop-help{display:block}
 .booking-details strong{font-size:12px;color:#304052}
 .booking-details .pop-row{margin:9px 0}
 #calendlyDemoForm textarea{min-height:62px}
+
+/* Les tâches Enki non datées restent visibles dans le flux quotidien. */
+.enki-badge{display:inline-flex;align-items:center;border-radius:4px;padding:2px 5px;background:#f6e9fb;color:#783f8d;font-size:10px;font-weight:720}
+.section-title.enki-section{color:#814e97}
+.section-title.enki-section .bubble{background:#f6e9fb;color:#814e97}
 </style>
 </head>
 <body>
@@ -251,6 +256,7 @@ try{items=JSON.parse(localStorage.getItem(storeKey));if(!Array.isArray(items))th
 var fixtureLinks={t1:"DEMO-1001",t2:"DEMO-1002",t3:"DEMO-1003",t4:"DEMO-1004",t5:"DEMO-1003",t6:"DEMO-1005",t7:"DEMO-1006",e1:"DEMO-1003",e2:"DEMO-1001",e3:"DEMO-1004",e5:"DEMO-1006"};
 items.forEach(function(t){
  if(fixtureLinks[t.id]&&t.contractId===undefined)t.contractId=fixtureLinks[t.id];
+ if(t.id==="t7"&&t.kind==="task"&&!t.origin)t.origin="Enki";
  if(t.id==="e2"&&t.origin==="Calendly"){t.bookerName=t.bookerName||"Émilie Perrin";t.bookerRole=t.bookerRole||"Maître d'apprentissage";t.bookerEmail=t.bookerEmail||"emilie.perrin@example.test";t.bookerPhone=t.bookerPhone||"06 00 00 00 01";if(t.bookingSubject===undefined)t.bookingSubject="Suivi du démarrage du contrat"}
  if(t.id==="e5"&&t.origin==="Calendly"){t.bookerName=t.bookerName||"Sara Girard";t.bookerRole=t.bookerRole||"Apprenti";t.bookerEmail=t.bookerEmail||"sara.girard@example.test";t.bookerPhone=t.bookerPhone||"06 00 00 00 02";if(t.bookingSubject===undefined)t.bookingSubject=""}
  if(t.origin==="Calendly"&&t.bookerEmail&&!t.contractManuallyLinked){var m=matchContractByEmail(t.bookerEmail);t.matchStatus=m.status;t.contractId=m.contractId}
@@ -259,7 +265,7 @@ function persist(){try{localStorage.setItem(storeKey,JSON.stringify(items))}catc
 function findItem(id){return items.find(function(i){return i.id===id})}
 function tasks(){return items.filter(function(t){return t.kind==="task"&&!t.archived})}
 function filteredTasks(){var a=items.filter(function(t){return t.kind==="task"&&(filter==="archived"?!!t.archived:!t.archived)});
-if(filter==="today")a=a.filter(function(t){return t.date===today||(t.date!==null&&t.date<today&&!t.done)});
+if(filter==="today")a=a.filter(function(t){return (!t.date&&!t.done)||t.date===today||(t.date!==null&&t.date<today&&!t.done)});
 else if(filter==="late")a=a.filter(function(t){return !t.done&&t.date!==null&&t.date<today});
 else if(filter==="future7"||filter==="future30"||filter==="futureall"){var n=filter==="future7"?7:filter==="future30"?30:9999;a=a.filter(function(t){return !t.done&&t.date>today&&t.date<=plusDays(today,n)})}
 else if(filter==="unscheduled")a=a.filter(function(t){return !t.done&&!t.date});
@@ -267,12 +273,18 @@ else if(filter==="done")a=a.filter(function(t){return !!t.done});
 if(query)a=a.filter(function(t){return [t.title,t.person,t.company].join(" ").toLowerCase().includes(query)});
 a.sort(function(a,b){if(filter==="today"&&a.date===today&&b.date===today&&a.done!==b.done)return a.done?1:-1;var av=a.date||"9999",bv=b.date||"9999";return av.localeCompare(bv)||((a.minute===null?2000:a.minute)-(b.minute===null?2000:b.minute))});return a}
 function taskCard(t){var late=t.date&&t.date<today&&!t.done;
-return '<article class="task-item '+(t.done?'done ':'')+(late?'late ':'')+(t.archived?'archived':'')+'" data-open="'+esc(t.id)+'" '+(!t.done&&!t.archived?'title="Faire glisser vers le calendrier pour reporter cette tâche"':'')+'>'+(t.archived?'<span aria-hidden="true" style="font-size:16px">▣</span>':'<input class="task-check" type="checkbox" data-check="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Terminer la tâche">')+'<div class="task-main"><div class="task-name">'+esc(t.title)+'</div>'+(t.person?'<div class="task-participant">'+esc(t.person)+(t.company?' · '+esc(t.company):'')+'</div>':'')+'<div class="task-meta"><span class="'+(late?'overdue':'')+'">'+(t.date?(late?'⚠ En retard · ':'◷ ')+esc(niceDue(t.date,t.minute)):'À planifier')+'</span>'+(t.priority?'<span class="importance">Important</span>':'')+(t.archived?'<span class="task-archived-label">Archivée'+(t.done?' · terminée':'')+'</span>':(t.done?'<span class="task-done-label">✓ Terminée</span>':''))+'</div>'+(t.archived?'<button class="task-restore" type="button" data-restore="'+esc(t.id)+'">↶ Désarchiver</button>':'')+'</div><button class="mini-btn" data-open="'+esc(t.id)+'" aria-label="Actions de tâche">⋯</button></article>'}
+return '<article class="task-item '+(t.done?'done ':'')+(late?'late ':'')+(t.archived?'archived':'')+'" data-open="'+esc(t.id)+'" '+(!t.done&&!t.archived?'title="Faire glisser vers le calendrier pour reporter cette tâche"':'')+'>'+(t.archived?'<span aria-hidden="true" style="font-size:16px">▣</span>':'<input class="task-check" type="checkbox" data-check="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Terminer la tâche">')+'<div class="task-main"><div class="task-name">'+esc(t.title)+'</div>'+(t.person?'<div class="task-participant">'+esc(t.person)+(t.company?' · '+esc(t.company):'')+'</div>':'')+'<div class="task-meta"><span class="'+(late?'overdue':'')+'">'+(t.date?(late?'⚠ En retard · ':'◷ ')+esc(niceDue(t.date,t.minute)):'À planifier')+'</span>'+(t.priority?'<span class="importance">Important</span>':'')+(t.origin==="Enki"?'<span class="enki-badge">ENKI · Alerte</span>':'')+(t.archived?'<span class="task-archived-label">Archivée'+(t.done?' · terminée':'')+'</span>':(t.done?'<span class="task-done-label">✓ Terminée</span>':''))+'</div>'+(t.archived?'<button class="task-restore" type="button" data-restore="'+esc(t.id)+'">↶ Désarchiver</button>':'')+'</div><button class="mini-btn" data-open="'+esc(t.id)+'" aria-label="Actions de tâche">⋯</button></article>'}
 function renderTasks(){var a=filteredTasks(),late=tasks().filter(function(t){return !t.done&&t.date&&t.date<today}).length;
 $('#tasksSummary').textContent=a.length+' tâche'+(a.length>1?'s':'')+' affichée'+(a.length>1?'s':'')+' · '+late+' en retard';
 var html='';
-function section(label,list,lateFlag){html+='<div class="section-title '+(lateFlag?'late':'')+'">'+(lateFlag?'⚠ ':'◷ ')+label+' <span class="bubble">'+list.length+'</span></div>';if(!list.length)html+='<div class="empty" style="padding:10px 6px 20px">Aucune tâche dans cette section.</div>';else html+=list.map(taskCard).join('')}
-if(filter==="today"){section("En retard",a.filter(function(t){return t.date<today}),true);section("Tâches du jour",a.filter(function(t){return t.date===today}),false)}
+function section(label,list,lateFlag){html+='<div class="section-title '+(lateFlag?'late':label.indexOf("Enki")!==-1?'enki-section':'')+'">'+(lateFlag?'⚠ ':'◷ ')+label+' <span class="bubble">'+list.length+'</span></div>';if(!list.length)html+='<div class="empty" style="padding:10px 6px 20px">Aucune tâche dans cette section.</div>';else html+=list.map(taskCard).join('')}
+if(filter==="today"){
+section("En retard",a.filter(function(t){return t.date&&t.date<today}),true);
+section("À planifier · alertes Enki",a.filter(function(t){return !t.date&&!t.done&&t.origin==="Enki"}),false);
+var otherUnscheduled=a.filter(function(t){return !t.date&&!t.done&&t.origin!=="Enki"});
+if(otherUnscheduled.length)section("Autres tâches à planifier",otherUnscheduled,false);
+section("Tâches du jour",a.filter(function(t){return t.date===today}),false)
+}
 else{section(({late:"En retard",future7:"À venir — 7 jours",future30:"À venir — 30 jours",futureall:"À venir",unscheduled:"À planifier",done:"Terminées",archived:"Archivées"})[filter]||"Mes tâches",a,filter==="late")}
 if(filter==="today")html+='<button class="new-link" id="newFromList">＋ Ajouter une tâche</button>';
 $('#taskList').innerHTML=html;
@@ -309,7 +321,7 @@ $('#timeGrid').querySelectorAll('.day-column').forEach(function(col){col.addEven
 $('#allDay').querySelectorAll('.allday-cell').forEach(function(cell){cell.addEventListener('click',function(e){if(e.target.closest('[data-chip]'))return;openModal("task",cell.dataset.date,null)})});
 $('#allDay').querySelectorAll('[data-alldaycheck]').forEach(function(check){check.addEventListener('pointerdown',function(e){e.stopPropagation()});check.addEventListener('click',function(e){e.stopPropagation();var t=findItem(check.dataset.alldaycheck);if(t){t.done=check.checked;persist();renderAll();toast(t.done?'Tâche terminée':'Tâche réouverte')}})});
 $('#allDay').querySelectorAll('[data-chip]').forEach(function(chip){chip.addEventListener('pointerdown',function(e){var t=findItem(chip.dataset.chip);if(t&&!t.done&&!t.archived)startTaskDrag(e,t)});chip.addEventListener('click',function(e){e.stopPropagation();if(Date.now()<suppressTaskClickUntil)return;openPopover(findItem(chip.dataset.chip),e.clientX,e.clientY)})});
-$('#timeGrid').querySelectorAll('.entry').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation()});el.addEventListener('pointerdown',startDrag);el.querySelectorAll('[data-gridcheck]').forEach(function(check){check.addEventListener('pointerdown',function(e){e.stopPropagation()});check.addEventListener('click',function(e){e.stopPropagation();var t=findItem(check.dataset.gridcheck);t.done=check.checked;persist();renderAll();toast(t.done?'Tâche terminée':'Tâche réouverte')})})});
+$('#timeGrid').querySelectorAll('.entry').forEach(function(el){el.addEventListener('click',function(e){e.stopPropagation();var item=findItem(el.dataset.id);if(item&&item.kind==="task"&&!e.target.closest('[data-gridcheck]')&&Date.now()>=suppressTaskClickUntil)openPopover(item,e.clientX,e.clientY)});el.addEventListener('pointerdown',startDrag);el.querySelectorAll('[data-gridcheck]').forEach(function(check){check.addEventListener('pointerdown',function(e){e.stopPropagation()});check.addEventListener('click',function(e){e.stopPropagation();var t=findItem(check.dataset.gridcheck);t.done=check.checked;persist();renderAll();toast(t.done?'Tâche terminée':'Tâche réouverte')})})});
 }
 var dragMoved=false,suppressTaskClickUntil=0;
 function taskDropAt(x,y){var el=document.elementFromPoint(x,y);if(!el)return null;var target=el.closest('.allday-cell,.dayhead,.day-column');if(!target||!target.dataset.date)return null;var inGrid=target.classList.contains('day-column');if(inGrid){var view=$('#calendarScroll').getBoundingClientRect();if(y<view.top||y>view.bottom)return null;var r=target.getBoundingClientRect(),minute=clamp(snap(FIRST+(y-r.top)*60/HOUR_PX),FIRST,LAST-15);return {el:target,date:target.dataset.date,minute:minute}}
@@ -383,10 +395,10 @@ if(contract||manualLink)body+='<div class="contract-link-block"><strong>Contrat 
 if(t.kind==='task')body+=popText('Responsable','Moi (démo)','♧');
 if(t.origin)body+=popText('Provenance',t.origin,'↗');
 if(t.priority)body+='<p style="color:#a76419">⚠ Tâche importante</p>';
-if(t.origin==="Calendly")body+='<p>Les règles de modification d’un rendez-vous Calendly seront précisées au lot 5.</p>';
+if(t.origin==="Calendly")body+='<p>Modifiable dans cette maquette. En production, la synchronisation des corrections avec Calendly devra être précisée au lot 5.</p>';
 body+='<div class="pop-actions">';
 if(t.kind==="task"&&!t.archived)body+='<button class="btn primary" data-popaction="toggle">'+(t.done?'↺ Réouvrir':'✓ Terminer')+'</button>';
-if(t.origin!=="Calendly"&&!t.archived)body+='<button class="btn" data-popaction="edit">✎ Modifier</button>';
+if(!t.archived)body+='<button class="btn" data-popaction="edit">✎ Modifier</button>';
 if(t.kind==="task"&&!t.archived)body+='<button class="btn" data-popaction="postpone">↗ Reporter</button>';
 if(t.kind==="task")body+='<button class="btn" data-popaction="'+(t.archived?'restore':'archive')+'">'+(t.archived?'↶ Désarchiver':'Archiver')+'</button>';
 body+='<button class="btn" data-popaction="linkcontract">'+((contract||manualLink)?'Changer le contrat':'Associer un contrat')+'</button>';
@@ -423,7 +435,7 @@ var obj=editing||{id:uid(),kind:modalKind,done:false,archived:false};var isEvent
 obj.title=title;obj.date=d;obj.minute=m;obj.person=$('#fPerson').value.trim();obj.company=$('#fCompany').value.trim();
 obj.contractId=$('#fContractId').value||"";obj.contractUrl=safeUrl($('#fContractUrl').value.trim());
 if($('#fContractUrl').value.trim()&&!obj.contractUrl){toast('Le lien du contrat doit commencer par https:// ou http://');return}
-if(isEvent){if(!obj.date){toast("Choisir une date pour l'événement");return}if(m===null)m=9*60;obj.minute=clamp(snap(m),FIRST,LAST-15);obj.duration=Number($('#fDuration').value);obj.category=$('#fCat').value;obj.origin="Nabu";if(obj.minute+obj.duration>LAST)obj.duration=LAST-obj.minute}
+if(isEvent){if(!obj.date){toast("Choisir une date pour l'événement");return}if(m===null)m=9*60;obj.minute=clamp(snap(m),FIRST,LAST-15);obj.duration=Number($('#fDuration').value);obj.category=$('#fCat').value;if(!editing||!obj.origin)obj.origin="Nabu";if(obj.minute+obj.duration>LAST)obj.duration=LAST-obj.minute}
 else{obj.minute=m===null?null:clamp(snap(m),FIRST,LAST-15);obj.priority=$('#fPriority').checked}
 if(!editing)items.push(obj);
 persist();$('#modalCover').classList.remove('open');renderAll();toast(editing?"Modification enregistrée":"Élément créé")}
