@@ -131,6 +131,32 @@ body.task-is-dragging .task-drop-help{display:block}
 .slot-chooser .slot-options button{flex:1;text-align:center;font-size:11px}
 .slot-chooser-close{border:0;background:none;color:#8792a0;font-size:17px;position:absolute;right:8px;top:5px;padding:2px 5px}
 .calendar-creation-hint{color:#687b8d;font-size:10px;white-space:nowrap}
+
+/* Fiche de détail harmonisée — contenu compact, action primaire unique */
+.popover{width:min(345px,calc(100vw - 24px));padding:15px 16px;max-height:calc(100vh - 24px);overflow-y:auto}
+.popover h3{font-size:14px;margin:0 55px 4px 0;line-height:1.4}
+.popover .pop-summary{color:#7c8792;font-size:10.5px;margin:0 0 12px}
+.popover .pop-row{display:grid;grid-template-columns:16px 1fr;gap:9px;align-items:start;margin:9px 0}
+.popover .pop-row .sym{font-size:14px;width:16px}
+.popover .pop-label{display:block;font-size:10px;color:#83909b;margin-bottom:2px}
+.popover .pop-value{font-size:12px;color:#293743;font-weight:550;overflow-wrap:anywhere}
+.popover .pop-value a{color:#2365a7;text-decoration:none}
+.popover .pop-value a:hover{text-decoration:underline}
+.popover .pop-comment{margin:12px 0 9px}
+.popover .pop-comment label{display:block;color:#697583;font-weight:650;font-size:11px;margin-bottom:6px}
+.popover .pop-comment textarea{width:100%;min-height:57px;max-height:125px;resize:vertical;padding:9px 10px;background:#fbfcfd;border:1px solid #e1e6ec;border-radius:6px;line-height:1.5;font-size:11.5px}
+.popover .pop-comment small{display:block;text-align:right;color:#929ca7;font-size:10px;margin-top:3px}
+.popover .pop-contract-cta{width:100%;margin-top:10px;text-align:center;padding:10px 12px;background:#fff2f5;border:1px solid #e2a9b9;border-radius:6px;color:#a92249;font-weight:750}
+.popover .pop-contract-cta:hover{background:#ffe9ef}
+.popover .pop-contract-cta:disabled{background:#f4f6f8;color:#98a2ad;border-color:#e5e9ed;opacity:1;cursor:default}
+.popover .pop-context-options{position:absolute;top:9px;right:38px}
+.popover .pop-overflow-button{height:27px;width:28px;display:grid;place-items:center;border:none;background:transparent;border-radius:5px;color:#667482;font-size:18px}
+.popover .pop-overflow-button:hover,.popover .pop-overflow-button[aria-expanded="true"]{background:#edf1f6}
+.popover .pop-overflow-menu{display:none;position:absolute;right:0;top:30px;width:185px;padding:5px;background:white;border:1px solid #dce3ea;border-radius:7px;box-shadow:0 9px 22px #1b2d3e28;z-index:2}
+.popover .pop-overflow-menu.open{display:block}
+.popover .pop-overflow-menu button{display:block;width:100%;padding:8px 10px;border:0;background:transparent;color:#334150;text-align:left;border-radius:4px;font-size:11.5px}
+.popover .pop-overflow-menu button:hover{background:#f3f5f8}
+.popover .pop-quiet-note{font-size:10.5px;color:#98a2ad;margin-top:7px}
 </style>
 </head>
 <body>
@@ -259,9 +285,9 @@ function seed(){var m=monday(new Date());return [
 {id:"e1",kind:"event",title:"Entretien tripartite — Chloé Martin",date:plusDays(m,0),minute:9*60+30,duration:45,category:"blue",person:"Chloé Martin",company:"Agence Atlas",origin:"Nabu"},
 {id:"e2",kind:"event",title:"Rendez-vous maître d'apprentissage",date:plusDays(m,1),minute:10*60,duration:30,category:"yellow",person:"Léa Dubois",company:"Horizon Conseil",origin:"Calendly"},
 {id:"e3",kind:"event",title:"Entretien tripartite — Noah Petit",date:plusDays(m,1),minute:14*60,duration:60,category:"blue",person:"Noah Petit",company:"Studio Pixel",origin:"Nabu"},
-{id:"e4",kind:"event",title:"Réunion interne — suivi qualité",date:plusDays(m,2),minute:11*60,duration:45,category:"green",person:"",company:"",origin:"Nabu"},
+{id:"e4",kind:"event",title:"Réunion interne — suivi qualité",date:plusDays(m,2),minute:11*60,duration:45,category:"green",person:"",company:"",origin:"Outlook"},
 {id:"e5",kind:"event",title:"Rendez-vous apprenti — Sara Girard",date:plusDays(m,3),minute:15*60,duration:30,category:"yellow",person:"Sara Girard",company:"Espace Conseil",origin:"Calendly"},
-{id:"e6",kind:"event",title:"Point équipe Expérience Entreprise",date:plusDays(m,4),minute:9*60,duration:30,category:"green",person:"",company:"",origin:"Nabu"}
+{id:"e6",kind:"event",title:"Point équipe Expérience Entreprise",date:plusDays(m,4),minute:9*60,duration:30,category:"green",person:"",company:"",origin:"Outlook"}
 ]}
 var workingHoursStoreKey="nabu-maquette-working-hours-v1";
 var defaultWorkingHours={morningStart:510,morningEnd:750,afternoonStart:840,afternoonEnd:1170};
@@ -283,6 +309,8 @@ var enkiDemoStock=[
 ];
 enkiDemoStock.forEach(function(alert){if(!items.some(function(t){return t.id===alert.id}))items.push({...alert})});
 /* Réconcilier les données fictives déjà enregistrées, sans écraser les tâches ajoutées par l'utilisateur. */
+/* Fictitious meeting examples simulate events synchronized from Outlook. */
+items.forEach(function(t){if((t.id==="e4"||t.id==="e6")&&t.kind==="event"&&t.category==="green"&&t.origin==="Nabu")t.origin="Outlook"});
 var fixtureLinks={t1:"DEMO-1001",t2:"DEMO-1002",t3:"DEMO-1003",t4:"DEMO-1004",t5:"DEMO-1003",t6:"DEMO-1005",t7:"DEMO-1006",e1:"DEMO-1003",e2:"DEMO-1001",e3:"DEMO-1004",e5:"DEMO-1006"};
 items.forEach(function(t){
  if(fixtureLinks[t.id]&&t.contractId===undefined)t.contractId=fixtureLinks[t.id];
