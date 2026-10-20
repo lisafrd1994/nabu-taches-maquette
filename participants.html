@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nabu — Mes participants · Maquette unifiée</title>
+<style>
+:root{--pink:#d12650;--nav:#212529;--blue:#356fcb;--text:#25333f;--muted:#657586;--line:#d9e0e7;--pale:#eef0f3}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font:13px/1.4 "Segoe UI",Arial,sans-serif;color:var(--text);background:#fff}button,select,input{font:inherit}button{cursor:pointer}a{text-decoration:none;color:#2d70c9}a:hover{text-decoration:underline}
+.app{display:flex;min-height:100vh;width:100%}.workspace-list{flex:1;min-width:0}.page-wrap{padding:20px 22px 60px;width:100%;max-width:1800px;margin:0 auto}
+.breadcrumb{color:#748496;margin-bottom:8px;font-size:12px}.breadcrumb a{color:#58768c}.breadcrumb .home{color:#3777c9}.page-top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:0 0 17px}.page-top h1{font-size:25px;font-weight:700;color:#14222f;margin:0}.top-actions{background:#f0f2f4;padding:9px 12px;display:flex;align-items:end;gap:14px;box-shadow:0 3px 12px #1f293019}.top-actions label{font-size:10px;color:#6d7e8e;display:flex;flex-direction:column}.top-actions select{min-width:145px;max-width:230px;border:1px solid #c8d0da;background:#fff;color:#293847;height:30px;padding:4px;border-radius:3px}
+.filters{padding:17px 17px 13px;background:#e9edf1;border:1px solid #e2e8ed;border-radius:3px}.group{margin:0 0 13px}.group-heading{display:flex;align-items:center;gap:9px;color:#d12650;font-size:10px;text-transform:uppercase;font-weight:730;letter-spacing:.02em;margin:0 0 7px}.group-heading:after{content:"";height:1px;background:#ccd4dc;flex:1}.filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.filter-grid.cols3{grid-template-columns:repeat(3,minmax(0,1fr))}.filter-grid.cols2{grid-template-columns:repeat(2,minmax(0,1fr))}.filter-control{width:100%;height:34px;border:1px solid #c5ced8;border-radius:3px;background:#fff;color:#38495a;padding:6px 8px;font-size:11px;min-width:0}.filter-control::placeholder{color:#8a96a3}.filter-caption{display:block;font-size:9px;color:#738293;text-transform:uppercase;margin:0 0 2px}.filter-field{min-width:0}.filter-field .filter-control{height:34px}.filter-actions{display:flex;align-items:center;gap:8px;margin-top:17px;flex-wrap:wrap}.button{display:inline-flex;gap:7px;align-items:center;justify-content:center;border:1px solid #cfced3;padding:8px 11px;border-radius:4px;background:white;font-size:11px;font-weight:650;color:#526277;white-space:nowrap}.button:hover{background:#f9fafb}.button.search{background:#d12a56;border-color:#c92751;color:white}.button.reset{border-color:#e0adbd;color:#c2254d}.button.ghost{color:#3668a6;border-color:#c5d8ef}.per-page{margin-left:auto;font-size:11px;color:#596978;white-space:nowrap}.per-page select{height:31px;border:1px solid #cad2da;border-radius:3px;background:white;padding:0 10px}
+.shortcuts{padding:10px 0 9px}.shortcuts-heading{display:flex;align-items:center;gap:8px;color:#db2c5a;font-size:10px;font-weight:750;text-transform:uppercase;margin:0 0 7px}.shortcuts-heading:after{content:"";height:1px;background:#dde4eb;flex:1}.shortcut-buttons{display:flex;gap:6px;flex-wrap:wrap}.shortcut{border:1px solid #e64a73;background:#fff;color:#d12650;padding:5px 10px;border-radius:3px;font-size:10.5px}.shortcut:hover,.shortcut.active{background:#d12650;color:white}.list-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 2px 8px;border-bottom:1px solid #263746;color:#506175;font-size:11px}.sort-control{height:30px;border:1px solid #c8d2df;padding:4px;border-radius:3px;background:white;color:#415265}.list-count{font-weight:700;color:#607084}.participant-card{display:grid;grid-template-columns:minmax(135px,1.05fr) minmax(160px,1.1fr) minmax(180px,1.1fr) minmax(155px,.95fr) minmax(210px,1.8fr) 38px;gap:17px;align-items:center;padding:17px 4px 18px;border-bottom:1px solid #dce3e9;min-height:172px;background:#fff}.participant-card:hover{background:#fafcfe}.pcol{font-size:11px;min-width:0;overflow-wrap:anywhere}.pname{font-weight:750;color:#1d2934;font-size:12px;margin-bottom:4px}.pmail{font-size:10px;color:#356eb7;display:block;margin-bottom:6px}.fieldlabel{display:block;font-size:9px;color:#8492a0;letter-spacing:.02em;margin:6px 0 2px;text-transform:uppercase}.pvalue{color:#293948;font-size:11px;line-height:1.35;font-weight:650}.pvalue.regular{font-weight:400}.badge{font-size:9px;font-weight:750;border-radius:12px;padding:2px 6px;display:inline-block;margin:4px 4px 2px 0}.badge.green{color:#1b8053;background:#dcf5e9}.badge.orange{color:#98640d;background:#fff0d7}.badge.blue{background:#e3eeff;color:#2d68b8}.badge.gray{background:#eff1f3;color:#566474}.badge.alert{background:#fff0dc;color:#96611e;border-radius:4px;line-height:1.4}.muted{color:#87929f}.next-event{margin-top:7px;font-size:10.5px;color:#42556a}.next-event strong{color:#4c657e;display:block;font-size:10px;font-weight:650}.activity-summary{font-size:10.5px;line-height:1.4;margin:3px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.eye-button{width:32px;height:32px;border:1px solid #86a9e6;color:#2b69c1;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px}.eye-button:hover{background:#e8f0ff;box-shadow:0 2px 7px #356ac526}.no-results{padding:45px;text-align:center;color:#667789}.demo-footnote{font-size:10px;color:#8492a1;margin-top:18px}.advanced{display:none}.advanced.visible{display:block}.shortcut-tip{font-size:10px;color:#798797;margin:6px 0 0}
+@media(max-width:1370px){.participant-card{grid-template-columns:minmax(115px,1fr) minmax(115px,1fr) minmax(150px,1.15fr) minmax(130px,1fr) minmax(165px,1.4fr) 32px;gap:9px}.page-wrap{padding:17px 16px 45px}}
+@media(max-width:1150px){.participant-card{grid-template-columns:repeat(3,minmax(0,1fr)) 32px;gap:12px}.participant-card>.pcol:nth-child(4),.participant-card>.pcol:nth-child(5){grid-column:span 1}.eye-button{grid-column:4;grid-row:1}.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.page-top{align-items:flex-start;flex-wrap:wrap}}
+@media(max-width:700px){.page-top h1{font-size:22px}.filter-grid,.filter-grid.cols3,.filter-grid.cols2{grid-template-columns:1fr}.participant-card{grid-template-columns:repeat(2,minmax(0,1fr))}.eye-button{grid-column:2;grid-row:1;justify-self:end}.participant-card>.pcol:nth-child(4),.participant-card>.pcol:nth-child(5){grid-column:span 2}.per-page{margin-left:0}.top-actions{width:100%;flex-wrap:wrap}}
+</style>
+<link rel="stylesheet" href="shared-nav.css">
+</head>
+<body>
+<div class="app">
+<aside class="nav" aria-label="Navigation Nabu (maquette)"><div class="iscod-brand" aria-label="iSCOD — L’alternance nouvelle génération"><div class="iscod-stamp"><span>iSCOD</span></div><div class="iscod-tagline">L’ALTERNANCE<br>NOUVELLE GÉNÉRATION</div></div><div class="nav-group-head"><span>Contrats</span><span class="nav-switch">⌄</span></div><div class="nav-scroll"><div class="nav-small nav-first">GÉRER</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♟</span>Contrats</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">☏</span>Mes échanges</a><a href="participants.html" class="nav-item active" aria-current="page" title="Ouvrir les fiches participants"><span class="nav-icon">♙</span>Mes participants</a><a href="index.html" class="nav-item"><span class="nav-icon">☷</span>Mes tâches</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▣</span>Absences</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♧</span>Mise à jour en masse</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Replanifications de visio</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">⊙</span>Interface élèves</a><div class="nav-section"><div class="nav-small">PRODUITS</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◧</span>Types de produit</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♙</span>Types d'accompagnement</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▤</span>Produits</a><div class="nav-small nav-subsection">MARKETING</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◈</span>Thématiques</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">☷</span>Spécialisations (tag)</a><div class="nav-small nav-subsection">CERTIFICATEURS</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Certificateurs</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▦</span>Titres</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▤</span>Tableaux de commission</a><div class="nav-section"><div class="nav-small">FACTURATION</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Banettes de facturation</a><div class="nav-section"><div class="nav-small">PARAMÈTRES</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▦</span>Modèles de Calendrier</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◧</span>Livret d'apprentissage</a><div class="nav-section"></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◩</span>Rapports</a></div><div class="nav-footer"><a href="#" onclick="return false"><span>ⓘ</span>Besoin d’aide ?</a><a href="#" onclick="return false"><span>♟</span>Notifications</a><a href="#" onclick="return false"><span>♙</span>utilisateur@exemple.fr</a><a href="#" onclick="return false"><span>⏻</span>Déconnexion</a><div class="nav-version">◈ Maquette · Données fictives</div></div></aside>
+<main class="workspace-list"><div class="page-wrap">
+<div class="breadcrumb"><span class="home">◆</span> Mes participants</div>
+<div class="page-top"><h1>Mes participants</h1><div class="top-actions"><label>Tableau de bord<select aria-label="Tableau de bord"><option>Expérience entreprise</option></select></label><label>Collaborateurs à superviser<select id="headerXpe" aria-label="Collaborateurs à superviser"><option value="">Tous les collaborateurs</option></select></label></div></div>
+<section class="filters" aria-label="Rechercher des participants">
+<form id="filterForm">
+<div class="group"><h2 class="group-heading">Étudiant</h2><div class="filter-grid cols3">
+<input name="firstName" class="filter-control" aria-label="Prénom étudiant" placeholder="Prénom">
+<input name="lastName" class="filter-control" aria-label="Nom étudiant" placeholder="Nom">
+<input name="email" class="filter-control" type="search" aria-label="Email étudiant" placeholder="Email">
+</div></div>
+<div class="group"><h2 class="group-heading">Entreprise</h2><div class="filter-grid cols2">
+<input name="company" class="filter-control" placeholder="Entreprise" aria-label="Entreprise">
+<input name="ma" class="filter-control" placeholder="Nom du maître d'apprentissage" aria-label="Maître d'apprentissage">
+</div></div>
+<div class="group"><h2 class="group-heading">Professions internes</h2><div class="filter-grid cols2">
+<select name="xpe" class="filter-control" aria-label="Référent Expérience entreprise"><option value="">Tous les référents Expérience entreprise</option></select>
+<select name="cp" class="filter-control" aria-label="Coordinateur pédagogique"><option value="">Tous les coordinateurs pédagogiques</option></select>
+</div></div>
+<div class="group"><h2 class="group-heading">Formation</h2><div class="filter-grid cols2">
+<select name="course" class="filter-control" aria-label="Formation"><option value="">Toutes les formations</option></select>
+<select name="type" class="filter-control" aria-label="Typologie de contrat"><option value="">Toutes les typologies de contrat</option><option value="Nouvel entrant">Nouvel entrant</option><option value="Renouvellement">Renouvellement</option></select>
+</div></div>
+<div class="group"><h2 class="group-heading">Statut</h2><div class="filter-grid">
+<select name="status" class="filter-control" aria-label="Statut de formation"><option value="">Tous les statuts de formation</option><option value="En cours de formation">En cours de formation</option></select>
+<select name="score" class="filter-control" aria-label="Score contrat"><option value="">Tous les scores du contrat</option><option value="A">Score A</option><option value="B">Score B</option><option value="C">Score C</option><option value="D">Score D</option></select>
+<select name="alert" class="filter-control" aria-label="Alertes"><option value="">Toutes les alertes</option><option value="yes">Avec alerte</option><option value="no">Sans alerte</option></select>
+<select name="day" class="filter-control" aria-label="Jour de formation"><option value="">Tous les jours de formation</option><option>lundi</option><option>mardi</option><option>mercredi</option><option>jeudi</option><option>vendredi</option></select>
+</div></div>
+<div id="advancedFields" class="advanced">
+<div class="group"><h2 class="group-heading">Activités — filtres complémentaires</h2><div class="filter-grid cols3">
+<select name="activity" class="filter-control" aria-label="Activité XPE"><option value="">Toutes les activités</option><option value="yes">Avec activité XPE</option><option value="no">Sans activité XPE</option></select>
+<input name="id" class="filter-control" placeholder="Référence contrat" aria-label="Référence contrat">
+<select name="cohort" class="filter-control" aria-label="Année de début de contrat"><option value="">Toutes les cohortes</option><option value="2026">Contrats démarrés en 2026</option></select>
+</div></div></div>
+<div class="filter-actions"><button class="button search" type="submit">⌕ Rechercher</button><button class="button reset" type="button" id="resetBtn">Réinitialiser les filtres</button><button class="button ghost" type="button" id="advancedBtn" aria-expanded="false">Afficher tous les filtres ⌄</button><div class="per-page">Par page <select id="perPage" aria-label="Résultats par page"><option value="25">25</option><option value="7">7</option><option value="5">5</option></select></div></div>
+</form></section>
+<section class="shortcuts" aria-label="Raccourcis de recherche"><h2 class="shortcuts-heading">Raccourcis</h2>
+<div class="shortcut-buttons"><button type="button" class="shortcut" data-quick="alerts">Mes alertes en cours</button><button type="button" class="shortcut" data-quick="m1">Prévention M1</button><button type="button" class="shortcut" data-quick="m4">Prévention M4</button><button type="button" class="shortcut" data-quick="all">Tous les dossiers</button></div>
+</section>
+<section aria-label="Résultats de recherche">
+<div class="list-header"><label>Ordre de tri <select id="sortSelect" class="sort-control"><option value="id">Identifiant dossier</option><option value="name">Nom étudiant</option><option value="company">Entreprise</option><option value="start">Début du contrat</option></select></label><div class="list-count" id="resultCount">7 participants</div></div>
+<div id="results" aria-live="polite"></div>
+</section>
+<p class="demo-footnote">Maquette de démonstration : dossiers, statuts et interlocuteurs entièrement fictifs. Les raccourcis filtrent uniquement les données d'exemple.</p>
+</div></main>
+</div>
+<script src="shared.js"></script>
+<script>
+(function(){
+"use strict";
+if(!window.NabuDemo)throw Error("shared.js indisponible");
+var db=window.NabuDemo;db.ensure();
+var profiles=db.profiles, activeQuick="",filterValues={},today=db.dayKey(new Date());
+function $(id){return document.getElementById(id)}
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function fmt(v){if(!v)return "—";var d=new Date(v+"T12:00:00");return new Intl.DateTimeFormat("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}).format(d)}
+function fullDate(v){if(!v)return "—";return fmt(v)}
+function nextItem(id,kind){
+ var all=db.getItems().filter(function(t){return t.contractId===id&&t.kind===kind&&!t.archived&&!t.done&&t.date&&t.date>=today});
+ all.sort(function(a,b){return a.date.localeCompare(b.date)||(typeof a.minute==="number"?a.minute:999)-(typeof b.minute==="number"?b.minute:999)});
+ return all[0]||null;
+}
+function lastActivity(id){
+ var all=db.getActivities(id).slice().sort(function(a,b){return new Date(b.date)-new Date(a.date)});
+ return all[0]||null;
+}
+function short(v,max){var t=String(v||"");return t.length>max?t.slice(0,max-1)+"…":t}
+function scoreClass(score){return score==="A"?"green":score==="B"?"blue":"orange"}
+function record(p){
+ var la=lastActivity(p.id),rdv=nextItem(p.id,"event"),task=nextItem(p.id,"task");
+ return '<article class="participant-card" aria-label="Dossier de '+esc(p.apprentice)+'">'+
+ '<div class="pcol"><div class="pname">'+esc(p.apprentice)+'</div><span class="pmail">'+esc(p.apprenticeEmail)+'</span><span class="badge '+scoreClass(p.score)+'">Score '+esc(p.score)+'</span><div><span class="badge green">'+esc(p.trainingStatus)+'</span></div>'+(p.alertName!=="Aucune"?'<div><span class="badge alert">⚠ '+esc(p.alertName)+'</span></div>':'')+'</div>'+
+ '<div class="pcol"><span class="fieldlabel">Typologie de contrat</span><span class="badge blue">'+esc(p.contractType)+'</span><span class="fieldlabel">Entreprise</span><div class="pvalue">'+esc(p.company)+'</div><span class="fieldlabel">Maître d’apprentissage</span><div class="pvalue">'+esc(p.maName)+'</div><div class="pvalue regular">'+esc(p.maPhone)+'</div></div>'+
+ '<div class="pcol"><span class="fieldlabel">Produit</span><div class="pvalue">'+esc(p.course)+'</div><span class="fieldlabel">Référent XPE</span><div class="pvalue regular">'+esc(p.xpe)+'</div><span class="fieldlabel">Coordinateur pédagogique</span><div class="pvalue regular">'+esc(p.cp)+'</div></div>'+
+ '<div class="pcol"><span class="fieldlabel">Contrat</span><div class="pvalue regular">Début : '+fmt(p.contractStart)+'</div><div class="pvalue regular">Fin : '+fmt(p.contractEnd)+'</div><span class="fieldlabel">Formation</span><div class="pvalue regular">Début : '+fmt(p.trainingStart)+'</div><div class="pvalue regular">Fin : '+fmt(p.trainingEnd)+'</div><span class="fieldlabel">Jour de formation</span><div class="pvalue regular">'+esc(p.trainingDay)+'</div></div>'+
+ '<div class="pcol"><span class="fieldlabel">Dernière activité</span>'+(la?'<div class="next-event">'+fmt(String(la.date).slice(0,10))+' · '+esc(la.type)+' · '+esc(la.author)+'</div><p class="activity-summary">'+esc(short(la.text,120))+'</p>':'<div class="muted">Aucune</div>')+
+ '<div class="next-event"><strong>Prochain RDV</strong>'+esc(rdv?fmt(rdv.date)+" · "+rdv.title:"—")+'</div>'+
+ '<div class="next-event"><strong>Prochaine tâche</strong>'+esc(task?fmt(task.date)+" · "+task.title:"—")+'</div></div>'+
+ '<div class="pcol"><a class="eye-button" href="participant.html?contract='+encodeURIComponent(p.id)+'" aria-label="Ouvrir la fiche de '+esc(p.apprentice)+'" title="Ouvrir le dossier">◉</a></div>'+
+ '</article>';
+}
+function addChoices(name,values){
+ var select=document.querySelector('[name="'+name+'"]');
+ Array.from(new Set(values)).sort(function(a,b){return a.localeCompare(b,"fr")}).forEach(function(value){var op=document.createElement("option");op.value=value;op.textContent=value;select.appendChild(op)});
+}
+addChoices("xpe",profiles.map(function(c){return c.xpe}));
+addChoices("cp",profiles.map(function(c){return c.cp}));
+addChoices("course",profiles.map(function(c){return c.course}));
+var h=$("headerXpe");
+Array.from(new Set(profiles.map(function(c){return c.xpe}))).sort().forEach(function(v){var op=document.createElement("option");op.value=v;op.textContent=v;h.appendChild(op)});
+function gather(){var form=$("filterForm");var fd=new FormData(form);filterValues={};fd.forEach(function(v,k){filterValues[k]=String(v).trim().toLocaleLowerCase("fr-FR")});filterValues.headerXpe=h.value.toLocaleLowerCase("fr-FR")}
+function match(p){
+ var f=filterValues,lo=function(s){return String(s||"").toLocaleLowerCase("fr-FR")},pieces=p.apprentice.split(" "),first=pieces[0]||"",last=pieces.slice(1).join(" ");
+ var tests={firstName:first,lastName:last,email:p.apprenticeEmail,company:p.company,ma:p.maName+" "+p.maEmail,xpe:p.xpe,cp:p.cp,course:p.course,type:p.contractType,status:p.trainingStatus,score:p.score,day:p.trainingDay,id:p.id,cohort:p.contractStart.slice(0,4)};
+ for(var key in tests){if(f[key]&&!lo(tests[key]).includes(f[key]))return false}
+ if(f.headerXpe&&!lo(p.xpe).includes(f.headerXpe))return false;
+ if(f.alert==="yes"&&p.alertName==="Aucune")return false;
+ if(f.alert==="no"&&p.alertName!=="Aucune")return false;
+ if(f.activity){var a=db.getActivities(p.id).filter(function(x){return /expérience entreprise/i.test(x.role)}).length>0;if(f.activity==="yes"&&!a||f.activity==="no"&&a)return false}
+ if(activeQuick==="alerts"&&p.alertName==="Aucune")return false;
+ if(activeQuick==="m1"&&!["DEMO-1001","DEMO-1002","DEMO-1007"].includes(p.id))return false;
+ if(activeQuick==="m4"&&!["DEMO-1003","DEMO-1005","DEMO-1006"].includes(p.id))return false;
+ return true;
+}
+function render(){
+ var list=profiles.filter(match),sort=$("sortSelect").value;
+ list.sort(function(a,b){if(sort==="name")return a.apprentice.localeCompare(b.apprentice,"fr");if(sort==="company")return a.company.localeCompare(b.company,"fr");if(sort==="start")return b.contractStart.localeCompare(a.contractStart);return a.id.localeCompare(b.id)});
+ var limit=Number($("perPage").value)||25;var shown=list.slice(0,limit);
+ $("resultCount").textContent=list.length+" participant"+(list.length!==1?"s":"")+(shown.length<list.length?" · "+shown.length+" affichés":"");
+ $("results").innerHTML=shown.length?shown.map(record).join(""):'<div class="no-results">Aucun participant ne correspond aux critères. <button class="button reset" id="emptyReset">Réinitialiser les filtres</button></div>';
+ document.querySelectorAll("[data-quick]").forEach(function(b){b.classList.toggle("active",activeQuick===b.dataset.quick&&activeQuick!=="")});
+}
+function clearFilters(){document.getElementById("filterForm").reset();h.value="";activeQuick="";gather();render()}
+$("filterForm").addEventListener("submit",function(e){e.preventDefault();activeQuick="";gather();render()});
+$("resetBtn").addEventListener("click",clearFilters);
+$("advancedBtn").addEventListener("click",function(){var isOpen=$("advancedFields").classList.toggle("visible");this.setAttribute("aria-expanded",String(isOpen));this.textContent=isOpen?"Masquer les filtres complémentaires ⌃":"Afficher tous les filtres ⌄"});
+h.addEventListener("change",function(){gather();render()});
+$("sortSelect").addEventListener("change",render);
+$("perPage").addEventListener("change",render);
+document.addEventListener("click",function(e){var b=e.target.closest("[data-quick]");if(b){if(b.dataset.quick==="all"){clearFilters();return}activeQuick=activeQuick===b.dataset.quick?"":b.dataset.quick;gather();render()}if(e.target.id==="emptyReset")clearFilters()});
+window.addEventListener("pageshow",function(){render()});
+window.addEventListener("storage",function(e){if(e.key===db.itemsKey||e.key==="nabu-demo-activities-v1")render()});
+gather();render();
+})();
+</script>
+</body>
+</html>
