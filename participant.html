@@ -85,7 +85,6 @@ button{transition:background .14s,border-color .14s}.btn{display:inline-flex;ali
 (function(){
 "use strict";
 var $=function(q){return document.querySelector(q)}, $$=function(q){return Array.from(document.querySelectorAll(q))};
-var STORE="nabu-fiche-participant-demo-v1";
 function dateKey(d){var x=new Date(d);return x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0")}
 function plusDays(k,n){var d=new Date(k+"T12:00:00");d.setDate(d.getDate()+n);return dateKey(d)}
 function formatDate(k){if(!k)return "À planifier";var d=new Date(k+"T12:00:00");return new Intl.DateTimeFormat("fr-FR",{day:"numeric",month:"short",year:"numeric"}).format(d)}
@@ -93,17 +92,6 @@ function formatDateTime(k){return new Intl.DateTimeFormat("fr-FR",{day:"numeric"
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function uid(){return "demo-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8)}
 var today=dateKey(new Date());
-function seed(){return {tasks:[
-{id:"t1",title:"Rappeler le maître d’apprentissage",date:plusDays(today,-1),time:"10:00",done:false,activityId:"a2",comment:"Échanger sur les missions confiées et convenir d'un suivi."},
-{id:"t2",title:"Envoyer le compte rendu de suivi",date:today,time:"16:00",done:false,activityId:"a1",comment:"Transmettre les prochaines étapes au maître d’apprentissage."},
-{id:"t3",title:"Préparer le point tripartite",date:plusDays(today,2),time:"09:30",done:false,activityId:null,comment:"Rassembler les derniers échanges et les éléments de suivi."},
-{id:"t4",title:"Vérifier la bonne réception des documents",date:plusDays(today,-3),time:"",done:true,activityId:"a3",comment:"Documents transmis, dossier complété."}
-],activities:[
-{id:"a1",type:"Suivi",author:"Sophie RENAUD",role:"Référente expérience entreprise",date:new Date(Date.now()-60*60*1000).toISOString(),text:"Point effectué avec le maître d’apprentissage sur l’intégration et les missions à venir."},
-{id:"a2",type:"Atteint",author:"Sophie RENAUD",role:"Référente expérience entreprise",date:new Date(Date.now()-28*60*60*1000).toISOString(),text:"Appel de suivi : plusieurs points restent à clarifier avec l’entreprise."},
-{id:"a3",type:"Commentaire",author:"Alexandre PERRIN",role:"Coordinateur pédagogique",date:new Date(Date.now()-50*60*60*1000).toISOString(),text:"Documents pédagogiques reçus et ajoutés au dossier."},
-{id:"a4",type:"Rdv",author:"Paul MARCHAND",role:"Learning coach",date:new Date(Date.now()-100*60*60*1000).toISOString(),text:"Entretien de progression : rappel des objectifs du prochain module."}
-]}}
 if(!window.NabuDemo)throw Error("Fichier shared.js requis pour la maquette unifiée");
 window.NabuDemo.ensure();
 var requested=new URLSearchParams(window.location.search).get("contract")||"DEMO-1007";
