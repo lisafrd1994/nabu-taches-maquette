@@ -4,13 +4,13 @@
 "use strict";
 var ITEMS_KEY="nabu-maquette-v1",ACTIVITIES_KEY="nabu-demo-activities-v1";
 var profiles=[
-{id:"DEMO-1001",apprentice:"Léa Dubois",company:"Horizon Conseil",apprenticeEmail:"lea.dubois@example.test",maName:"Émilie Perrin",maEmail:"emilie.perrin@example.test",maPhone:"06 00 00 00 11",cp:"Alexandre Perrin",xpe:"Sophie Renaud",coach:"Paul Marchand",admission:"Marie Leroy",course:"Bachelor Commerce",remaining:489,progress:31,modules:3},
-{id:"DEMO-1002",apprentice:"Adam Laurent",company:"Maison Nova",apprenticeEmail:"adam.laurent@example.test",maName:"Nicolas Leroy",maEmail:"nicolas.leroy@example.test",maPhone:"06 00 00 00 12",cp:"Iris Bernard",xpe:"Sophie Renaud",coach:"Laura Petit",admission:"Marie Leroy",course:"BTS NDRC",remaining:328,progress:42,modules:4},
-{id:"DEMO-1003",apprentice:"Chloé Martin",company:"Agence Atlas",apprenticeEmail:"chloe.martin@example.test",maName:"Camille Rossi",maEmail:"camille.rossi@example.test",maPhone:"06 00 00 00 13",cp:"Alexandre Perrin",xpe:"Sophie Renaud",coach:"Paul Marchand",admission:"Marie Leroy",course:"Bachelor Marketing",remaining:589,progress:25,modules:3},
-{id:"DEMO-1004",apprentice:"Noah Petit",company:"Studio Pixel",apprenticeEmail:"noah.petit@example.test",maName:"Julie Garnier",maEmail:"julie.garnier@example.test",maPhone:"06 00 00 00 14",cp:"Iris Bernard",xpe:"Florian Dubreuil",coach:"Laura Petit",admission:"Anna Moreau",course:"BTS SIO",remaining:552,progress:38,modules:3},
-{id:"DEMO-1005",apprentice:"Inès Bernard",company:"Cap Horizon",apprenticeEmail:"ines.bernard@example.test",maName:"Thomas Bell",maEmail:"thomas.bell@example.test",maPhone:"06 00 00 00 15",cp:"Alexandre Perrin",xpe:"Florian Dubreuil",coach:"Paul Marchand",admission:"Anna Moreau",course:"Bachelor RH",remaining:295,progress:58,modules:2},
-{id:"DEMO-1006",apprentice:"Sara Girard",company:"Espace Conseil",apprenticeEmail:"sara.girard@example.test",maName:"Maxime Lenoir",maEmail:"maxime.lenoir@example.test",maPhone:"06 00 00 00 16",cp:"Iris Bernard",xpe:"Sophie Renaud",coach:"Laura Petit",admission:"Marie Leroy",course:"BTS MCO",remaining:403,progress:36,modules:3},
-{id:"DEMO-1007",apprentice:"Camille Martin",company:"Atelier Horizon",apprenticeEmail:"camille.martin@example.test",maName:"Thomas Bernard",maEmail:"thomas.bernard@example.test",maPhone:"06 00 00 00 17",cp:"Alexandre Perrin",xpe:"Sophie Renaud",coach:"Paul Marchand",admission:"Marie Leroy",course:"BTS Support à l’action managériale",remaining:589,progress:25,modules:3}
+{id:"DEMO-1001",apprentice:"Léa Dubois",company:"Horizon Conseil",apprenticeEmail:"lea.dubois@example.test",maName:"Émilie Perrin",maEmail:"emilie.perrin@example.test",maPhone:"06 00 00 00 11",cp:"Alexandre Perrin",xpe:"Alizée Mathou",coach:"Paul Marchand",admission:"Marie Leroy",course:"Bachelor Commerce",remaining:489,progress:31,modules:3},
+{id:"DEMO-1002",apprentice:"Adam Laurent",company:"Horizon Conseil",apprenticeEmail:"adam.laurent@example.test",maName:"Émilie Perrin",maEmail:"emilie.perrin@example.test",maPhone:"06 00 00 00 11",cp:"Iris Bernard",xpe:"Alizée Mathou",coach:"Laura Petit",admission:"Marie Leroy",course:"BTS NDRC",remaining:328,progress:42,modules:4},
+{id:"DEMO-1003",apprentice:"Chloé Martin",company:"Agence Atlas",apprenticeEmail:"chloe.martin@example.test",maName:"Camille Rossi",maEmail:"camille.rossi@example.test",maPhone:"06 00 00 00 13",cp:"Alexandre Perrin",xpe:"Alizée Mathou",coach:"Paul Marchand",admission:"Marie Leroy",course:"Bachelor Marketing",remaining:589,progress:25,modules:3},
+{id:"DEMO-1004",apprentice:"Noah Petit",company:"Studio Pixel",apprenticeEmail:"noah.petit@example.test",maName:"Julie Garnier",maEmail:"julie.garnier@example.test",maPhone:"06 00 00 00 14",cp:"Iris Bernard",xpe:"Flavio Da Silva",coach:"Laura Petit",admission:"Anna Moreau",course:"BTS SIO",remaining:552,progress:38,modules:3},
+{id:"DEMO-1005",apprentice:"Inès Bernard",company:"Cap Horizon",apprenticeEmail:"ines.bernard@example.test",maName:"Thomas Bell",maEmail:"thomas.bell@example.test",maPhone:"06 00 00 00 15",cp:"Alexandre Perrin",xpe:"Flavio Da Silva",coach:"Paul Marchand",admission:"Anna Moreau",course:"Bachelor RH",remaining:295,progress:58,modules:2},
+{id:"DEMO-1006",apprentice:"Sara Girard",company:"Espace Conseil",apprenticeEmail:"sara.girard@example.test",maName:"Maxime Lenoir",maEmail:"maxime.lenoir@example.test",maPhone:"06 00 00 00 16",cp:"Iris Bernard",xpe:"Alizée Mathou",coach:"Laura Petit",admission:"Marie Leroy",course:"BTS MCO",remaining:403,progress:36,modules:3},
+{id:"DEMO-1007",apprentice:"Camille Martin",company:"Atelier Horizon",apprenticeEmail:"camille.martin@example.test",maName:"Thomas Bernard",maEmail:"thomas.bernard@example.test",maPhone:"06 00 00 00 17",cp:"Alexandre Perrin",xpe:"Alizée Mathou",coach:"Paul Marchand",admission:"Marie Leroy",course:"BTS Support à l’action managériale",remaining:589,progress:25,modules:3}
 ];
 /* Métadonnées de présentation du listing « Mes participants », exclusivement fictives. */
 var metadata=[["C","Nouvel entrant","En cours de formation","2026-04-13","2027-06-25","2026-04-14","2027-04-30","vendredi","Aucune"],["D","Nouvel entrant","En cours de formation","2026-06-10","2027-07-31","2026-06-11","2027-06-30","mercredi","Satisfaction intégration"],["C","Nouvel entrant","En cours de formation","2026-09-01","2027-08-31","2026-09-03","2027-07-31","jeudi","Missions à clarifier"],["A","Nouvel entrant","En cours de formation","2026-05-01","2027-08-31","2026-05-04","2027-06-30","lundi","Aucune"],["D","Renouvellement","En cours de formation","2026-03-15","2027-09-30","2026-03-16","2027-07-31","mardi","Accompagnement à sécuriser"],["B","Nouvel entrant","En cours de formation","2026-07-01","2027-06-30","2026-07-02","2027-05-31","jeudi","Aucune"],["B","Nouvel entrant","En cours de formation","2026-09-14","2027-08-31","2026-09-15","2027-07-31","mercredi","Aucune"]];
@@ -35,6 +35,36 @@ function task(id,c,title,date,minute,opts){return Object.assign({id:id,kind:"tas
 function event(id,c,title,date,minute,duration,origin,opts){return Object.assign({id:id,kind:"event",title:title,person:c.apprentice,company:c.company,contractId:c.id,date:date,minute:minute,duration:duration,category:"yellow",origin:origin||"Nabu"},opts||{})}
 /* Démarrage volontairement vide : aucune tâche ni aucun rendez-vous préchargé. */
 function initialItems(){return []}
+
+/* Une seule série de rendez-vous fictifs illustrant la synchronisation entrante.
+   Ces événements sont enregistrés une fois puis restent pilotables uniquement
+   depuis leur source Outlook simulée (et non depuis Nabu). */
+var EVENT_DEMO_VERSION="nabu-outlook-demo-events-oct2026-v1";
+function matchesForEmail(email){
+ var key=String(email||"").trim().toLowerCase();
+ return key?profiles.filter(function(c){return c.apprenticeEmail.toLowerCase()===key||c.maEmail.toLowerCase()===key}):[];
+}
+function outlookDemoEvents(){
+ var slots=[
+ {id:"demo-outlook-team",title:"Réunion hebdomadaire — Équipe Expérience Entreprise",date:"2026-10-21",minute:540,duration:60,attendees:["Alizée Mathou","Flavio Da Silva","Lisa"],sourceDetail:"Outlook"},
+ {id:"demo-outlook-camille",title:"Camille Rossi et Alizée Mathou [iSCOD]",date:"2026-10-21",minute:840,duration:30,sourceDetail:"Calendly via Outlook",bookerName:"Camille Rossi",bookerRole:"Maître d'apprentissage",bookerEmail:"camille.rossi@example.test",bookingSubject:"Point de suivi du contrat"},
+ {id:"demo-outlook-1to1",title:"1to1 Alizée / Lisa",date:"2026-10-22",minute:600,duration:30,attendees:["Alizée Mathou","Lisa"],sourceDetail:"Outlook"},
+ {id:"demo-outlook-sara",title:"Sara Girard et Alizée Mathou [iSCOD]",date:"2026-10-22",minute:660,duration:30,sourceDetail:"Calendly via Outlook",bookerName:"Sara Girard",bookerRole:"Apprenti",bookerEmail:"sara.girard@example.test",bookingSubject:"Questions sur le parcours en entreprise"},
+ {id:"demo-outlook-vismavie",title:"Vis ma vie — XPE & Coordination pédagogique",date:"2026-10-22",minute:900,duration:45,attendees:["Alizée Mathou","Alexandre Perrin"],sourceDetail:"Outlook"},
+ {id:"demo-outlook-emilie",title:"Émilie Perrin et Alizée Mathou [iSCOD]",date:"2026-10-23",minute:570,duration:30,sourceDetail:"Calendly via Outlook",bookerName:"Émilie Perrin",bookerRole:"Maître d'apprentissage",bookerEmail:"emilie.perrin@example.test",bookingSubject:"Suivi des apprentis en entreprise"},
+ {id:"demo-outlook-oktogone",title:"Oktogone Live - interne Outlook",date:"2026-10-23",minute:840,duration:60,attendees:["Alizée Mathou","Équipe Oktogone"],sourceDetail:"Outlook"},
+ {id:"demo-outlook-coordination",title:"Réunion de coordination — Suivi des contrats et alertes",date:"2026-10-26",minute:600,duration:45,attendees:["Alizée Mathou","Flavio Da Silva","Alexandre Perrin"],sourceDetail:"Outlook"}
+ ];
+ return slots.map(function(data){
+  var evt=Object.assign({kind:"event",category:"purple",origin:"Outlook",outlookReadOnly:true,
+   calendarOwner:"Alizée Mathou",date:null,contractId:"",person:"",company:""},data);
+  evt.attendeeEmails=evt.bookerEmail?[evt.bookerEmail]:[];
+  var contracts=matchesForEmail(evt.bookerEmail);
+  evt.matchStatus=contracts.length===1?"matched":contracts.length>1?"multiple":"none";
+  if(contracts.length===1){var c=contracts[0];evt.contractId=c.id;evt.person=c.apprentice;evt.company=c.company;evt.maName=c.maName}
+  return evt;
+ });
+}
 function defaultActivities(){
  var all={};profiles.forEach(function(c,i){
   all[c.id]=[
@@ -58,10 +88,24 @@ function ensure(){
   write(CLEAN_AGENDA_KEY,true);
  }
  if(!Array.isArray(items))items=[];
- items.forEach(function(it){if(it.kind==="event"&&it.category==="blue")it.category="yellow";if(!it.contractId&&it.person){var c=byName(it.person,it.company);if(c)it.contractId=c.id}});
+ if(read(EVENT_DEMO_VERSION)!==true){
+  var ids=new Set(items.map(function(it){return it.id}));
+  outlookDemoEvents().forEach(function(evt){if(!ids.has(evt.id))items.push(evt)});
+  write(EVENT_DEMO_VERSION,true);
+ }
+ items.forEach(function(it){
+  if(it.kind==="event"&&it.category==="blue")it.category="purple";
+  if(!it.contractId&&it.person){var c=byName(it.person,it.company);if(c)it.contractId=c.id}
+ });
  var activities=read(ACTIVITIES_KEY);if(!activities||typeof activities!=="object"||Array.isArray(activities))activities={};
  var defaults=defaultActivities();
- profiles.forEach(function(c){if(!Array.isArray(activities[c.id]))activities[c.id]=[];defaults[c.id].forEach(function(a){if(!activities[c.id].some(function(x){return x.id===a.id}))activities[c.id].push(a)})});
+ profiles.forEach(function(c){
+  if(!Array.isArray(activities[c.id]))activities[c.id]=[];
+  activities[c.id].forEach(function(a){
+   if((a.author==="Sophie Renaud"||a.author==="Florian Dubreuil")&&/expérience entreprise/i.test(a.role||""))a.author=c.xpe;
+  });
+  defaults[c.id].forEach(function(a){if(!activities[c.id].some(function(x){return x.id===a.id}))activities[c.id].push(a)});
+ });
  write(ITEMS_KEY,items);write(ACTIVITIES_KEY,activities);
  return {items:items,activities:activities};
 }
@@ -69,5 +113,5 @@ function getItems(){var data=read(ITEMS_KEY);return Array.isArray(data)?data:ens
 function saveItems(items){write(ITEMS_KEY,items)}
 function getActivities(id){var data=read(ACTIVITIES_KEY);return data&&Array.isArray(data[id])?data[id]:ensure().activities[id]||[]}
 function saveActivities(id,list){var obj=read(ACTIVITIES_KEY);if(!obj||typeof obj!=="object")obj={};obj[id]=list;write(ACTIVITIES_KEY,obj)}
-global.NabuDemo={profiles:profiles,contracts:profiles,findContract:findContract,ensure:ensure,getItems:getItems,saveItems:saveItems,getActivities:getActivities,saveActivities:saveActivities,itemsKey:ITEMS_KEY,dayKey:dayKey,shift:shift};
+global.NabuDemo={profiles:profiles,contracts:profiles,currentUser:"Alizée Mathou",findContract:findContract,matchesForEmail:matchesForEmail,ensure:ensure,getItems:getItems,saveItems:saveItems,getActivities:getActivities,saveActivities:saveActivities,itemsKey:ITEMS_KEY,dayKey:dayKey,shift:shift};
 })(window);
