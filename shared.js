@@ -47,11 +47,11 @@ function matchesForEmail(email){
 function outlookDemoEvents(){
  var slots=[
  {id:"demo-outlook-team",title:"Réunion hebdomadaire — Équipe Expérience Entreprise",date:"2026-10-21",minute:540,duration:60,attendees:["Alizée Mathou","Flavio Da Silva","Lisa"],sourceDetail:"Outlook"},
- {id:"demo-outlook-camille",title:"Camille Rossi et Alizée Mathou [iSCOD]",date:"2026-10-21",minute:840,duration:30,sourceDetail:"Calendly via Outlook",bookerName:"Camille Rossi",bookerRole:"Maître d'apprentissage",bookerEmail:"camille.rossi@example.test",bookingSubject:"Point de suivi du contrat"},
+ {id:"demo-outlook-camille",title:"Camille Rossi et Alizée Mathou [iSCOD]",date:"2026-10-21",minute:840,duration:30,sourceDetail:"Calendly via Outlook",bookerName:"Camille Rossi",bookerRole:"Maître d'apprentissage",bookerEmail:"camille.rossi@example.test",declaredApprentice:"Chloé Martin",bookingSubject:"Point de suivi du contrat"},
  {id:"demo-outlook-1to1",title:"1to1 Alizée / Lisa",date:"2026-10-22",minute:600,duration:30,attendees:["Alizée Mathou","Lisa"],sourceDetail:"Outlook"},
  {id:"demo-outlook-sara",title:"Sara Girard et Alizée Mathou [iSCOD]",date:"2026-10-22",minute:660,duration:30,sourceDetail:"Calendly via Outlook",bookerName:"Sara Girard",bookerRole:"Apprenti",bookerEmail:"sara.girard@example.test",bookingSubject:"Questions sur le parcours en entreprise"},
  {id:"demo-outlook-vismavie",title:"Vis ma vie — XPE & Coordination pédagogique",date:"2026-10-22",minute:900,duration:45,attendees:["Alizée Mathou","Alexandre Perrin"],sourceDetail:"Outlook"},
- {id:"demo-outlook-emilie",title:"Émilie Perrin et Alizée Mathou [iSCOD]",date:"2026-10-23",minute:570,duration:30,sourceDetail:"Calendly via Outlook",bookerName:"Émilie Perrin",bookerRole:"Maître d'apprentissage",bookerEmail:"emilie.perrin@example.test",bookingSubject:"Suivi des apprentis en entreprise"},
+ {id:"demo-outlook-emilie",title:"Émilie Perrin et Alizée Mathou [iSCOD]",date:"2026-10-23",minute:570,duration:30,sourceDetail:"Calendly via Outlook",bookerName:"Émilie Perrin",bookerRole:"Maître d'apprentissage",bookerEmail:"emilie.perrin@example.test",declaredApprentice:"Adam Laurent",bookingSubject:"Suivi des apprentis en entreprise"},
  {id:"demo-outlook-oktogone",title:"Oktogone Live - interne Outlook",date:"2026-10-23",minute:840,duration:60,attendees:["Alizée Mathou","Équipe Oktogone"],sourceDetail:"Outlook"},
  {id:"demo-outlook-coordination",title:"Réunion de coordination — Suivi des contrats et alertes",date:"2026-10-26",minute:600,duration:45,attendees:["Alizée Mathou","Flavio Da Silva","Alexandre Perrin"],sourceDetail:"Outlook"}
  ];
@@ -94,6 +94,9 @@ function ensure(){
   write(EVENT_DEMO_VERSION,true);
  }
  items.forEach(function(it){
+  /* Enrichir aussi les événements déjà stockés dans le navigateur avant cette évolution. */
+  if(it.id==="demo-outlook-emilie"&&it.declaredApprentice===undefined)it.declaredApprentice="Adam Laurent";
+  if(it.id==="demo-outlook-camille"&&it.declaredApprentice===undefined)it.declaredApprentice="Chloé Martin";
   if(it.kind==="event"&&it.category==="blue")it.category="purple";
   if(!it.contractId&&it.person){var c=byName(it.person,it.company);if(c)it.contractId=c.id}
  });
