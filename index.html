@@ -49,9 +49,8 @@ body.task-is-dragging .task-drop-help{display:block}
 .nav-version{color:#8c95a0;font-size:9px;margin-top:4px}
 @media(max-width:1030px){.nav{width:160px;min-width:160px}.nav-group-head{padding-left:12px;font-size:20px}.iscod-brand{padding-left:18px}}
 @media(max-width:770px){.nav{display:none}}
-/* Tous les rendez-vous, y compris les entretiens tripartites, partagent une couleur. */
-.event-entry,.event-entry.blue,.event-entry.yellow{border-left-color:var(--teal);background:#def5f5;color:#0c5f68}
-.event-entry.green{border-left-color:var(--purple);background:#efe6fc;color:#5c318f}
+/* Une seule couleur pour tous les événements, quelle que soit leur source. */
+.event-entry,.event-entry.blue,.event-entry.yellow,.event-entry.green,.event-entry.purple{border-left-color:var(--purple);background:#efe6fc;color:#5c318f}
 /* Tasks: warm amber pending, green completed, no strike-through, no fading */
 .task-item:not(.archived):not(.done){border-left-color:var(--orange);background:#fffaf1}
 .task-item.done:not(.archived){opacity:1;background:#e5f5eb;border-color:#a1d9b8;border-left:4px solid var(--done)}
@@ -176,17 +175,17 @@ body.task-is-dragging .task-drop-help{display:block}
 .calendar.single-day .task-entry{font-size:11px}
 @media(max-width:1130px){.calendar-view-button{padding:6px 8px}.calendar-controls{gap:3px}.calendar-head{padding-left:12px;padding-right:12px}}
 
-/* Rendez-vous du jour dans le panneau de gauche — consultation, sans case de validation */
-.appointment-item{display:flex;align-items:flex-start;gap:10px;padding:10px 11px;border:1px solid #dce6ed;border-left:3px solid var(--teal);border-radius:7px;margin:0 0 8px;background:#f9fdfd;box-shadow:0 1px 2px #16223406;cursor:pointer}
-.appointment-item:hover,.appointment-item:focus-visible{border-color:#9dc8ce;box-shadow:0 2px 8px #15202c13}
-.appointment-time{font-size:11px;font-weight:750;white-space:nowrap;min-width:43px;color:#077f8a;padding-top:1px;font-variant-numeric:tabular-nums}
+/* Événements du jour dans le panneau de gauche — consultation, sans case de validation */
+.appointment-item{display:flex;align-items:flex-start;gap:10px;padding:10px 11px;border:1px solid #dce6ed;border-left:3px solid var(--purple);border-radius:7px;margin:0 0 8px;background:#faf7ff;box-shadow:0 1px 2px #16223406;cursor:pointer}
+.appointment-item:hover,.appointment-item:focus-visible{border-color:#bba1d7;box-shadow:0 2px 8px #15202c13}
+.appointment-time{font-size:11px;font-weight:750;white-space:nowrap;min-width:43px;color:#7543b4;padding-top:1px;font-variant-numeric:tabular-nums}
 .appointment-main{flex:1;min-width:0}
 .appointment-title{font-size:12px;line-height:1.35;font-weight:650;color:#283c4d;overflow-wrap:anywhere}
 .appointment-detail{font-size:11px;color:#73818e;line-height:1.4;margin-top:5px;overflow-wrap:anywhere}
 .appointment-origin{font-size:10px;color:#66788a;margin-top:5px}
 .appointment-more{flex:none;color:#7a8590;font-size:16px;padding-left:3px;line-height:1}
-.section-title.appointments-section{color:#166e80}
-.section-title.appointments-section .bubble{background:#e4f2f3;color:#126b73}
+.section-title.appointments-section{color:#6e409f}
+.section-title.appointments-section .bubble{background:#efe6fc;color:#6e409f}
 </style>
 <link rel="stylesheet" href="shared-nav.css">
 </head>
@@ -195,7 +194,7 @@ body.task-is-dragging .task-drop-help{display:block}
 <aside class="nav" aria-label="Navigation Nabu (maquette)"><div class="iscod-brand" aria-label="iSCOD — L’alternance nouvelle génération"><div class="iscod-stamp"><span>iSCOD</span></div><div class="iscod-tagline">L’ALTERNANCE<br>NOUVELLE GÉNÉRATION</div></div><div class="nav-group-head"><span>Contrats</span><span class="nav-switch">⌄</span></div><div class="nav-scroll"><div class="nav-small nav-first">GÉRER</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♟</span>Contrats</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">☏</span>Mes échanges</a><a href="participants.html" class="nav-item" title="Afficher la liste des participants"><span class="nav-icon">♙</span>Mes participants</a><a href="#" class="nav-item active" aria-current="page" onclick="return false"><span class="nav-icon">☷</span>Mes tâches</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▣</span>Absences</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♧</span>Mise à jour en masse</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Replanifications de visio</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">⊙</span>Interface élèves</a><div class="nav-section"><div class="nav-small">PRODUITS</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◧</span>Types de produit</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♙</span>Types d'accompagnement</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▤</span>Produits</a><div class="nav-small nav-subsection">MARKETING</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◈</span>Thématiques</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">☷</span>Spécialisations (tag)</a><div class="nav-small nav-subsection">CERTIFICATEURS</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Certificateurs</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▦</span>Titres</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▤</span>Tableaux de commission</a><div class="nav-section"><div class="nav-small">FACTURATION</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Banettes de facturation</a><div class="nav-section"><div class="nav-small">PARAMÈTRES</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▦</span>Modèles de Calendrier</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◧</span>Livret d'apprentissage</a><div class="nav-section"></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◩</span>Rapports</a></div><div class="nav-footer"><a href="#" onclick="return false"><span>ⓘ</span>Besoin d’aide ?</a><a href="#" onclick="return false"><span>♟</span>Notifications</a><a href="#" onclick="return false"><span>♙</span>utilisateur@exemple.fr</a><a href="#" onclick="return false"><span>⏻</span>Déconnexion</a><div class="nav-version">◈ Maquette · Données fictives</div></div></aside>
 <main class="workspace">
 <header class="topbar">
-<div class="heading"><h1>Mes tâches <span class="pill">Maquette interactive</span></h1><small>Organiser mes actions et mes rendez-vous</small></div>
+<div class="heading"><h1>Mes tâches <span class="pill">Maquette interactive</span></h1><small>Organiser mes tâches et mes événements</small></div>
 <div class="toolbar"><button type="button" class="btn" id="demoContractsBtn">Contrats (démo)</button><button type="button" class="btn" id="demoCalendlyBtn">Tester Calendly</button><button id="newTaskTop" class="btn primary">＋ Créer</button></div>
 </header>
 <div class="mainrow">
@@ -239,7 +238,7 @@ body.task-is-dragging .task-drop-help{display:block}
 </form>
 </div>
 <div class="legend">
-<span><i class="swatch" style="background:var(--purple)"></i>Réunion interne</span><span><i class="swatch" style="background:var(--teal)"></i>Rendez-vous</span><span><i class="swatch" style="background:var(--orange)"></i>Tâche à faire</span><span><i class="swatch" style="background:var(--done)"></i>Tâche terminée</span>
+<span><i class="swatch" style="background:var(--purple)"></i>Événements</span><span><i class="swatch" style="background:var(--orange)"></i>Tâches à faire</span><span><i class="swatch" style="background:var(--done)"></i>Tâches terminées</span>
 <span class="calendar-creation-hint" style="margin-left:auto">↕ Glissez dans le calendrier pour créer</span><span>07h00–19h30 · précision 15 min</span>
 </div>
 <div id="dayHeads" class="dayheads"></div><div class="task-drop-help" id="taskDropHelp">Déposez une tâche sur une date (sans heure) ou sur un créneau (heure précise).</div>
@@ -355,7 +354,7 @@ return items.filter(function(e){return e.kind==="event"&&e.date===today&&(e.orig
 }
 function appointmentCard(e){
 var linked=getContract(e.contractId),person=e.person||(linked&&linked.apprentice)||"",company=e.company||(linked&&linked.company)||"";
-return '<article class="appointment-item" data-appointment-open="'+esc(e.id)+'" tabindex="0" role="button" aria-label="Ouvrir le rendez-vous '+esc(e.title)+'">' +
+return '<article class="appointment-item" data-appointment-open="'+esc(e.id)+'" tabindex="0" role="button" aria-label="Ouvrir l’événement '+esc(e.title)+'">' +
 '<span class="appointment-time">'+(e.minute===null||e.minute===undefined?'—':time(e.minute))+'</span>' +
 '<div class="appointment-main"><div class="appointment-title">'+esc(e.title)+'</div>' +
 (person||company?'<div class="appointment-detail">'+esc([person,company].filter(Boolean).join(" · "))+'</div>':'')+
@@ -368,7 +367,7 @@ function renderTasks(){var a=filteredTasks(),late=tasks().filter(function(t){ret
 $('#tasksSummary').textContent=a.length+' tâche'+(a.length>1?'s':'')+' affichée'+(a.length>1?'s':'')+(filter==="today"?' · '+appointments.length+' RDV aujourd’hui':'')+' · '+late+' en retard';
 var html='';
 function section(label,list,lateFlag){html+='<div class="section-title '+(lateFlag?'late':label.indexOf("Enki")!==-1?'enki-section':'')+'">'+(lateFlag?'⚠ ':'◷ ')+label+' <span class="bubble">'+list.length+'</span></div>';if(!list.length)html+='<div class="empty" style="padding:10px 6px 20px">Aucune tâche dans cette section.</div>';else html+=list.map(taskCard).join('')}
-function appointmentSection(list){html+='<div class="section-title appointments-section">▦ Rendez-vous du jour <span class="bubble">'+list.length+'</span></div>';if(!list.length)html+='<div class="empty" style="padding:4px 6px 15px">Aucun rendez-vous prévu aujourd’hui.</div>';else html+=list.map(appointmentCard).join('')}
+function appointmentSection(list){html+='<div class="section-title appointments-section">▦ Événements du jour <span class="bubble">'+list.length+'</span></div>';if(!list.length)html+='<div class="empty" style="padding:4px 6px 15px">Aucun événement prévu aujourd’hui.</div>';else html+=list.map(appointmentCard).join('')}
 if(filter==="today"){
 section("En retard",a.filter(function(t){return t.date&&t.date<today}),true);
 section("À planifier · alertes Enki",a.filter(function(t){return !t.date&&!t.done&&t.origin==="Enki"}),false);
@@ -545,7 +544,7 @@ function openPopover(t,x,y){
  if(popupItem&&popupItem!==t)hidePopover();
  hideSlotChooser();popupItem=t;
  var out=isOutlookMeeting(t),contact=unifiedContact(t),contract=getContract(t.contractId),hasContract=!!contract||!!safeUrl(t.contractUrl);
- var subtitle=t.kind==="task"?"Tâche":t.category==="green"?"Réunion interne":"Rendez-vous";
+ var subtitle=t.kind==="task"?"Tâche":"Événement";
  var when=t.date?fmtFull(t.date):"À planifier";
  if(t.minute!==null&&t.minute!==undefined)when+=" · "+time(t.minute)+(t.kind==="event"&&t.duration?"–"+time(t.minute+t.duration):"");
  var body='<h3>'+esc(t.title)+'</h3><p class="pop-summary">'+esc(subtitle)+' · '+esc(when)+(out?' · Outlook':'')+'</p>';
@@ -592,14 +591,14 @@ function openPopover(t,x,y){
 function hidePopover(){var field=$('#popComment');if(popupItem&&field&&$('#popover').classList.contains('open')&&unifiedContact(popupItem).comment!==field.value){popupItem.comment=field.value;persist()}$('#popover').classList.remove('open');popupItem=null}
 function openModal(kind,date,minute,item,fromContractId,prefillDuration){hideSlotChooser();hidePopover();editing=item||null;modalKind=kind||"task";modalDate=date||today;modalMinute=minute===undefined?null:minute;modalPrefillDuration=prefillDuration||30;modalPrefillContractId=fromContractId||"";renderModal();$('#modalCover').classList.add('open');setTimeout(function(){var title=$('#fTitle');if(title)title.focus()},25)}
 function renderModal(){var t=editing,kind=t?t.kind:modalKind;
-$('#modalTitle').textContent=(t?"Modifier ":"Nouvel")+(kind==="task"?"le tâche":" événement");
+$('#modalTitle').textContent=t?(kind==="task"?"Modifier la tâche":"Modifier l’événement"):(kind==="task"?"Nouvelle tâche":"Nouvel événement");
 if(!t)$('#modalTitle').textContent=kind==="task"?"Nouvelle tâche":"Nouvel événement";
 var date=(t?t.date:modalDate)||today,start=(t?t.minute:modalMinute),dur=t&&t.duration?t.duration:modalPrefillDuration;
 var html='<div class="toggle"><button type="button" data-kind="task" class="'+(kind==="task"?'selected':'')+'" '+(t?'disabled':'')+'>☑ Tâche</button><button type="button" data-kind="event" class="'+(kind==="event"?'selected':'')+'" '+(t?'disabled':'')+'>▦ Événement</button></div>';
 html+='<div class="field"><label for="fTitle">Intitulé *</label><input id="fTitle" name="title" required maxlength="160" placeholder="'+(kind==="task"?'Ex. Rappeler le maître d’apprentissage':'Ex. Réunion de suivi')+'" value="'+esc(t?t.title:'')+'"></div>';
 html+='<div class="twocol"><div class="field"><label for="fDate">'+(kind==="task"?'Échéance':'Date')+'</label><input id="fDate" name="date" type="date" value="'+esc(date)+'"></div>';
 html+='<div class="field"><label for="fMinute">'+(kind==="task"?'Heure (facultative)':'Début')+'</label><input id="fMinute" name="start" type="time" step="900" value="'+(start!==null?time(start):(kind==="event"?"09:00":""))+'"></div></div>';
-if(kind==="event"){html+='<div class="twocol"><div class="field"><label for="fDuration">Durée</label><select id="fDuration" name="duration">'+Array.from(new Set([15,30,45,60,75,90,120,dur])).sort(function(a,b){return a-b}).map(function(n){return '<option value="'+n+'" '+(dur===n?'selected':'')+'>'+n+' minutes</option>'}).join('')+'</select></div><div class="field"><label for="fCat">Catégorie</label><select id="fCat" name="category">'+[['yellow','Rendez-vous'],['green','Réunion interne']].map(function(c){return '<option value="'+c[0]+'" '+((t?t.category:'yellow')===c[0]?'selected':'')+'>'+c[1]+'</option>'}).join('')+'</select></div></div>'}
+if(kind==="event"){html+='<div class="twocol"><div class="field"><label for="fDuration">Durée</label><select id="fDuration" name="duration">'+Array.from(new Set([15,30,45,60,75,90,120,dur])).sort(function(a,b){return a-b}).map(function(n){return '<option value="'+n+'" '+(dur===n?'selected':'')+'>'+n+' minutes</option>'}).join('')+'</select></div></div>'}
 var chosenContractId=t?t.contractId:modalPrefillContractId;
 var prefContract=getContract(chosenContractId);
 html+='<div class="field"><label for="fContractId">Contrat Nabu associé (facultatif)</label><select id="fContractId">'+contractsOptions(chosenContractId)+'</select></div>';
@@ -622,7 +621,7 @@ obj.title=title;obj.date=d;obj.minute=m;obj.person=$('#fPerson').value.trim();ob
 obj.contactPhone=$('#fContactPhone').value.trim();obj.contactEmail=$('#fContactEmail').value.trim();obj.comment=$('#fComment').value.trim();
 obj.contractId=$('#fContractId').value||"";obj.contractUrl=safeUrl($('#fContractUrl').value.trim());
 if($('#fContractUrl').value.trim()&&!obj.contractUrl){toast('Le lien du contrat doit commencer par https:// ou http://');return}
-if(isEvent){if(!obj.date){toast("Choisir une date pour l'événement");return}if(m===null)m=9*60;obj.minute=clamp(snap(m),FIRST,LAST-15);obj.duration=Number($('#fDuration').value);obj.category=$('#fCat').value;if(!editing||!obj.origin)obj.origin="Nabu";if(obj.minute+obj.duration>LAST)obj.duration=LAST-obj.minute}
+if(isEvent){if(!obj.date){toast("Choisir une date pour l'événement");return}if(m===null)m=9*60;obj.minute=clamp(snap(m),FIRST,LAST-15);obj.duration=Number($('#fDuration').value);obj.category="purple";if(!editing||!obj.origin)obj.origin="Nabu";if(obj.minute+obj.duration>LAST)obj.duration=LAST-obj.minute}
 else{obj.minute=m===null?null:clamp(snap(m),FIRST,LAST-15);obj.priority=$('#fPriority').checked}
 if(!editing)items.push(obj);
 persist();$('#modalCover').classList.remove('open');renderAll();toast(editing?"Modification enregistrée":"Élément créé")}
@@ -668,7 +667,7 @@ e.preventDefault();
 var email=$('#calEmail').value.trim(),match=matchContractByEmail(email),contract=getContract(match.contractId);
 var name=$('#calName').value.trim(),role=$('#calRole').value;
 var start=clamp(snap(minuteFrom($('#calTime').value)),FIRST,LAST-15),date=$('#calDate').value;
-var item={id:uid(),kind:'event',title:'Rendez-vous '+(role==="Apprenti"?"apprenti":"maître d’apprentissage")+' — '+name,date:date,minute:start,duration:15,category:'yellow',origin:'Calendly',person:contract?contract.apprentice:'',company:contract?contract.company:'',contractId:match.contractId,contractUrl:'',matchStatus:match.status,bookerName:name,bookerEmail:email,bookerRole:role,bookerPhone:$('#calPhone').value.trim(),bookingSubject:$('#calSubject').value.trim()};
+var item={id:uid(),kind:'event',title:'Rendez-vous '+(role==="Apprenti"?"apprenti":"maître d’apprentissage")+' — '+name,date:date,minute:start,duration:15,category:'purple',origin:'Calendly',person:contract?contract.apprentice:'',company:contract?contract.company:'',contractId:match.contractId,contractUrl:'',matchStatus:match.status,bookerName:name,bookerEmail:email,bookerRole:role,bookerPhone:$('#calPhone').value.trim(),bookingSubject:$('#calSubject').value.trim()};
 items.push(item);persist();$('#calendlyCover').classList.remove('open');shownMonday=monday(parseDay(date));renderAll();toast(match.status==='matched'?'Calendly simulé : contrat '+match.contractId+' associé':match.status==='multiple'?'Calendly simulé : plusieurs contrats, choix manuel requis':'Calendly simulé : aucun contrat trouvé');
 };
 $('#newTaskTop').onclick=function(){openModal("task",today,null)};
