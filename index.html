@@ -176,6 +176,8 @@ body.task-is-dragging .task-drop-help{display:block}
 @media(max-width:1130px){.calendar-view-button{padding:6px 8px}.calendar-controls{gap:3px}.calendar-head{padding-left:12px;padding-right:12px}}
 
 /* Événements du jour dans le panneau de gauche — consultation, sans case de validation */
+ .calendar-event-lock{position:absolute;top:5px;right:5px;font-size:11px;z-index:3;line-height:1;pointer-events:none}
+.pop-source{background:#f1ecfa;color:#693ba7;border:1px solid #e4d9f6;border-radius:5px;padding:6px 8px;font-size:10.5px;font-weight:650;margin:0 0 11px}
 .appointment-item{display:flex;align-items:flex-start;gap:10px;padding:10px 11px;border:1px solid #dce6ed;border-left:3px solid var(--purple);border-radius:7px;margin:0 0 8px;background:#faf7ff;box-shadow:0 1px 2px #16223406;cursor:pointer}
 .appointment-item:hover,.appointment-item:focus-visible{border-color:#bba1d7;box-shadow:0 2px 8px #15202c13}
 .appointment-time{font-size:11px;font-weight:750;white-space:nowrap;min-width:43px;color:#7543b4;padding-top:1px;font-variant-numeric:tabular-nums}
@@ -191,10 +193,10 @@ body.task-is-dragging .task-drop-help{display:block}
 </head>
 <body>
 <div class="app">
-<aside class="nav" aria-label="Navigation Nabu (maquette)"><div class="iscod-brand" aria-label="iSCOD — L’alternance nouvelle génération"><div class="iscod-stamp"><span>iSCOD</span></div><div class="iscod-tagline">L’ALTERNANCE<br>NOUVELLE GÉNÉRATION</div></div><div class="nav-group-head"><span>Contrats</span><span class="nav-switch">⌄</span></div><div class="nav-scroll"><div class="nav-small nav-first">GÉRER</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♟</span>Contrats</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">☏</span>Mes échanges</a><a href="participants.html" class="nav-item" title="Afficher la liste des participants"><span class="nav-icon">♙</span>Mes participants</a><a href="#" class="nav-item active" aria-current="page" onclick="return false"><span class="nav-icon">☷</span>Mes tâches</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▣</span>Absences</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♧</span>Mise à jour en masse</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Replanifications de visio</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">⊙</span>Interface élèves</a><div class="nav-section"><div class="nav-small">PRODUITS</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◧</span>Types de produit</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♙</span>Types d'accompagnement</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▤</span>Produits</a><div class="nav-small nav-subsection">MARKETING</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◈</span>Thématiques</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">☷</span>Spécialisations (tag)</a><div class="nav-small nav-subsection">CERTIFICATEURS</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Certificateurs</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▦</span>Titres</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▤</span>Tableaux de commission</a><div class="nav-section"><div class="nav-small">FACTURATION</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Banettes de facturation</a><div class="nav-section"><div class="nav-small">PARAMÈTRES</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▦</span>Modèles de Calendrier</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◧</span>Livret d'apprentissage</a><div class="nav-section"></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◩</span>Rapports</a></div><div class="nav-footer"><a href="#" onclick="return false"><span>ⓘ</span>Besoin d’aide ?</a><a href="#" onclick="return false"><span>♟</span>Notifications</a><a href="#" onclick="return false"><span>♙</span>utilisateur@exemple.fr</a><a href="#" onclick="return false"><span>⏻</span>Déconnexion</a><div class="nav-version">◈ Maquette · Données fictives</div></div></aside>
+<aside class="nav" aria-label="Navigation Nabu (maquette)"><div class="iscod-brand" aria-label="iSCOD — L’alternance nouvelle génération"><div class="iscod-stamp"><span>iSCOD</span></div><div class="iscod-tagline">L’ALTERNANCE<br>NOUVELLE GÉNÉRATION</div></div><div class="nav-group-head"><span>Contrats</span><span class="nav-switch">⌄</span></div><div class="nav-scroll"><div class="nav-small nav-first">GÉRER</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♟</span>Contrats</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">☏</span>Mes échanges</a><a href="participants.html" class="nav-item" title="Afficher la liste des participants"><span class="nav-icon">♙</span>Mes participants</a><a href="#" class="nav-item active" aria-current="page" onclick="return false"><span class="nav-icon">☷</span>Mes tâches</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▣</span>Absences</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♧</span>Mise à jour en masse</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Replanifications de visio</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">⊙</span>Interface élèves</a><div class="nav-section"><div class="nav-small">PRODUITS</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◧</span>Types de produit</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">♙</span>Types d'accompagnement</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▤</span>Produits</a><div class="nav-small nav-subsection">MARKETING</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◈</span>Thématiques</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">☷</span>Spécialisations (tag)</a><div class="nav-small nav-subsection">CERTIFICATEURS</div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Certificateurs</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▦</span>Titres</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▤</span>Tableaux de commission</a><div class="nav-section"><div class="nav-small">FACTURATION</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◉</span>Banettes de facturation</a><div class="nav-section"><div class="nav-small">PARAMÈTRES</div></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">▦</span>Modèles de Calendrier</a><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◧</span>Livret d'apprentissage</a><div class="nav-section"></div><a href="#" class="nav-item" onclick="return false"><span class="nav-icon">◩</span>Rapports</a></div><div class="nav-footer"><a href="#" onclick="return false"><span>ⓘ</span>Besoin d’aide ?</a><a href="#" onclick="return false"><span>♟</span>Notifications</a><a href="#" onclick="return false"><span>♙</span>Alizée Mathou · Démo</a><a href="#" onclick="return false"><span>⏻</span>Déconnexion</a><div class="nav-version">◈ Maquette · Données fictives</div></div></aside>
 <main class="workspace">
 <header class="topbar">
-<div class="heading"><h1>Mes tâches <span class="pill">Maquette interactive</span></h1><small>Organiser mes tâches et mes événements</small></div>
+<div class="heading"><h1>Mes tâches <span class="pill">Maquette interactive</span></h1><small>Organiser mes tâches et mes événements · Session Alizée Mathou</small></div>
 <div class="toolbar"><button type="button" class="btn" id="demoContractsBtn">Contrats (démo)</button><button type="button" class="btn" id="demoCalendlyBtn">Tester Calendly</button><button id="newTaskTop" class="btn primary">＋ Créer</button></div>
 </header>
 <div class="mainrow">
@@ -349,7 +351,7 @@ else if(filter==="done")a=a.filter(function(t){return !!t.done});
 if(query)a=a.filter(function(t){return [t.title,t.person,t.company].join(" ").toLowerCase().includes(query)});
 a.sort(function(a,b){if(filter==="today"&&a.date===today&&b.date===today&&a.done!==b.done)return a.done?1:-1;var av=a.date||"9999",bv=b.date||"9999";return av.localeCompare(bv)||((a.minute===null?2000:a.minute)-(b.minute===null?2000:b.minute))});return a}
 function todaysAppointments(){
-return items.filter(function(e){return e.kind==="event"&&e.date===today&&(e.origin==="Nabu"||e.origin==="Calendly")&&e.category!=="green"&&(!query||[e.title,e.person,e.company,e.bookerName,e.bookerEmail,unifiedContact(e).ma].join(" ").toLowerCase().includes(query))})
+return items.filter(function(e){return e.kind==="event"&&e.date===today&&(e.origin==="Nabu"||e.origin==="Calendly"||(e.origin==="Outlook"&&!!e.bookerEmail))&&(!query||[e.title,e.person,e.company,e.bookerName,e.bookerEmail,unifiedContact(e).ma].join(" ").toLowerCase().includes(query))})
 .sort(function(a,b){return (a.minute||0)-(b.minute||0)||a.title.localeCompare(b.title,"fr")});
 }
 function appointmentCard(e){
@@ -358,7 +360,7 @@ return '<article class="appointment-item" data-appointment-open="'+esc(e.id)+'" 
 '<span class="appointment-time">'+(e.minute===null||e.minute===undefined?'—':time(e.minute))+'</span>' +
 '<div class="appointment-main"><div class="appointment-title">'+esc(e.title)+'</div>' +
 (person||company?'<div class="appointment-detail">'+esc([person,company].filter(Boolean).join(" · "))+'</div>':'')+
-'<div class="appointment-origin">'+esc(e.origin==='Calendly'?'Calendly':'Nabu')+' · '+(e.duration||30)+' min</div></div>' +
+'<div class="appointment-origin">'+esc(e.sourceDetail||e.origin||"Nabu")+' · '+(e.duration||30)+' min</div></div>' +
 '<span class="appointment-more" aria-hidden="true">›</span></article>';
 }
 function taskCard(t){var late=t.date&&t.date<today&&!t.done;
@@ -423,7 +425,7 @@ var index=overlaps.findIndex(function(q){return q.id===t.id}),count=overlaps.len
 var left=5+(index*90/count),width=90/count;
 var top=(t.minute-FIRST)*HOUR_PX/60, height=t.duration*HOUR_PX/60;
 var past= d<today||(d===today&&t.minute+t.duration<(new Date()).getHours()*60+(new Date()).getMinutes());
-html+='<div class="entry event-entry '+esc(t.category||'blue')+' '+(past?'past':'')+'" data-id="'+esc(t.id)+'" style="top:'+top+'px;height:'+height+'px;left:'+left+'%;width:'+width+'%;" title="'+esc(t.title)+'"><div class="event-title">'+esc(t.title)+'</div><div class="event-sub">'+time(t.minute)+'–'+time(t.minute+t.duration)+'</div>'+(t.origin==="Calendly"?'<div class="event-sub">Calendly · démo</div>':'')+(t.origin!=="Calendly"?'<div class="grip" data-resize="'+esc(t.id)+'" title="Faire glisser pour modifier la durée"></div>':'')+'</div>'});
+html+='<div class="entry event-entry '+esc(t.category||'blue')+' '+(past?'past':'')+'" data-id="'+esc(t.id)+'" style="top:'+top+'px;height:'+height+'px;left:'+left+'%;width:'+width+'%;" title="'+esc(t.title)+'"><div class="event-title">'+esc(t.title)+'</div><div class="event-sub">'+time(t.minute)+'–'+time(t.minute+t.duration)+'</div>'+((t.sourceDetail||t.origin)?'<div class="event-sub">'+esc(t.sourceDetail||t.origin)+'</div>':'')+(t.outlookReadOnly?'<span class="calendar-event-lock" aria-label="Événement Outlook en lecture seule" title="Lecture seule — Outlook">🔒</span>':'')+((t.origin!=="Calendly"&&!t.outlookReadOnly)?'<div class="grip" data-resize="'+esc(t.id)+'" title="Faire glisser pour modifier la durée"></div>':'')+'</div>'});
 timed.forEach(function(t){var top=(t.minute-FIRST)*HOUR_PX/60-4;
 html+='<div class="entry task-entry '+(t.done?'done':'')+'" data-id="'+esc(t.id)+'" style="top:'+top+'px" title="'+esc(t.title)+'"><input type="checkbox" class="task-check" data-gridcheck="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Terminer la tâche"><span>'+time(t.minute)+' · '+esc(t.title)+'</span></div>'});
 if(d===today){var n=new Date(),cur=n.getHours()*60+n.getMinutes();if(cur>=FIRST&&cur<=LAST)html+='<div class="now-line" style="top:'+((cur-FIRST)*HOUR_PX/60)+'px"></div>'}
@@ -519,7 +521,7 @@ document.addEventListener('pointercancel',cancel);
 function startDrag(e){if(e.button!==0||e.target.closest('input'))return;
 var el=e.currentTarget,item=findItem(el.dataset.id);if(!item)return;
 if(item.kind==='task'){startTaskDrag(e,item);return}
-if(item.origin==="Calendly"){openPopover(item,e.clientX,e.clientY);return}
+if(item.origin==="Calendly"||isOutlookMeeting(item)){openPopover(item,e.clientX,e.clientY);return}
 var resizing=!!e.target.closest('[data-resize]');e.preventDefault();
 var startX=e.clientX,startY=e.clientY,oldMinute=item.minute,oldDuration=item.duration||0,oldDate=item.date,moved=false;
 function moving(ev){var dx=ev.clientX-startX,dy=ev.clientY-startY;if(Math.abs(dx)+Math.abs(dy)>5)moved=true;if(!moved)return;el.classList.add('dragging');if(resizing){var ht=clamp(snap(oldDuration+dy*60/HOUR_PX),15,LAST-oldMinute);el.style.height=(ht*HOUR_PX/60)+'px'}else{el.style.transform='translate('+dx+'px,'+dy+'px)'}}
@@ -532,9 +534,9 @@ persist();renderAll()}
 document.addEventListener('pointermove',moving);document.addEventListener('pointerup',finish);document.addEventListener('pointercancel',finish);
 }
 /* Présentation commune : la provenance ne change pas les champs métier affichés. */
-function isOutlookMeeting(t){return t.kind==="event"&&t.origin==="Outlook"}
+function isOutlookMeeting(t){return t.kind==="event"&&(t.origin==="Outlook"||t.outlookReadOnly===true)}
 function unifiedContact(t){
- var c=getContract(t.contractId),isBooking=t.origin==="Calendly";
+ var c=getContract(t.contractId),isBooking=t.origin==="Calendly"||!!t.bookerEmail;
  var role=(t.bookerRole||"").toLowerCase(),bookedMA=isBooking&&role.includes("maître"),bookedApprentice=isBooking&&role.includes("apprenti");
  return {
   apprentice:t.person||(c&&c.apprentice)||(bookedApprentice?t.bookerName:"")||"",
@@ -557,23 +559,27 @@ function openPopover(t,x,y){
  var subtitle=t.kind==="task"?"Tâche":"Événement";
  var when=t.date?fmtFull(t.date):"À planifier";
  if(t.minute!==null&&t.minute!==undefined)when+=" · "+time(t.minute)+(t.kind==="event"&&t.duration?"–"+time(t.minute+t.duration):"");
- var body='<h3>'+esc(t.title)+'</h3><p class="pop-summary">'+esc(subtitle)+' · '+esc(when)+(out?' · Outlook':'')+'</p>';
- if(!out){
+ var body='<h3>'+esc(t.title)+'</h3><p class="pop-summary">'+esc(subtitle)+' · '+esc(when)+'</p>';
+if(out)body+='<div class="pop-source">🔒 Lecture seule · Synchronisé depuis Outlook'+(t.sourceDetail==="Calendly via Outlook"?' · Réservation Calendly':'')+'</div>';
+ if(!out||t.bookerEmail||hasContract){
   body+=unifiedInfoRow("Apprenti",contact.apprentice,"♙");
   body+=unifiedInfoRow("Maître d’apprentissage",contact.ma+(contact.company?" ("+contact.company+")":""),"◉");
   body+=unifiedInfoRow("Téléphone",contact.phone,"☎");
   body+=unifiedInfoRow("Email",contact.email,"✉");
-  body+='<div class="pop-comment"><label for="popComment">Commentaire</label><textarea id="popComment" maxlength="1200" placeholder="Ajouter un commentaire ou préciser le sujet de l’appel…">'+esc(contact.comment)+'</textarea><small>Enregistrement automatique</small></div>';
-  if(t.origin==="Calendly"&&t.matchStatus==="multiple"&&!hasContract)body+='<div class="contract-status warning">Plusieurs contrats correspondants : rattachement à vérifier.</div>';
-  else if(t.origin==="Calendly"&&t.matchStatus==="none"&&!hasContract)body+='<div class="contract-status warning">Contrat non identifié : rattachement manuel nécessaire.</div>';
+  if(!out)body+='<div class="pop-comment"><label for="popComment">Commentaire</label><textarea id="popComment" maxlength="1200" placeholder="Ajouter un commentaire ou préciser le sujet de l’appel…">'+esc(contact.comment)+'</textarea><small>Enregistrement automatique</small></div>';
+  if(out&&t.bookingSubject)body+=unifiedInfoRow("Objet de la réservation",t.bookingSubject,"▦");
+  if(out&&t.bookerEmail)body+=unifiedInfoRow("Email du réservant",t.bookerEmail,"✉");
+  if(t.bookerEmail&&t.matchStatus==="multiple"&&!hasContract)body+='<div class="contract-status warning">Plusieurs contrats correspondants : rattachement à vérifier.</div>';
+  else if(t.bookerEmail&&t.matchStatus==="none"&&!hasContract)body+='<div class="contract-status warning">Contrat non identifié : rattachement manuel nécessaire.</div>';
   body+='<button type="button" class="pop-contract-cta" data-popaction="opencontract" '+(hasContract?'':'disabled title="Associer un contrat depuis le menu ⋯"')+'>↗ Ouvrir le contrat lié</button>';
  }
+ if(out&&!t.bookerEmail&&!hasContract&&t.attendees&&t.attendees.length)body+=unifiedInfoRow("Participants",t.attendees.join(", "),"♙");
  body+='<div class="pop-context-options"><button type="button" class="pop-overflow-button" id="popOverflow" aria-label="Autres actions" aria-expanded="false" aria-controls="popOverflowMenu" title="Autres actions">⋯</button><div class="pop-overflow-menu" id="popOverflowMenu">';
  if(t.kind==="task"&&!t.archived)body+='<button type="button" data-popaction="toggle">'+(t.done?'↺ Réouvrir':'✓ Terminer')+'</button>';
- if(!t.archived)body+='<button type="button" data-popaction="edit">✎ Modifier</button>';
+ if(!t.archived&&!out)body+='<button type="button" data-popaction="edit">✎ Modifier</button>';
  if(t.kind==="task"&&!t.archived)body+='<button type="button" data-popaction="postpone">↗ Reporter</button>';
  if(t.kind==="task")body+='<button type="button" data-popaction="'+(t.archived?'restore':'archive')+'">'+(t.archived?'↶ Désarchiver':'Archiver')+'</button>';
- if(!out)body+='<button type="button" data-popaction="linkcontract">'+(hasContract?'Changer le contrat':'Associer un contrat')+'</button>';
+ body+='<button type="button" data-popaction="linkcontract">'+(hasContract?'Changer le contrat (Nabu)':'Associer un contrat (Nabu)')+'</button>';
  body+='</div></div>';
  $('#popoverInner').innerHTML=body;
  var p=$('#popover');p.classList.add('open');
@@ -663,7 +669,7 @@ $('#closeContractCover').onclick=function(){$('#contractCover').classList.remove
 $('#contractCover').addEventListener('click',function(e){if(e.target===$('#contractCover'))$('#contractCover').classList.remove('open')});
 $('#linkContractForm').onsubmit=function(e){e.preventDefault();if(!itemToLink)return;var raw=$('#linkContractUrl').value.trim(),url=safeUrl(raw);if(raw&&!url){toast('Le lien doit commencer par https:// ou http://');return}
 itemToLink.contractId=$('#linkContractSelect').value||'';itemToLink.contractUrl=url;
-if(itemToLink.origin==='Calendly'){itemToLink.contractManuallyLinked=!!(itemToLink.contractId||url);itemToLink.matchStatus=itemToLink.contractManuallyLinked?'manual':matchContractByEmail(itemToLink.bookerEmail).status}
+if(itemToLink.origin==='Calendly'||itemToLink.bookerEmail){itemToLink.contractManuallyLinked=!!(itemToLink.contractId||url);itemToLink.matchStatus=itemToLink.contractManuallyLinked?'manual':matchContractByEmail(itemToLink.bookerEmail).status}
 if(getContract(itemToLink.contractId)){var c=getContract(itemToLink.contractId);itemToLink.person=c.apprentice;itemToLink.maName=c.maName;itemToLink.company=c.company;if(itemToLink.origin!=="Calendly"){itemToLink.contactPhone=c.maPhone||"";itemToLink.contactEmail=c.maEmail||""}}
 persist();renderAll();closeLinkContract();toast('Rattachement du contrat enregistré');
 };
