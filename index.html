@@ -311,22 +311,8 @@ function normalizeEmail(v){return String(v||"").trim().toLowerCase()}
 function matchContractByEmail(email){var key=normalizeEmail(email);if(!key)return {status:"none",contractId:""};var matched=fakeContracts.filter(function(c){return normalizeEmail(c.apprenticeEmail)===key||normalizeEmail(c.maEmail)===key});return matched.length===1?{status:"matched",contractId:matched[0].id}:matched.length>1?{status:"multiple",contractId:""}:{status:"none",contractId:""}}
 function contractsOptions(value){return '<option value="">— Aucun contrat associé —</option>'+fakeContracts.map(function(c){return '<option value="'+esc(c.id)+'" '+(c.id===value?'selected':'')+'>'+esc(c.id+" · "+c.apprentice+" · "+c.company)+'</option>'}).join('')}
 function safeUrl(value){try{var u=new URL(String(value||""));return /^https?:$/.test(u.protocol)?u.href:""}catch(e){return ""}}
-function seed(){var m=monday(new Date());return [
-{id:"t1",kind:"task",title:"Relancer le maître d'apprentissage",person:"Léa Dubois",company:"Horizon Conseil",date:plusDays(today,-2),minute:null,priority:true,done:false},
-{id:"t2",kind:"task",title:"Vérifier le suivi d'intégration M+1",person:"Adam Laurent",company:"Maison Nova",date:plusDays(today,-1),minute:null,done:false},
-{id:"t3",kind:"task",title:"Préparer la visio tripartite",person:"Chloé Martin",company:"Agence Atlas",date:today,minute:10*60+30,done:false},
-{id:"t4",kind:"task",title:"Appeler l'apprenti pour suivi d'intégration",person:"Noah Petit",company:"Studio Pixel",date:today,minute:15*60+15,priority:true,done:false},
-{id:"t5",kind:"task",title:"Envoyer le compte rendu de suivi",person:"Chloé Martin",company:"Agence Atlas",date:today,minute:null,done:false},
-{id:"t6",kind:"task",title:"Contrôler le planning de formation",person:"Inès Bernard",company:"Cap Horizon",date:plusDays(today,2),minute:null,done:false},
-{id:"t7",kind:"task",title:"Retour ENKI — dossier entreprise",person:"Sara Girard",company:"Espace Conseil",date:null,minute:null,done:false},
-{id:"t8",kind:"task",title:"Préparer la synthèse hebdomadaire",person:"",company:"",date:plusDays(today,-1),minute:null,done:true},
-{id:"e1",kind:"event",title:"Entretien tripartite — Chloé Martin",date:plusDays(m,0),minute:9*60+30,duration:45,category:"yellow",person:"Chloé Martin",company:"Agence Atlas",origin:"Nabu"},
-{id:"e2",kind:"event",title:"Rendez-vous maître d'apprentissage",date:plusDays(m,1),minute:10*60,duration:30,category:"yellow",person:"Léa Dubois",company:"Horizon Conseil",origin:"Calendly"},
-{id:"e3",kind:"event",title:"Entretien tripartite — Noah Petit",date:plusDays(m,1),minute:14*60,duration:60,category:"yellow",person:"Noah Petit",company:"Studio Pixel",origin:"Nabu"},
-{id:"e4",kind:"event",title:"Réunion interne — suivi qualité",date:plusDays(m,2),minute:11*60,duration:45,category:"green",person:"",company:"",origin:"Outlook"},
-{id:"e5",kind:"event",title:"Rendez-vous apprenti — Sara Girard",date:plusDays(m,3),minute:15*60,duration:30,category:"yellow",person:"Sara Girard",company:"Espace Conseil",origin:"Calendly"},
-{id:"e6",kind:"event",title:"Point équipe Expérience Entreprise",date:plusDays(m,4),minute:9*60,duration:30,category:"green",person:"",company:"",origin:"Outlook"}
-]}
+/* Aucun agenda de démonstration prérempli. */
+function seed(){return []}
 var workingHoursStoreKey="nabu-maquette-working-hours-v1";
 var defaultWorkingHours={morningStart:510,morningEnd:750,afternoonStart:840,afternoonEnd:1170};
 function validWorkingHours(h){return h&&Object.keys(defaultWorkingHours).every(function(k){return Number.isInteger(h[k])&&h[k]%15===0})&&FIRST<=h.morningStart&&h.morningStart<h.morningEnd&&h.morningEnd<=h.afternoonStart&&h.afternoonStart<h.afternoonEnd&&h.afternoonEnd<=LAST}
@@ -339,20 +325,6 @@ var storeKey="nabu-maquette-v1";
 if(window.NabuDemo)window.NabuDemo.ensure();
 var items;
 try{items=JSON.parse(localStorage.getItem(storeKey));if(!Array.isArray(items))throw Error()}catch(e){items=seed()}
-/* Trois alertes Enki de démonstration, ajoutées une seule fois par identifiant,
-   y compris lorsque des tâches sont déjà sauvegardées dans le navigateur. */
-var enkiDemoStock=[
-{id:"enki-stock-01",kind:"task",title:"Alerte Enki — Satisfaction intégration faible (score D)",person:"Adam Laurent",company:"Maison Nova",date:null,minute:null,done:false,archived:false,priority:true,origin:"Enki",contractId:"DEMO-1002"},
-{id:"enki-stock-02",kind:"task",title:"Alerte Enki — Missions à clarifier (score C)",person:"Chloé Martin",company:"Agence Atlas",date:null,minute:null,done:false,archived:false,priority:true,origin:"Enki",contractId:"DEMO-1003"},
-{id:"enki-stock-03",kind:"task",title:"Alerte Enki — Accompagnement à sécuriser (score D)",person:"Inès Bernard",company:"Cap Horizon",date:null,minute:null,done:false,archived:false,priority:true,origin:"Enki",contractId:"DEMO-1005"}
-];
-enkiDemoStock.forEach(function(alert){if(!items.some(function(t){return t.id===alert.id}))items.push({...alert})});
-/* Deux rendez-vous fictifs du jour pour tester les fiches Nabu et Calendly sans import réel. */
-var exampleTodayAppointments=[
-{id:"demo-rdv-today-nabu",kind:"event",title:"Entretien de suivi — Adam Laurent",date:today,minute:9*60+30,duration:45,category:"yellow",origin:"Nabu",person:"Adam Laurent",company:"Maison Nova",contractId:"DEMO-1002",comment:"Faire un point sur les missions de l'apprenti."},
-{id:"demo-rdv-today-calendly",kind:"event",title:"Rendez-vous maître d’apprentissage — Émilie Perrin",date:today,minute:14*60+30,duration:30,category:"yellow",origin:"Calendly",person:"Léa Dubois",company:"Horizon Conseil",contractId:"DEMO-1001",bookerName:"Émilie Perrin",bookerRole:"Maître d'apprentissage",bookerEmail:"emilie.perrin@example.test",bookerPhone:"06 00 00 00 01",bookingSubject:"Suivi de l'intégration",matchStatus:"matched"}
-];
-exampleTodayAppointments.forEach(function(event){if(!items.some(function(t){return t.id===event.id}))items.push({...event})});
 /* Réconcilier les données fictives déjà enregistrées, sans écraser les tâches ajoutées par l'utilisateur. */
 /* Fictitious meeting examples simulate events synchronized from Outlook. */
 items.forEach(function(t){if((t.id==="e4"||t.id==="e6")&&t.kind==="event"&&t.category==="green"&&t.origin==="Nabu")t.origin="Outlook"});
