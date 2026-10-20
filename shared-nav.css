@@ -1,0 +1,29 @@
+.nav{width:210px;min-width:210px;flex:none;background:#212529;padding:0;overflow:hidden;gap:0}
+.iscod-brand{height:69px;min-height:69px;padding:16px 13px 9px 29px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #343940}
+.iscod-stamp{width:40px;height:36px;min-width:40px;position:relative;display:flex;align-items:center;justify-content:center;transform:rotate(-10deg);color:white}
+.iscod-stamp:before{content:"";position:absolute;width:29px;height:28px;border:2px solid #ec2053;top:0;left:0;transform:skew(-5deg)}
+.iscod-stamp span{font-size:13px;font-weight:850;font-style:italic;letter-spacing:-1px;white-space:nowrap;position:relative;text-shadow:1px 1px 0 #212529}
+.iscod-tagline{font-size:6.5px;font-weight:850;line-height:1.08;letter-spacing:-.18px;color:white;white-space:nowrap}
+.nav-group-head{display:flex;align-items:center;gap:9px;color:white;padding:14px 22px 8px;font-size:23px;font-weight:700}
+.nav-switch{display:inline-flex;align-items:center;justify-content:center;border:1px solid #d9dfe5;border-radius:3px;width:23px;height:22px;font-size:17px;font-weight:400}
+.nav-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#50565f #212529}
+.nav-small{font-size:9px;font-weight:500;color:#848d98;padding:0 5px;letter-spacing:0;margin:0}
+.nav-first{padding:0 4px 4px}.nav-subsection{padding:6px 4px 2px}
+.nav-item{height:25px;min-height:25px;margin:0 3px;padding:3px 9px 3px 15px;border-radius:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;line-height:19px;display:flex;gap:5px;color:#e0e2e5;text-decoration:none}
+.nav-icon{width:15px;min-width:15px;color:#8e99a6;font-size:13px}
+.nav-item.active{background:linear-gradient(180deg,#e42e5c,#bd1a47);color:white;font-weight:700}
+.nav-item.active .nav-icon{color:#fff}
+.nav-section{margin:9px 7px 5px;padding-top:9px;border-top:1px solid #50565f;min-height:1px}
+.nav-footer{flex:none;padding:8px 13px 9px;border-top:1px solid #50565f}
+.nav-footer a{display:flex;align-items:center;gap:8px;text-decoration:none;color:#dadde1;font-size:11px;line-height:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-footer a span{width:13px;color:#9ca5af}
+.nav-version{color:#8c95a0;font-size:9px;margin-top:4px}
+@media(max-width:1030px){.nav{width:185px;min-width:185px}.nav-group-head{padding-left:12px;font-size:20px}.iscod-brand{padding-left:18px}}
+@media(max-width:770px){.nav{display:none}}
+
+/* Identité de navigation commune aux trois vues. */
+.nav{height:100vh;position:sticky;top:0;z-index:20}
+.nav .nav-item:hover:not(.active){background:#343a43;color:white;text-decoration:none}
+.nav .nav-item.active{color:#fff}
+.nav .nav-scroll{padding-bottom:8px}
+@media(max-width:770px){.nav{display:none}}
