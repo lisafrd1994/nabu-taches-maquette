@@ -98,7 +98,7 @@ function record(p){
  '<div class="pcol"><span class="fieldlabel">Dernière activité</span>'+(la?'<div class="next-event">'+fmt(String(la.date).slice(0,10))+' · '+esc(la.type)+' · '+esc(la.author)+'</div><p class="activity-summary">'+esc(short(la.text,120))+'</p>':'<div class="muted">Aucune</div>')+
  '<div class="next-event"><strong>Prochain RDV</strong>'+esc(rdv?fmt(rdv.date)+" · "+rdv.title:"—")+'</div>'+
  '<div class="next-event"><strong>Prochaine tâche</strong>'+esc(task?fmt(task.date)+" · "+task.title:"—")+'</div></div>'+
- '<div class="pcol"><a class="eye-button" href="participant.html?contract='+encodeURIComponent(p.id)+'" aria-label="Ouvrir la fiche de '+esc(p.apprentice)+'" title="Ouvrir le dossier">◉</a></div>'+
+ '<div class="pcol"><a class="eye-button" href="participant.html?contract='+encodeURIComponent(p.id)+'" aria-label="Ouvrir la fiche de '+esc(p.apprentice)+'" title="Ouvrir le dossier"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="2.75"/></svg></a></div>'+
  '</article>';
 }
 function addChoices(name,values){
