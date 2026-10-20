@@ -557,6 +557,9 @@ function openPopover(t,x,y){
  if(popupItem&&popupItem!==t)hidePopover();
  hideSlotChooser();popupItem=t;
  var out=isOutlookMeeting(t),contact=unifiedContact(t),contract=getContract(t.contractId),hasContract=!!contract||!!safeUrl(t.contractUrl);
+ var maRole=String(t.bookerRole||"").toLocaleLowerCase("fr-FR");
+ var isMaBooking=!!t.bookerEmail&&(maRole.includes("maître")||maRole.includes("maitre"));
+ var maContracts=isMaBooking?fakeContracts.filter(function(c){return normalizeEmail(c.maEmail)===normalizeEmail(t.bookerEmail)}):[];
  var subtitle=t.kind==="task"?"Tâche":"Événement";
  var when=t.date?fmtFull(t.date):"À planifier";
  if(t.minute!==null&&t.minute!==undefined)when+=" · "+time(t.minute)+(t.kind==="event"&&t.duration?"–"+time(t.minute+t.duration):"");
@@ -565,6 +568,7 @@ if(out)body+='<div class="pop-source">Lecture seule · Synchronisé depuis Outlo
  if(!out||t.bookerEmail||hasContract){
   body+=unifiedInfoRow("Apprenti",contact.apprentice,"♙");
   body+=unifiedInfoRow("Maître d’apprentissage",contact.ma+(contact.company?" ("+contact.company+")":""),"◉");
+  if(t.declaredApprentice)body+=unifiedInfoRow("Apprenti déclaré lors de la réservation (Calendly)",t.declaredApprentice,"♙");
   body+=unifiedInfoRow("Téléphone",contact.phone,"☎");
   body+=unifiedInfoRow("Email",contact.email,"✉");
   if(!out)body+='<div class="pop-comment"><label for="popComment">Commentaire</label><textarea id="popComment" maxlength="1200" placeholder="Ajouter un commentaire ou préciser le sujet de l’appel…">'+esc(contact.comment)+'</textarea><small>Enregistrement automatique</small></div>';
@@ -572,7 +576,8 @@ if(out)body+='<div class="pop-source">Lecture seule · Synchronisé depuis Outlo
   if(out&&t.bookerEmail)body+=unifiedInfoRow("Email du réservant",t.bookerEmail,"✉");
   if(t.bookerEmail&&t.matchStatus==="multiple"&&!hasContract)body+='<div class="contract-status warning">Plusieurs contrats correspondants : rattachement à vérifier.</div>';
   else if(t.bookerEmail&&t.matchStatus==="none"&&!hasContract)body+='<div class="contract-status warning">Contrat non identifié : rattachement manuel nécessaire.</div>';
-  body+='<button type="button" class="pop-contract-cta" data-popaction="opencontract" '+(hasContract?'':'disabled title="Associer un contrat depuis le menu ⋯"')+'>↗ Ouvrir le contrat lié</button>';
+  if(maContracts.length>1)body+='<button type="button" class="pop-contract-cta" data-popaction="openmacontracts">↗ Ouvrir les contrats liés ('+maContracts.length+')</button>';
+  else body+='<button type="button" class="pop-contract-cta" data-popaction="opencontract" '+(hasContract?'':'disabled title="Associer un contrat depuis le menu ⋯"')+'>↗ Ouvrir le contrat lié</button>';
  }
  if(out&&!t.bookerEmail&&!hasContract&&t.attendees&&t.attendees.length)body+=unifiedInfoRow("Participants",t.attendees.join(", "),"♙");
  body+='<div class="pop-context-options"><button type="button" class="pop-overflow-button" id="popOverflow" aria-label="Autres actions" aria-expanded="false" aria-controls="popOverflowMenu" title="Autres actions">⋯</button><div class="pop-overflow-menu" id="popOverflowMenu">';
@@ -602,6 +607,7 @@ if(out)body+='<div class="pop-source">Lecture seule · Synchronisé depuis Outlo
   else if(a==="archive"){t.archived=true;persist();renderAll();toast("Tâche archivée")}
   else if(a==="restore"){t.archived=false;persist();renderAll();toast("Tâche désarchivée")}
   else if(a==="opencontract")openLinkedContract(t);
+  else if(a==="openmacontracts")window.location.href="participants.html?maEmail="+encodeURIComponent(t.bookerEmail);
   else if(a==="linkcontract")openLinkContract(t);
  }});
 }
