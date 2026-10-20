@@ -176,7 +176,6 @@ body.task-is-dragging .task-drop-help{display:block}
 @media(max-width:1130px){.calendar-view-button{padding:6px 8px}.calendar-controls{gap:3px}.calendar-head{padding-left:12px;padding-right:12px}}
 
 /* Événements du jour dans le panneau de gauche — consultation, sans case de validation */
- .calendar-event-lock{position:absolute;top:5px;right:5px;font-size:11px;z-index:3;line-height:1;pointer-events:none}
 .pop-source{background:#f1ecfa;color:#693ba7;border:1px solid #e4d9f6;border-radius:5px;padding:6px 8px;font-size:10.5px;font-weight:650;margin:0 0 11px}
 .appointment-item{display:flex;align-items:flex-start;gap:10px;padding:10px 11px;border:1px solid #dce6ed;border-left:3px solid var(--purple);border-radius:7px;margin:0 0 8px;background:#faf7ff;box-shadow:0 1px 2px #16223406;cursor:pointer}
 .appointment-item:hover,.appointment-item:focus-visible{border-color:#bba1d7;box-shadow:0 2px 8px #15202c13}
@@ -425,7 +424,7 @@ var index=overlaps.findIndex(function(q){return q.id===t.id}),count=overlaps.len
 var left=5+(index*90/count),width=90/count;
 var top=(t.minute-FIRST)*HOUR_PX/60, height=t.duration*HOUR_PX/60;
 var past= d<today||(d===today&&t.minute+t.duration<(new Date()).getHours()*60+(new Date()).getMinutes());
-html+='<div class="entry event-entry '+esc(t.category||'blue')+' '+(past?'past':'')+'" data-id="'+esc(t.id)+'" style="top:'+top+'px;height:'+height+'px;left:'+left+'%;width:'+width+'%;" title="'+esc(t.title)+'"><div class="event-title">'+esc(t.title)+'</div><div class="event-sub">'+time(t.minute)+'–'+time(t.minute+t.duration)+'</div>'+((t.sourceDetail||t.origin)?'<div class="event-sub">'+esc(t.sourceDetail||t.origin)+'</div>':'')+(t.outlookReadOnly?'<span class="calendar-event-lock" aria-label="Événement Outlook en lecture seule" title="Lecture seule — Outlook">🔒</span>':'')+((t.origin!=="Calendly"&&!t.outlookReadOnly)?'<div class="grip" data-resize="'+esc(t.id)+'" title="Faire glisser pour modifier la durée"></div>':'')+'</div>'});
+html+='<div class="entry event-entry '+esc(t.category||'blue')+' '+(past?'past':'')+'" data-id="'+esc(t.id)+'" style="top:'+top+'px;height:'+height+'px;left:'+left+'%;width:'+width+'%;" title="'+esc(t.title)+'"><div class="event-title">'+esc(t.title)+'</div><div class="event-sub">'+time(t.minute)+'–'+time(t.minute+t.duration)+'</div>'+((t.sourceDetail||t.origin)?'<div class="event-sub">'+esc(t.sourceDetail||t.origin)+'</div>':'')+((t.origin!=="Calendly"&&!t.outlookReadOnly)?'<div class="grip" data-resize="'+esc(t.id)+'" title="Faire glisser pour modifier la durée"></div>':'')+'</div>'});
 timed.forEach(function(t){var top=(t.minute-FIRST)*HOUR_PX/60-4;
 html+='<div class="entry task-entry '+(t.done?'done':'')+'" data-id="'+esc(t.id)+'" style="top:'+top+'px" title="'+esc(t.title)+'"><input type="checkbox" class="task-check" data-gridcheck="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Terminer la tâche"><span>'+time(t.minute)+' · '+esc(t.title)+'</span></div>'});
 if(d===today){var n=new Date(),cur=n.getHours()*60+n.getMinutes();if(cur>=FIRST&&cur<=LAST)html+='<div class="now-line" style="top:'+((cur-FIRST)*HOUR_PX/60)+'px"></div>'}
@@ -537,7 +536,9 @@ document.addEventListener('pointermove',moving);document.addEventListener('point
 function isOutlookMeeting(t){return t.kind==="event"&&(t.origin==="Outlook"||t.outlookReadOnly===true)}
 function unifiedContact(t){
  var c=getContract(t.contractId),isBooking=t.origin==="Calendly"||!!t.bookerEmail;
- var role=(t.bookerRole||"").toLowerCase(),bookedMA=isBooking&&role.includes("maître"),bookedApprentice=isBooking&&role.includes("apprenti");
+ /* « maître d’apprentissage » contient la sous-chaîne « apprenti » :
+    les deux rôles doivent donc être mutuellement exclusifs. */
+ var role=(t.bookerRole||"").toLowerCase(),bookedMA=isBooking&&(role.includes("maître")||role.includes("maitre")),bookedApprentice=isBooking&&!bookedMA&&role.includes("apprenti");
  return {
   apprentice:t.person||(c&&c.apprentice)||(bookedApprentice?t.bookerName:"")||"",
   ma:t.maName||(c&&c.maName)||(bookedMA?t.bookerName:"")||"",
@@ -560,7 +561,7 @@ function openPopover(t,x,y){
  var when=t.date?fmtFull(t.date):"À planifier";
  if(t.minute!==null&&t.minute!==undefined)when+=" · "+time(t.minute)+(t.kind==="event"&&t.duration?"–"+time(t.minute+t.duration):"");
  var body='<h3>'+esc(t.title)+'</h3><p class="pop-summary">'+esc(subtitle)+' · '+esc(when)+'</p>';
-if(out)body+='<div class="pop-source">🔒 Lecture seule · Synchronisé depuis Outlook'+(t.sourceDetail==="Calendly via Outlook"?' · Réservation Calendly':'')+'</div>';
+if(out)body+='<div class="pop-source">Lecture seule · Synchronisé depuis Outlook'+(t.sourceDetail==="Calendly via Outlook"?' · Réservation Calendly':'')+'</div>';
  if(!out||t.bookerEmail||hasContract){
   body+=unifiedInfoRow("Apprenti",contact.apprentice,"♙");
   body+=unifiedInfoRow("Maître d’apprentissage",contact.ma+(contact.company?" ("+contact.company+")":""),"◉");
