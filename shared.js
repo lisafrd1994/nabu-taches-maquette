@@ -56,6 +56,7 @@ function initialItems(){
   result.push(task("cross-task-"+c.id+"-1",c,v[0],shift(now,offset),offset<0?null:540+(i%4)*60,{activityId:"cross-activity-"+c.id+"-1",comment:"Action de suivi liée à une activité sur le dossier."}));
   result.push(task("cross-task-"+c.id+"-2",c,v[1],shift(now,2+(i%3)),null,{activityId:"cross-activity-"+c.id+"-2"}));
   result.push(event("cross-event-"+c.id,c,v[2]+" — "+c.apprentice,shift(now,i%3),615+(i%4)*75,30,i%2?"Calendly":"Nabu",i%2?{bookerName:c.maName,bookerRole:"Maître d'apprentissage",bookerEmail:c.maEmail,bookerPhone:c.maPhone,bookingSubject:"Suivi du contrat",matchStatus:"matched"}:{}));
+  result.push(event("cross-event-followup-"+c.id,c,"Point de suivi pédagogique — "+c.apprentice,shift(now,3+i%4),750+(i%3)*60,45,"Nabu",{comment:"Échange avec le coordinateur pédagogique "+c.cp+"."}));
  });
  result.push(task("cross-camille-done",profiles[6],"Vérifier la réception des documents",shift(now,-3),null,{done:true,activityId:"cross-activity-DEMO-1007-1"}));
  return result;
