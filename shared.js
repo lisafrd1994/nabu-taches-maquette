@@ -5,7 +5,7 @@
 var ITEMS_KEY="nabu-maquette-v1",ACTIVITIES_KEY="nabu-demo-activities-v1";
 var profiles=[
 {id:"DEMO-1001",apprentice:"Léa Dubois",company:"Horizon Conseil",apprenticeEmail:"lea.dubois@example.test",maName:"Émilie Perrin",maEmail:"emilie.perrin@example.test",maPhone:"06 00 00 00 11",cp:"Alexandre Perrin",xpe:"Alizée Mathou",coach:"Paul Marchand",admission:"Marie Leroy",course:"Bachelor Commerce",remaining:489,progress:31,modules:3},
-{id:"DEMO-1002",apprentice:"Adam Laurent",company:"Horizon Conseil",apprenticeEmail:"adam.laurent@example.test",maName:"Émilie Perrin",maEmail:"emilie.perrin@example.test",maPhone:"06 00 00 00 11",cp:"Iris Bernard",xpe:"Alizée Mathou",coach:"Laura Petit",admission:"Marie Leroy",course:"BTS NDRC",remaining:328,progress:42,modules:4},
+{id:"DEMO-1002",apprentice:"Adam Laurent",company:"Horizon Conseil",apprenticeEmail:"adam.laurent@example.test",maName:"Émilie Perrin",maEmail:"emilie.perrin@example.test",maPhone:"06 00 00 00 11",cp:"Iris Bernard",xpe:"Flavio Da Silva",coach:"Laura Petit",admission:"Marie Leroy",course:"BTS NDRC",remaining:328,progress:42,modules:4},
 {id:"DEMO-1003",apprentice:"Chloé Martin",company:"Agence Atlas",apprenticeEmail:"chloe.martin@example.test",maName:"Camille Rossi",maEmail:"camille.rossi@example.test",maPhone:"06 00 00 00 13",cp:"Alexandre Perrin",xpe:"Alizée Mathou",coach:"Paul Marchand",admission:"Marie Leroy",course:"Bachelor Marketing",remaining:589,progress:25,modules:3},
 {id:"DEMO-1004",apprentice:"Noah Petit",company:"Studio Pixel",apprenticeEmail:"noah.petit@example.test",maName:"Julie Garnier",maEmail:"julie.garnier@example.test",maPhone:"06 00 00 00 14",cp:"Iris Bernard",xpe:"Flavio Da Silva",coach:"Laura Petit",admission:"Anna Moreau",course:"BTS SIO",remaining:552,progress:38,modules:3},
 {id:"DEMO-1005",apprentice:"Inès Bernard",company:"Cap Horizon",apprenticeEmail:"ines.bernard@example.test",maName:"Thomas Bell",maEmail:"thomas.bell@example.test",maPhone:"06 00 00 00 15",cp:"Alexandre Perrin",xpe:"Flavio Da Silva",coach:"Paul Marchand",admission:"Anna Moreau",course:"Bachelor RH",remaining:295,progress:58,modules:2},
@@ -102,7 +102,7 @@ function ensure(){
  profiles.forEach(function(c){
   if(!Array.isArray(activities[c.id]))activities[c.id]=[];
   activities[c.id].forEach(function(a){
-   if((a.author==="Sophie Renaud"||a.author==="Florian Dubreuil")&&/expérience entreprise/i.test(a.role||""))a.author=c.xpe;
+   if(/expérience entreprise/i.test(a.role||"")&&((a.id||"").startsWith("cross-activity-")||a.author==="Sophie Renaud"||a.author==="Florian Dubreuil"))a.author=c.xpe;
   });
   defaults[c.id].forEach(function(a){if(!activities[c.id].some(function(x){return x.id===a.id}))activities[c.id].push(a)});
  });
