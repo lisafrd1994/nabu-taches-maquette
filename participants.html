@@ -60,6 +60,7 @@
 <div class="shortcut-buttons"><button type="button" class="shortcut" data-quick="alerts">Mes alertes en cours</button><button type="button" class="shortcut" data-quick="m1">Prévention M1</button><button type="button" class="shortcut" data-quick="m4">Prévention M4</button><button type="button" class="shortcut" data-quick="all">Tous les dossiers</button></div>
 </section>
 <section aria-label="Résultats de recherche">
+<div id="maFilterContext" style="display:none;margin:0 0 12px;padding:11px 14px;border:1px solid #e2d6f2;border-radius:7px;background:#f9f5ff;color:#56357c;font-size:12px" role="status"></div>
 <div class="list-header"><label>Ordre de tri <select id="sortSelect" class="sort-control"><option value="id">Identifiant dossier</option><option value="name">Nom étudiant</option><option value="company">Entreprise</option><option value="start">Début du contrat</option></select></label><div class="list-count" id="resultCount">7 participants</div></div>
 <div id="results" aria-live="polite"></div>
 </section>
@@ -110,12 +111,26 @@ addChoices("cp",profiles.map(function(c){return c.cp}));
 addChoices("course",profiles.map(function(c){return c.course}));
 var h=$("headerXpe");
 Array.from(new Set(profiles.map(function(c){return c.xpe}))).sort().forEach(function(v){var op=document.createElement("option");op.value=v;op.textContent=v;h.appendChild(op)});
-function gather(){var form=$("filterForm");var fd=new FormData(form);filterValues={};fd.forEach(function(v,k){filterValues[k]=String(v).trim().toLocaleLowerCase("fr-FR")});filterValues.headerXpe=h.value.toLocaleLowerCase("fr-FR")}
+/* Une réservation peut ouvrir ce listing préfiltré par email exact du MA.
+   Le nom reste visible dans le champ de recherche ; un changement manuel
+   du champ fait revenir au filtre de recherche habituel. */
+var maInput=document.querySelector('input[name="ma"]');
+var requestedMaEmail=(new URLSearchParams(window.location.search).get("maEmail")||"").trim().toLocaleLowerCase("fr-FR");
+var requestedMa=profiles.find(function(c){return c.maEmail.toLocaleLowerCase("fr-FR")===requestedMaEmail});
+if(requestedMa){maInput.value=requestedMa.maName;maInput.dataset.exactEmail=requestedMaEmail}
+maInput.addEventListener("input",function(){delete maInput.dataset.exactEmail});
+function gather(){
+ var form=$("filterForm"),fd=new FormData(form);filterValues={};
+ fd.forEach(function(v,k){filterValues[k]=String(v).trim().toLocaleLowerCase("fr-FR")});
+ filterValues.headerXpe=h.value.toLocaleLowerCase("fr-FR");
+ filterValues.maExact=maInput.dataset.exactEmail||"";
+}
 function match(p){
  var f=filterValues,lo=function(s){return String(s||"").toLocaleLowerCase("fr-FR")},pieces=p.apprentice.split(" "),first=pieces[0]||"",last=pieces.slice(1).join(" ");
  var tests={firstName:first,lastName:last,email:p.apprenticeEmail,company:p.company,ma:p.maName+" "+p.maEmail,xpe:p.xpe,cp:p.cp,course:p.course,type:p.contractType,status:p.trainingStatus,score:p.score,day:p.trainingDay,id:p.id,cohort:p.contractStart.slice(0,4)};
  for(var key in tests){if(f[key]&&!lo(tests[key]).includes(f[key]))return false}
  if(f.headerXpe&&!lo(p.xpe).includes(f.headerXpe))return false;
+ if(f.maExact&&lo(p.maEmail)!==f.maExact)return false;
  if(f.alert==="yes"&&p.alertName==="Aucune")return false;
  if(f.alert==="no"&&p.alertName!=="Aucune")return false;
  if(f.activity){var a=db.getActivities(p.id).filter(function(x){return /expérience entreprise/i.test(x.role)}).length>0;if(f.activity==="yes"&&!a||f.activity==="no"&&a)return false}
@@ -129,10 +144,13 @@ function render(){
  list.sort(function(a,b){if(sort==="name")return a.apprentice.localeCompare(b.apprentice,"fr");if(sort==="company")return a.company.localeCompare(b.company,"fr");if(sort==="start")return b.contractStart.localeCompare(a.contractStart);return a.id.localeCompare(b.id)});
  var limit=Number($("perPage").value)||25;var shown=list.slice(0,limit);
  $("resultCount").textContent=list.length+" participant"+(list.length!==1?"s":"")+(shown.length<list.length?" · "+shown.length+" affichés":"");
+ var context=$("maFilterContext");
+ context.style.display=filterValues.maExact?"block":"none";
+ if(filterValues.maExact)context.textContent="Contrats liés au maître d’apprentissage "+(requestedMa?requestedMa.maName:filterValues.maExact)+" : "+list.length+" dossier"+(list.length!==1?"s":"")+" correspondant"+(list.length!==1?"s":"")+". Les référents XPE sont indiqués dans chaque dossier.";
  $("results").innerHTML=shown.length?shown.map(record).join(""):'<div class="no-results">Aucun participant ne correspond aux critères. <button class="button reset" id="emptyReset">Réinitialiser les filtres</button></div>';
  document.querySelectorAll("[data-quick]").forEach(function(b){b.classList.toggle("active",activeQuick===b.dataset.quick&&activeQuick!=="")});
 }
-function clearFilters(){document.getElementById("filterForm").reset();h.value="";activeQuick="";gather();render()}
+function clearFilters(){document.getElementById("filterForm").reset();delete maInput.dataset.exactEmail;h.value="";activeQuick="";window.history.replaceState(null,"",window.location.pathname);gather();render()}
 $("filterForm").addEventListener("submit",function(e){e.preventDefault();activeQuick="";gather();render()});
 $("resetBtn").addEventListener("click",clearFilters);
 $("advancedBtn").addEventListener("click",function(){var isOpen=$("advancedFields").classList.toggle("visible");this.setAttribute("aria-expanded",String(isOpen));this.textContent=isOpen?"Masquer les filtres complémentaires ⌃":"Afficher tous les filtres ⌄"});
