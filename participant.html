@@ -145,23 +145,41 @@ return '<section class="task-widget '+(sticky?'sticky':'')+'" aria-label="Tâche
 '<div class="task-list">'+(filtered.length?filtered.map(function(t){var st=taskStatus(t);return '<div class="task-row '+st+'"><input class="task-check" type="checkbox" data-toggle-task="'+esc(t.id)+'" '+(t.done?'checked':'')+' aria-label="Marquer '+esc(t.title)+' comme terminée"><button type="button" class="task-row-button" data-open-task="'+esc(t.id)+'"><span class="task-row-title">'+esc(t.title)+'</span><div class="task-row-details"><span>'+esc(formatDate(t.date))+(taskTime(t)?' · '+esc(taskTime(t)):'')+'</span><span class="task-status '+st+'">'+statusLabel(t)+'</span></div>'+(t.activityId?'<div class="task-row-details">↗ Liée à une activité</div>':'')+'</button></div>'}).join(""):'<div class="empty">Aucune tâche dans cette catégorie.</div>')+'</div>'+linkedEvents()+
 '<div class="task-footer"><span class="task-footnote">Liées à ce dossier Nabu</span><button class="btn link small" data-go-activities>Voir les activités →</button></div></section>';
 }
-function infoPane(){return '<div class="main-layout"><div class="left-pane"><div class="section-heading"><h2>Informations générales</h2><button class="btn primary small" data-disabled-demo>Modifier ✎</button></div><div class="info-columns"><div class="info-section">'+
-'<div class="info-field"><div class="info-field-label">Société contractuelle</div><strong>iSCOD</strong></div>'+
-'<div class="info-pair"><div class="info-field"><div class="info-field-label">Lien ATS</div><strong>◪</strong></div><div class="info-field"><div class="info-field-label">Lien Salesforce</div><strong>☁</strong></div></div>'+
-'<div class="info-field"><div class="info-field-label">Société</div><strong>Atelier Horizon</strong></div>'+
-'<div class="info-pair"><div class="info-field"><div class="info-field-label">Référence devis</div><strong>DEMO-1003</strong></div><div class="info-field"><div class="info-field-label">Origine</div><strong>Formulaire de démonstration</strong></div></div>'+
-'<div class="info-field"><div class="info-field-label">Email</div><strong>camille.martin@example.test</strong></div>'+
-'<div class="info-field"><div class="info-field-label">Fonction</div><strong>Assistante commerciale</strong></div>'+
-'<div class="info-field"><div class="info-field-label">Téléphone</div><strong>06 00 00 00 08</strong></div></div>'+
-'<div class="info-section">'+
-'<div class="info-field"><div class="info-field-label">Coordinateur pédagogique</div><strong>Alexandre PERRIN</strong><a href="mailto:alexandre.perrin@example.test">✉ alexandre.perrin@example.test</a></div>'+
-'<div class="info-field"><div class="info-field-label">Chargée d’admission</div><strong>Marie LEROY</strong><a href="mailto:marie.leroy@example.test">✉ marie.leroy@example.test</a></div>'+
-'<div class="info-field"><div class="info-field-label">Expérience entreprise</div><strong>Sophie RENAUD</strong><a href="mailto:sophie.renaud@example.test">✉ sophie.renaud@example.test</a></div>'+
-'<div class="info-field"><div class="info-field-label">Maître d’apprentissage</div><strong>Thomas BERNARD</strong><a href="mailto:thomas.bernard@example.test">✉ thomas.bernard@example.test</a></div>'+
-'<div class="info-field"><div class="info-field-label">Statut du contrat</div><strong>Contrat en cours</strong></div></div></div></div>'+
-'<aside class="right-pane"><section class="statistics" aria-label="Retard sur la formation"><div class="stats-hero"><div class="gauge">◴</div><b>-12 %</b><strong>de retard sur la formation</strong><p>Indicateurs d’avancement fictifs de la formation.</p></div></section><section class="statistics" aria-label="Statistiques pédagogiques fictives"><div class="stat-grid">'+
-[['589','Jours restants'],['69h30','Temps de connexion'],['6h44','Temps pédagogique'],['25 %','Progression globale'],['19/10/26','Dernière connexion'],['29h07','Moyenne à faire / mois'],['12h07','Moyenne passée / mois'],['3','Modules par mois']].map(function(a){return '<div class="stat"><b>'+a[0]+'</b><small>'+a[1]+'</small></div>'}).join("")+
-'</div></section>'+widget(false)+'</aside></div>'}
+function infoPane(){
+var c=profile;
+var stats=[
+[String(c.remaining),"Jours restants"],
+[["69h30","72h10","54h15","83h25","61h40","77h12","69h30"][window.NabuDemo.profiles.indexOf(c)],"Temps de connexion"],
+["6h44","Temps pédagogique"],
+[c.progress+" %","Progression globale"],
+["19/10/26","Dernière connexion"],
+["29h07","Moyenne à faire / mois"],
+["12h07","Moyenne passée / mois"],
+[String(c.modules),"Modules par mois"]];
+function field(label,value){return '<div class="info-field"><div class="info-field-label">'+esc(label)+'</div><strong>'+esc(value)+'</strong></div>'}
+return '<div class="main-layout"><div class="left-pane"><div class="section-heading"><h2>Informations générales</h2><button class="btn primary small" data-disabled-demo>Modifier ✎</button></div><div class="info-columns"><div class="info-section">'+
+ field("Société contractuelle","iSCOD")+
+ '<div class="info-pair">'+field("Lien ATS","◪ Démo")+field("Lien Salesforce","☁ Démo")+'</div>'+
+ field("Société",c.company)+
+ '<div class="info-pair">'+field("Référence dossier",c.id)+field("Origine","Dossier fictif")+'</div>'+
+ field("Email",c.apprenticeEmail)+
+ field("Formation",c.course)+
+ field("Statut","Formation en cours")+
+ '</div><div class="info-section">'+
+ field("Coordinateur pédagogique",c.cp)+
+ field("Chargée d’admission",c.admission)+
+ field("Référent expérience entreprise",c.xpe)+
+ field("Learning coach",c.coach)+
+ field("Maître d’apprentissage",c.maName)+
+ field("Email du maître d’apprentissage",c.maEmail)+
+ field("Téléphone du maître d’apprentissage",c.maPhone)+
+ field("Statut du contrat","Contrat en cours")+
+ '</div></div></div>'+
+ '<aside class="right-pane"><section class="statistics" aria-label="Retard sur la formation"><div class="stats-hero"><div class="gauge">◴</div><b>-12 %</b><strong>de retard sur la formation</strong><p>Indicateurs fictifs pour '+esc(c.apprentice)+'.</p></div></section>'+
+ '<section class="statistics" aria-label="Statistiques pédagogiques fictives"><div class="stat-grid">'+
+ stats.map(function(q){return '<div class="stat"><b>'+esc(q[0])+'</b><small>'+esc(q[1])+'</small></div>'}).join("")+
+ '</div></section>'+widget(false)+'</aside></div>';
+}
 function activitiesPane(){
 var activities=state.activities.filter(function(a){return (activityFilter==="all"||a.type===activityFilter)&&(!activitySearch||[a.type,a.text,a.author].join(" ").toLowerCase().includes(activitySearch))}).sort(function(a,b){return new Date(b.date)-new Date(a.date)});
 var filters=[["all","Tout"],["Suivi","Suivis"],["Atteint","Atteints"],["Rdv","Rendez-vous"],["Commentaire","Commentaires"]];
