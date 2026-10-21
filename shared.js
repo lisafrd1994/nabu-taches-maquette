@@ -83,14 +83,15 @@ function defaultActivities(){
    Six alertes Enki non planifiées, dix tâches à venir et trois en retard.
    IDs stables : ne jamais restaurer une tâche supprimée par l'utilisateur. */
 var TASK_DEMO_VERSION="nabu-demo-xpe-19-tasks-oct2026-v1";
+var TASK_PORTFOLIO_VERSION="nabu-demo-task-portfolio-oct2026-v2";
 function sampleTasks(){
  var rows=[
   /* Alertes Enki — sans date, disponibles dans « À planifier ». */
   {id:"demo-enki-01",contractId:"DEMO-1001",title:"Alerte Enki — Absences en formation non justifiées",origin:"Enki",priority:true,comment:"Vérifier les absences remontées et contacter le maître d’apprentissage."},
-  {id:"demo-enki-02",contractId:"DEMO-1002",title:"Alerte Enki — Baisse de progression pédagogique",origin:"Enki",comment:"Prendre contact avec le CP avant d’organiser une action entreprise."},
+  {id:"demo-enki-02",contractId:"DEMO-1006",title:"Alerte Enki — Baisse de progression pédagogique",origin:"Enki",comment:"Prendre contact avec le CP avant d’organiser une action entreprise."},
   {id:"demo-enki-03",contractId:"DEMO-1003",title:"Alerte Enki — Risque de désengagement",origin:"Enki",priority:true,comment:"Faire le point sur l'intégration et le suivi en entreprise."},
-  {id:"demo-enki-04",contractId:"DEMO-1004",title:"Alerte Enki — Absences répétées aux activités synchrones",origin:"Enki",comment:"Vérifier le calendrier pédagogique et les justificatifs d’absence."},
-  {id:"demo-enki-05",contractId:"DEMO-1005",title:"Alerte Enki — Retard sur les évaluations",origin:"Enki",comment:"Identifier les freins avec le coordinateur pédagogique."},
+  {id:"demo-enki-04",contractId:"DEMO-1007",title:"Alerte Enki — Absences répétées aux activités synchrones",origin:"Enki",comment:"Vérifier le calendrier pédagogique et les justificatifs d’absence."},
+  {id:"demo-enki-05",contractId:"DEMO-1001",title:"Alerte Enki — Retard sur les évaluations",origin:"Enki",comment:"Identifier les freins avec le coordinateur pédagogique."},
   {id:"demo-enki-06",contractId:"DEMO-1007",title:"Alerte Enki — Participation pédagogique à vérifier",origin:"Enki",comment:"Vérifier l’assiduité avant prise de contact entreprise."},
   /* Dix tâches programmées du 21 octobre au 3 novembre 2026. */
   {id:"demo-task-next-01",contractId:"DEMO-1001",title:"Appeler Émilie Perrin pour le point M+1",date:"2026-10-21",minute:660,comment:"Préparer le bilan d’intégration de Léa Dubois."},
@@ -106,12 +107,12 @@ function sampleTasks(){
   /* Trois tâches passées et encore ouvertes. */
   {id:"demo-task-late-01",contractId:"DEMO-1006",title:"Relancer le maître d’apprentissage après son signalement",date:"2026-10-14",minute:600,priority:true},
   {id:"demo-task-late-02",contractId:"DEMO-1003",title:"Transmettre le compte rendu de l’entretien",date:"2026-10-19",minute:840},
-  {id:"demo-task-late-03",contractId:"DEMO-1005",title:"Vérifier la résolution de l’alerte entreprise",date:"2026-10-20",minute:570,priority:true}
+  {id:"demo-task-late-03",contractId:"DEMO-1007",title:"Vérifier la résolution de l’alerte entreprise",date:"2026-10-20",minute:570,priority:true}
  ];
  return rows.map(function(row){
   var contract=findContract(row.contractId);
   return Object.assign({kind:"task",date:null,minute:null,done:false,archived:false,
-   priority:false,origin:"Nabu",owner:"Alizée Mathou",person:contract?contract.apprentice:"",
+   priority:false,origin:"Nabu",owner:contract?contract.xpe:"Alizée Mathou",person:contract?contract.apprentice:"",
    company:contract?contract.company:"",maName:contract?contract.maName:"",
    contactEmail:contract?contract.maEmail:"",comment:""},row);
  });
@@ -135,6 +136,20 @@ function ensure(){
   var taskIds=new Set(items.map(function(it){return it.id}));
   sampleTasks().forEach(function(task){if(!taskIds.has(task.id))items.push(task)});
   write(TASK_DEMO_VERSION,true);
+ }
+ if(read(TASK_PORTFOLIO_VERSION)!==true){
+  var move={ "demo-enki-02":["DEMO-1002","DEMO-1006"],"demo-enki-04":["DEMO-1004","DEMO-1007"],
+    "demo-enki-05":["DEMO-1005","DEMO-1001"],"demo-task-late-03":["DEMO-1005","DEMO-1007"] };
+  items.forEach(function(it){
+   if(!it.id||!/^demo-(?:enki-|task-)/.test(it.id))return;
+   if(move[it.id]&&it.contractId===move[it.id][0])it.contractId=move[it.id][1];
+   var c=findContract(it.contractId);
+   if(c){
+    it.owner=c.xpe;
+    it.person=c.apprentice;it.company=c.company;it.maName=c.maName;it.contactEmail=c.maEmail;
+   }
+  });
+  write(TASK_PORTFOLIO_VERSION,true);
  }
  items.forEach(function(it){
   /* Enrichir aussi les événements déjà stockés dans le navigateur avant cette évolution. */
