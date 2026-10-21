@@ -618,7 +618,7 @@ if(out)body+='<div class="pop-source">Lecture seule · Synchronisé depuis Outlo
   if(t.bookerEmail&&t.matchStatus==="multiple"&&!hasContract)body+='<div class="contract-status warning">Plusieurs contrats correspondants : rattachement à vérifier.</div>';
   else if(t.bookerEmail&&t.matchStatus==="none"&&!hasContract)body+='<div class="contract-status warning">Contrat non identifié : rattachement manuel nécessaire.</div>';
   if(maContracts.length>1)body+='<button type="button" class="pop-contract-cta" data-popaction="openmacontracts">↗ Ouvrir les contrats liés ('+maContracts.length+')</button>';
-  else body+='<button type="button" class="pop-contract-cta" data-popaction="opencontract" '+(hasContract?'':'disabled title="Associer un contrat depuis le menu ⋯"')+'>↗ Ouvrir le contrat lié</button>';
+  else body+='<button type="button" class="pop-contract-cta" data-popaction="opencontract" '+(hasContract?'':'disabled title="Aucun contrat associé pour le moment"')+'>↗ Ouvrir le contrat lié</button>';
  }
  if(out&&!t.bookerEmail&&!hasContract&&t.attendees&&t.attendees.length)body+=unifiedInfoRow("Participants",t.attendees.join(", "),"♙");
  if(t.kind==="task"){
