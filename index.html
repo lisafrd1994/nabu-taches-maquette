@@ -155,6 +155,18 @@ body.task-is-dragging .task-drop-help{display:block}
 .popover .pop-contract-cta:hover{background:#ffe9ef}
 .popover .pop-contract-cta:disabled{background:#f4f6f8;color:#98a2ad;border-color:#e5e9ed;opacity:1;cursor:default}
 .popover .pop-context-options{position:absolute;top:9px;right:38px}
+.popover.task-popover h3{margin-right:88px}
+.pop-task-header-actions{position:absolute;top:9px;right:39px;display:flex;gap:4px;align-items:center}
+.pop-task-header-actions .task-icon-btn{width:27px;height:27px}
+.pop-task-schedule{border:1px solid #e7eaf0;border-radius:7px;padding:5px 10px;margin:5px 0 11px;background:#fafbfc}
+.pop-task-schedule .pop-row{margin:6px 0}
+.pop-priority-toggle{width:100%;border:1px solid #dfe4eb;border-radius:6px;background:#fff;color:#546575;padding:9px 10px;display:flex;gap:8px;align-items:center;text-align:left;font-size:11.5px;font-weight:650;cursor:pointer;margin:8px 0 11px}
+.pop-priority-toggle:hover:not(:disabled){border-color:#ddad74;background:#fffaf2}
+.pop-priority-toggle.active{border-color:#e6be81;background:#fff4e4;color:#9a5b17}
+.pop-priority-toggle:disabled{opacity:.55;cursor:default}
+.pop-priority-star{font-size:17px;line-height:1;color:#c58b43}
+.pop-task-contract-action{display:block;border:0;background:transparent;padding:8px 3px;margin:8px 0 0;color:#687788;text-decoration:underline;cursor:pointer;font-size:11px;font-weight:600}
+.pop-task-contract-action:hover{color:#ad2449}
 .popover .pop-overflow-button{height:27px;width:28px;display:grid;place-items:center;border:none;background:transparent;border-radius:5px;color:#667482;font-size:18px}
 .popover .pop-overflow-button:hover,.popover .pop-overflow-button[aria-expanded="true"]{background:#edf1f6}
 .popover .pop-overflow-menu{display:none;position:absolute;right:0;top:30px;width:185px;padding:5px;background:white;border:1px solid #dce3ea;border-radius:7px;box-shadow:0 9px 22px #1b2d3e28;z-index:2}
@@ -587,7 +599,12 @@ function openPopover(t,x,y){
  var subtitle=t.kind==="task"?"Tâche":"Événement";
  var when=t.date?fmtFull(t.date):"À planifier";
  if(t.minute!==null&&t.minute!==undefined)when+=" · "+time(t.minute)+(t.kind==="event"&&t.duration?"–"+time(t.minute+t.duration):"");
- var body='<h3>'+esc(t.title)+'</h3><p class="pop-summary">'+esc(subtitle)+' · '+esc(when)+'</p>';
+ var body='<h3>'+esc(t.title)+'</h3><p class="pop-summary">'+esc(subtitle)+(t.kind==="task"?'':' · '+esc(when))+'</p>';
+if(t.kind==="task"){
+ body+='<div class="pop-task-schedule">'+unifiedInfoRow("Date prévue",t.date?fmtFull(t.date):"À planifier","◷")+
+ unifiedInfoRow("Heure",typeof t.minute==="number"?time(t.minute):"Non définie","◷")+'</div>';
+ body+='<button type="button" class="pop-priority-toggle '+(t.priority?'active':'')+'" data-popaction="priority" aria-pressed="'+(t.priority?'true':'false')+'" '+(t.archived?'disabled':'')+'><span class="pop-priority-star" aria-hidden="true">'+(t.priority?'★':'☆')+'</span> <span class="pop-priority-label">'+(t.priority?'Importance élevée · activée':'Activer l’importance élevée')+'</span></button>';
+}
 if(out)body+='<div class="pop-source">Lecture seule · Synchronisé depuis Outlook'+(t.sourceDetail==="Calendly via Outlook"?' · Réservation Calendly':'')+'</div>';
  if(!out||t.bookerEmail||hasContract){
   body+=unifiedInfoRow("Apprenti",contact.apprentice,"♙");
@@ -604,15 +621,22 @@ if(out)body+='<div class="pop-source">Lecture seule · Synchronisé depuis Outlo
   else body+='<button type="button" class="pop-contract-cta" data-popaction="opencontract" '+(hasContract?'':'disabled title="Associer un contrat depuis le menu ⋯"')+'>↗ Ouvrir le contrat lié</button>';
  }
  if(out&&!t.bookerEmail&&!hasContract&&t.attendees&&t.attendees.length)body+=unifiedInfoRow("Participants",t.attendees.join(", "),"♙");
- body+='<div class="pop-context-options"><button type="button" class="pop-overflow-button" id="popOverflow" aria-label="Autres actions" aria-expanded="false" aria-controls="popOverflowMenu" title="Autres actions">⋯</button><div class="pop-overflow-menu" id="popOverflowMenu">';
- if(t.kind==="task"&&!t.archived)body+='<button type="button" data-popaction="toggle">'+(t.done?'↺ Réouvrir':'✓ Terminer')+'</button>';
- if(!t.archived&&!out)body+='<button type="button" data-popaction="edit">✎ Modifier</button>';
- if(t.kind==="task"&&!t.archived)body+='<button type="button" data-popaction="postpone">↗ Reporter</button>';
- if(t.kind==="task")body+='<button type="button" data-popaction="'+(t.archived?'restore':'archive')+'">'+(t.archived?'↶ Désarchiver':'Archiver')+'</button>';
- body+='<button type="button" data-popaction="linkcontract">'+(hasContract?'Changer le contrat (Nabu)':'Associer un contrat (Nabu)')+'</button>';
- body+='</div></div>';
+ if(t.kind==="task"){
+  body+='<div class="pop-task-header-actions">';
+  if(!t.archived){
+   body+='<button type="button" class="task-icon-btn" data-popaction="edit" title="Modifier la tâche" aria-label="Modifier la tâche">'+actionSvg("edit")+'</button>';
+   body+='<button type="button" class="task-icon-btn" data-popaction="archive" title="Archiver la tâche" aria-label="Archiver la tâche">'+actionSvg("archive")+'</button>';
+  }else body+='<button type="button" class="task-icon-btn" data-popaction="restore" title="Désarchiver la tâche" aria-label="Désarchiver la tâche">'+actionSvg("restore")+'</button>';
+  body+='</div>';
+  body+='<button type="button" class="pop-task-contract-action" data-popaction="linkcontract">'+(hasContract?'Changer le contrat associé':'Associer un contrat Nabu')+'</button>';
+ }else{
+  body+='<div class="pop-context-options"><button type="button" class="pop-overflow-button" id="popOverflow" aria-label="Autres actions" aria-expanded="false" aria-controls="popOverflowMenu" title="Autres actions">⋯</button><div class="pop-overflow-menu" id="popOverflowMenu">';
+  if(!out)body+='<button type="button" data-popaction="edit">✎ Modifier</button>';
+  body+='<button type="button" data-popaction="linkcontract">'+(hasContract?'Changer le contrat (Nabu)':'Associer un contrat (Nabu)')+'</button>';
+  body+='</div></div>';
+ }
  $('#popoverInner').innerHTML=body;
- var p=$('#popover');p.classList.add('open');
+ var p=$('#popover');p.classList.toggle('task-popover',t.kind==="task");p.classList.add('open');
  var rect=p.getBoundingClientRect();
  p.style.left=clamp(x+12,12,Math.max(12,window.innerWidth-rect.width-12))+'px';
  p.style.top=clamp(y+10,12,Math.max(12,window.innerHeight-rect.height-12))+'px';
@@ -622,9 +646,17 @@ if(out)body+='<div class="pop-source">Lecture seule · Synchronisé depuis Outlo
   t.comment=comment.value;persist();
  });
  var toggle=$('#popOverflow');
- toggle.onclick=function(e){e.stopPropagation();var menu=$('#popOverflowMenu'),open=!menu.classList.contains('open');menu.classList.toggle('open',open);toggle.setAttribute('aria-expanded',open?'true':'false')};
+ if(toggle)toggle.onclick=function(e){e.stopPropagation();var menu=$('#popOverflowMenu'),open=!menu.classList.contains('open');menu.classList.toggle('open',open);toggle.setAttribute('aria-expanded',open?'true':'false')};
  $('#popoverInner').querySelectorAll('[data-popaction]').forEach(function(btn){btn.onclick=function(){
-  var a=btn.dataset.popaction;hidePopover();
+  var a=btn.dataset.popaction;
+  if(a==="priority"){
+   t.priority=!t.priority;persist();renderAll();
+   btn.classList.toggle('active',!!t.priority);btn.setAttribute('aria-pressed',t.priority?'true':'false');
+   btn.querySelector('.pop-priority-star').textContent=t.priority?'★':'☆';
+   btn.querySelector('.pop-priority-label').textContent=t.priority?'Importance élevée · activée':'Activer l’importance élevée';
+   return;
+  }
+  hidePopover();
   if(a==="toggle"){t.done=!t.done;persist();renderAll();toast(t.done?"Tâche terminée":"Tâche réouverte")}
   else if(a==="edit")openModal(t.kind,t.date,t.minute,t);
   else if(a==="postpone")openModal("task",t.date,t.minute,t);
