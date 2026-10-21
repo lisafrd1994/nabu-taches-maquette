@@ -79,6 +79,44 @@ function defaultActivities(){
    La migration efface UNE SEULE FOIS les anciens items locaux (tâches, rdv,
    rappels Enki et réunions Outlook), puis laisse les créations ultérieures intactes.
    Les dossiers et l'historique d'activités restent disponibles. */
+/* Données de démonstration XPE ajoutées une seule fois au navigateur.
+   Six alertes Enki non planifiées, dix tâches à venir et trois en retard.
+   IDs stables : ne jamais restaurer une tâche supprimée par l'utilisateur. */
+var TASK_DEMO_VERSION="nabu-demo-xpe-19-tasks-oct2026-v1";
+function sampleTasks(){
+ var rows=[
+  /* Alertes Enki — sans date, disponibles dans « À planifier ». */
+  {id:"demo-enki-01",contractId:"DEMO-1001",title:"Alerte Enki — Absences en formation non justifiées",origin:"Enki",priority:true,comment:"Vérifier les absences remontées et contacter le maître d’apprentissage."},
+  {id:"demo-enki-02",contractId:"DEMO-1002",title:"Alerte Enki — Baisse de progression pédagogique",origin:"Enki",comment:"Prendre contact avec le CP avant d’organiser une action entreprise."},
+  {id:"demo-enki-03",contractId:"DEMO-1003",title:"Alerte Enki — Risque de désengagement",origin:"Enki",priority:true,comment:"Faire le point sur l'intégration et le suivi en entreprise."},
+  {id:"demo-enki-04",contractId:"DEMO-1004",title:"Alerte Enki — Absences répétées aux activités synchrones",origin:"Enki",comment:"Vérifier le calendrier pédagogique et les justificatifs d’absence."},
+  {id:"demo-enki-05",contractId:"DEMO-1005",title:"Alerte Enki — Retard sur les évaluations",origin:"Enki",comment:"Identifier les freins avec le coordinateur pédagogique."},
+  {id:"demo-enki-06",contractId:"DEMO-1007",title:"Alerte Enki — Participation pédagogique à vérifier",origin:"Enki",comment:"Vérifier l’assiduité avant prise de contact entreprise."},
+  /* Dix tâches programmées du 21 octobre au 3 novembre 2026. */
+  {id:"demo-task-next-01",contractId:"DEMO-1001",title:"Appeler Émilie Perrin pour le point M+1",date:"2026-10-21",minute:660,comment:"Préparer le bilan d’intégration de Léa Dubois."},
+  {id:"demo-task-next-02",contractId:"DEMO-1006",title:"Envoyer la synthèse de suivi à Sara Girard",date:"2026-10-22",minute:540},
+  {id:"demo-task-next-03",contractId:"DEMO-1003",title:"Faire le point avec Camille Rossi sur les missions",date:"2026-10-23",minute:660,priority:true},
+  {id:"demo-task-next-04",contractId:"DEMO-1005",title:"Contacter le CP au sujet de la progression",date:"2026-10-26",minute:840},
+  {id:"demo-task-next-05",contractId:"DEMO-1007",title:"Préparer l’entretien de prévention M+4",date:"2026-10-27",minute:570},
+  {id:"demo-task-next-06",contractId:"DEMO-1004",title:"Relancer le maître d’apprentissage pour un retour",date:"2026-10-28",minute:600},
+  {id:"demo-task-next-07",contractId:"DEMO-1002",title:"Vérifier les missions déclarées sur le contrat",date:"2026-10-29",minute:870},
+  {id:"demo-task-next-08",contractId:"DEMO-1001",title:"Confirmer la mise en place des actions convenues",date:"2026-10-30",minute:675},
+  {id:"demo-task-next-09",contractId:"DEMO-1006",title:"Faire un point de satisfaction avec l’entreprise",date:"2026-11-02",minute:900},
+  {id:"demo-task-next-10",contractId:"DEMO-1003",title:"Contrôler le retour du CP après signalement",date:"2026-11-03",minute:630},
+  /* Trois tâches passées et encore ouvertes. */
+  {id:"demo-task-late-01",contractId:"DEMO-1006",title:"Relancer le maître d’apprentissage après son signalement",date:"2026-10-14",minute:600,priority:true},
+  {id:"demo-task-late-02",contractId:"DEMO-1003",title:"Transmettre le compte rendu de l’entretien",date:"2026-10-19",minute:840},
+  {id:"demo-task-late-03",contractId:"DEMO-1005",title:"Vérifier la résolution de l’alerte entreprise",date:"2026-10-20",minute:570,priority:true}
+ ];
+ return rows.map(function(row){
+  var contract=findContract(row.contractId);
+  return Object.assign({kind:"task",date:null,minute:null,done:false,archived:false,
+   priority:false,origin:"Nabu",owner:"Alizée Mathou",person:contract?contract.apprentice:"",
+   company:contract?contract.company:"",maName:contract?contract.maName:"",
+   contactEmail:contract?contract.maEmail:"",comment:""},row);
+ });
+}
+
 var CLEAN_AGENDA_KEY="nabu-demo-clean-agenda-20261020-v1";
 function ensure(){
  var items=read(ITEMS_KEY);
@@ -92,6 +130,11 @@ function ensure(){
   var ids=new Set(items.map(function(it){return it.id}));
   outlookDemoEvents().forEach(function(evt){if(!ids.has(evt.id))items.push(evt)});
   write(EVENT_DEMO_VERSION,true);
+ }
+ if(read(TASK_DEMO_VERSION)!==true){
+  var taskIds=new Set(items.map(function(it){return it.id}));
+  sampleTasks().forEach(function(task){if(!taskIds.has(task.id))items.push(task)});
+  write(TASK_DEMO_VERSION,true);
  }
  items.forEach(function(it){
   /* Enrichir aussi les événements déjà stockés dans le navigateur avant cette évolution. */
